@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 import type { AppState } from '@/types'
 import { ENGINE_META } from '@/types'
@@ -14,6 +14,12 @@ interface Props {
 
 export function Dashboard({ state, dispatch }: Props) {
   const [search, setSearch] = useState('')
+  const dateRange = useMemo(() => {
+    const now = new Date()
+    const start = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
+    const end = new Date(now.getTime() + 6 * 86400000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    return `${start} — ${end}`
+  }, [])
 
   // Generate tasks if none exist for current week
   useEffect(() => {
@@ -96,7 +102,7 @@ export function Dashboard({ state, dispatch }: Props) {
             Week {state.currentWeekId.split('-W')[1]} Command Center
           </h1>
           <p className="text-[var(--color-ink-body)] mt-1">
-            {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} — {new Date(Date.now() + 6 * 86400000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            {dateRange}
           </p>
         </div>
         <div className="flex items-center gap-4">

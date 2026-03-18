@@ -17,6 +17,7 @@ export function useSubscription(userId?: string): SubscriptionState {
   const [tier, setTier] = useState<SubscriptionTier>('free')
   const [loading, setLoading] = useState(true)
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!userId) {
       setTier('free')
@@ -57,6 +58,7 @@ export function useSubscription(userId?: string): SubscriptionState {
       supabase.removeChannel(channel)
     }
   }, [userId])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const isPro = tier === 'pro'
 

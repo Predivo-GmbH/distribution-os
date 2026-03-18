@@ -206,6 +206,7 @@ export class SupabaseAdapter implements DataAdapter {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async saveAppState(_state: AppState): Promise<void> {
     // Supabase uses granular operations, not full-state saves
   }

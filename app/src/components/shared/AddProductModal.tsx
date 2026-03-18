@@ -37,7 +37,8 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
   const [primaryEngine, setPrimaryEngine] = useState<Engine>('pull')
   const [secondaryEngines, setSecondaryEngines] = useState<Engine[]>([])
 
-  // Pre-fill when editing
+  // Pre-fill when editing — setState in effect is intentional here to sync form with prop
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (editProduct) {
       setName(editProduct.name)
@@ -55,6 +56,7 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
       setSecondaryEngines([])
     }
   }, [editProduct, open])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleEscape = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') onClose()
