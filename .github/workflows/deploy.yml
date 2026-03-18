@@ -2,7 +2,7 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [main]
+    branches: [master]
 
 jobs:
   deploy:
@@ -44,21 +44,21 @@ jobs:
           # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
           lftp -e "
             $FTP_CONN
-            mirror --reverse --no-perms --verbose ./app/dist/assets/ /distributionos.predivo.ch/assets/;
+            mirror --reverse --no-perms --verbose ./app/dist/assets/ /DistributionOS.predivo.ch/assets/;
             quit;
           "
 
           # Step 2: Upload index.html + root files (switches to new asset references)
           lftp -e "
             $FTP_CONN
-            put ./app/dist/index.html -o /distributionos.predivo.ch/index.html;
-            put ./app/dist/.htaccess -o /distributionos.predivo.ch/.htaccess;
+            put ./app/dist/index.html -o /DistributionOS.predivo.ch/index.html;
+            put ./app/dist/.htaccess -o /DistributionOS.predivo.ch/.htaccess;
             quit;
           "
 
           # Step 3: Clean up stale assets no longer in the new build
           lftp -e "
             $FTP_CONN
-            mirror --reverse --delete --no-perms --verbose ./app/dist/assets/ /distributionos.predivo.ch/assets/;
+            mirror --reverse --delete --no-perms --verbose ./app/dist/assets/ /DistributionOS.predivo.ch/assets/;
             quit;
           "
