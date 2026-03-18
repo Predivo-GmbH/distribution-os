@@ -53,6 +53,7 @@ jobs:
             $FTP_CONN
             put ./app/dist/index.html -o /DistributionOS.predivo.ch/index.html;
             put ./app/dist/.htaccess -o /DistributionOS.predivo.ch/.htaccess;
+            put ./app/dist/favicon.svg -o /DistributionOS.predivo.ch/favicon.svg;
             quit;
           "
 
