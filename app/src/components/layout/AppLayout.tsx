@@ -1,0 +1,127 @@
+import type { ReactNode } from 'react'
+import { NavLink } from 'react-router-dom'
+import { LayoutDashboard, Package, Settings, BookOpen } from 'lucide-react'
+import type { Product } from '@/types'
+import { ENGINE_META } from '@/types'
+import { cn } from '@/lib/utils'
+
+interface Props {
+  children: ReactNode
+  products: Product[]
+  showBriefingBadge?: boolean
+}
+
+const NAV_ITEMS = [
+  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/products', icon: Package, label: 'Products' },
+  { to: '/settings', icon: Settings, label: 'Settings' },
+]
+
+export function AppLayout({ children, products, showBriefingBadge }: Props) {
+  // Collect active engines from all products
+  const activeEngines = [...new Set(products.flatMap(p => [p.primaryEngine, ...p.secondaryEngines]))]
+
+  return (
+    <div className="flex min-h-dvh">
+      {/* Sidebar */}
+      <aside className="w-[var(--sidebar-width)] shrink-0 bg-[var(--color-surface-sidebar)] border-r border-[var(--color-edge)] flex flex-col">
+        {/* Logo */}
+        <div className="flex items-center gap-2.5 px-5 h-14 border-b border-[var(--color-edge)]">
+          <div className="w-8 h-8 rounded-lg bg-[var(--color-accent)] flex items-center justify-center">
+            <div className="flex flex-col items-end gap-[3px]">
+              <div className="w-[11px] h-[4px] rounded-sm bg-white" />
+              <div className="w-[17px] h-[4px] rounded-sm bg-white/80" />
+              <div className="w-[22px] h-[4px] rounded-sm bg-white/60" />
+            </div>
+          </div>
+          <span className="font-semibold text-[var(--color-ink)] text-sm tracking-tight">
+            Distribution OS
+          </span>
+        </div>
+
+        {/* Primary navigation */}
+        <nav className="flex flex-col gap-1 px-3 py-4">
+          {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/'}
+              className={({ isActive }) =>
+                cn(
+                  'flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors',
+                  isActive
+                    ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-text)] font-medium'
+                    : 'text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)]'
+                )
+              }
+            >
+              <Icon size={16} strokeWidth={1.5} />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Engine section */}
+        {activeEngines.length > 0 && (
+          <div className="px-3 py-2">
+            <p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
+              Engines
+            </p>
+            <div className="flex flex-col gap-0.5">
+              {activeEngines.map(engine => (
+                <div
+                  key={engine}
+                  className="flex items-center gap-2 px-3 py-1.5 text-sm text-[var(--color-ink-body)]"
+                >
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: ENGINE_META[engine].color }}
+                  />
+                  {ENGINE_META[engine].label}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Resources section — separated from primary nav */}
+        <div className="px-3 pb-4">
+          <div className="border-t border-[var(--color-edge)] pt-3 mb-1">
+            <p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
+              Resources
+            </p>
+          </div>
+          <NavLink
+            to="/briefing"
+            className={({ isActive }) =>
+              cn(
+                'flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors',
+                isActive
+                  ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-text)] font-medium'
+                  : 'text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)]'
+              )
+            }
+          >
+            <BookOpen size={16} strokeWidth={1.5} />
+            Briefing Room
+            {showBriefingBadge && (
+              <span className="ml-auto px-1.5 py-0.5 rounded text-[10px] font-bold bg-[var(--color-accent)] text-white leading-none">
+                NEW
+              </span>
+            )}
+          </NavLink>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 min-w-0 overflow-y-auto">
+        <div className="max-w-[1200px] mx-auto px-8 py-8">
+          {children}
+        </div>
+      </main>
+    </div>
+  )
+}

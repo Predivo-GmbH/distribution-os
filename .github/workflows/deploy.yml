@@ -1,0 +1,64 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - run: npm ci
+        working-directory: app
+
+      - name: Lint
+        run: npm run lint
+        working-directory: app
+
+      - name: Type Check
+        run: npx tsc --noEmit
+        working-directory: app
+
+      - name: Build
+        run: npm run build
+        working-directory: app
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
+
+      - name: Deploy via FTP (zero-downtime)
+        run: |
+          sudo apt-get install -y lftp
+          FTP_CONN="set ftp:ssl-allow no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5; open -u ${{ secrets.FTP_USER }},${{ secrets.FTP_PASS }} ${{ secrets.FTP_HOST }};"
+
+          # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
+          lftp -e "
+            $FTP_CONN
+            mirror --reverse --no-perms --verbose ./app/dist/assets/ /distributionos.predivo.ch/assets/;
+            quit;
+          "
+
+          # Step 2: Upload index.html + root files (switches to new asset references)
+          lftp -e "
+            $FTP_CONN
+            put ./app/dist/index.html -o /distributionos.predivo.ch/index.html;
+            put ./app/dist/.htaccess -o /distributionos.predivo.ch/.htaccess;
+            quit;
+          "
+
+          # Step 3: Clean up stale assets no longer in the new build
+          lftp -e "
+            $FTP_CONN
+            mirror --reverse --delete --no-perms --verbose ./app/dist/assets/ /distributionos.predivo.ch/assets/;
+            quit;
+          "

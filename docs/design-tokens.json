@@ -1,0 +1,476 @@
+{
+  "$schema": "https://predivo.ch/schemas/design-tokens/v1",
+  "$description": "Canonical design tokens for Predivo Distribution OS. Single source of truth — all other design docs derive from this file.",
+  "$version": "1.0.0",
+  "$lastAudit": "2026-03-12",
+
+  "color": {
+    "$description": "All colors. Dual-mode (light + dark). Use CSS variables or Tailwind tokens — never hardcode hex in components.",
+
+    "ink": {
+      "$description": "Text colors, ordered by emphasis. Neutral slate grays for maximum readability on both light and dark surfaces.",
+      "default": {
+        "light": { "$value": "#0F172A", "$tailwind": "text-ink" },
+        "dark":  { "$value": "#F8FAFC", "$tailwind": "dark:text-ink" },
+        "$description": "Primary text, headings — near-black (light) / near-white (dark)"
+      },
+      "sub": {
+        "light": { "$value": "#1E293B", "$tailwind": "text-ink-sub" },
+        "dark":  { "$value": "#E2E8F0", "$tailwind": "dark:text-ink-sub" },
+        "$description": "Subheadings, secondary emphasis"
+      },
+      "body": {
+        "light": { "$value": "#475569", "$tailwind": "text-ink-body" },
+        "dark":  { "$value": "#CBD5E1", "$tailwind": "dark:text-ink-body" },
+        "$description": "Body text, paragraph content"
+      },
+      "muted": {
+        "light": { "$value": "#64748B", "$tailwind": "text-ink-muted" },
+        "dark":  { "$value": "#94A3B8", "$tailwind": "dark:text-ink-muted" },
+        "$description": "Captions, placeholders, helper text, inactive icons"
+      },
+      "inverted": {
+        "light": { "$value": "#FFFFFF", "$tailwind": "text-ink-inverted" },
+        "dark":  { "$value": "#0F172A", "$tailwind": "dark:text-ink-inverted" },
+        "$description": "Text on filled accent buttons"
+      }
+    },
+
+    "surface": {
+      "$description": "Background colors. Light mode: indigo-tinted page with white cards (Stripe pattern). Dark mode: deep indigo base with subtle slate cards.",
+      "default": {
+        "light": { "$value": "#FFFFFF", "$tailwind": "bg-surface" },
+        "dark":  { "$value": "#1E293B", "$tailwind": "dark:bg-surface" },
+        "$description": "Card backgrounds, content areas"
+      },
+      "page": {
+        "light": { "$value": "#EEF2FF", "$tailwind": "bg-surface-page" },
+        "dark":  { "$value": "#1E1B4B", "$tailwind": "dark:bg-surface-page" },
+        "$description": "Page background — soft indigo tint (light), deep indigo (dark)"
+      },
+      "alt": {
+        "light": { "$value": "#E0E7FF", "$tailwind": "bg-surface-alt" },
+        "dark":  { "$value": "#312E81", "$tailwind": "dark:bg-surface-alt" },
+        "$description": "Alternate sections, highlighted areas"
+      },
+      "hover": {
+        "light": { "$value": "#F1F5F9", "$tailwind": "bg-surface-hover" },
+        "dark":  { "$value": "#334155", "$tailwind": "dark:bg-surface-hover" },
+        "$description": "Row hover, interactive element hover"
+      },
+      "sidebar": {
+        "light": { "$value": "#FFFFFF", "$tailwind": "bg-surface-sidebar" },
+        "dark":  { "$value": "#0F172A", "$tailwind": "dark:bg-surface-sidebar" },
+        "$description": "Sidebar background"
+      },
+      "raised": {
+        "light": { "$value": "#FFFFFF", "$tailwind": "bg-surface-raised" },
+        "dark":  { "$value": "#1E293B", "$tailwind": "dark:bg-surface-raised" },
+        "$description": "Elevated surfaces (modals, dropdowns)"
+      }
+    },
+
+    "edge": {
+      "$description": "Border and divider colors. Light mode: border-first (no shadows on cards). Dark mode: subtle borders with optional elevation.",
+      "default": {
+        "light": { "$value": "#E2E8F0", "$tailwind": "border-edge" },
+        "dark":  { "$value": "#334155", "$tailwind": "dark:border-edge" },
+        "$description": "Default card and container borders"
+      },
+      "subtle": {
+        "light": { "$value": "#F1F5F9", "$tailwind": "border-edge-subtle" },
+        "dark":  { "$value": "#1E293B", "$tailwind": "dark:border-edge-subtle" },
+        "$description": "Row dividers, separators"
+      },
+      "outline": {
+        "light": { "$value": "#CBD5E1", "$tailwind": "border-edge-outline" },
+        "dark":  { "$value": "#475569", "$tailwind": "dark:border-edge-outline" },
+        "$description": "Input borders, outline button borders"
+      },
+      "focus": {
+        "light": { "$value": "#6366F1", "$tailwind": "ring-edge-focus" },
+        "dark":  { "$value": "#818CF8", "$tailwind": "dark:ring-edge-focus" },
+        "$description": "Focus ring color — accent-matched"
+      }
+    },
+
+    "accent": {
+      "$description": "Brand accent — Electric Indigo. High-energy SaaS tone, strong contrast on both light and dark surfaces.",
+      "default": {
+        "light": { "$value": "#6366F1" },
+        "dark":  { "$value": "#818CF8" },
+        "$description": "Primary accent — links, focus rings, active nav, CTAs"
+      },
+      "hover": {
+        "light": { "$value": "#4F46E5" },
+        "dark":  { "$value": "#6366F1" },
+        "$description": "Hover state — deeper accent"
+      },
+      "muted": {
+        "light": { "$value": "#A5B4FC" },
+        "dark":  { "$value": "#6366F1" },
+        "$description": "Muted accent for badges, secondary indicators"
+      },
+      "light": {
+        "light": { "$value": "#EEF2FF" },
+        "dark":  { "$value": "#312E81" },
+        "$description": "Light accent backgrounds — selected rows, active tabs"
+      },
+      "text": {
+        "light": { "$value": "#4F46E5" },
+        "dark":  { "$value": "#A5B4FC" },
+        "$description": "Accent-colored text for links, active states"
+      }
+    },
+
+    "status": {
+      "$description": "Semantic status colors with light/dark variants. Used for alerts, badges, inline feedback.",
+      "success": {
+        "light": { "$value": "#22C55E", "bg": "#F0FDF4" },
+        "dark":  { "$value": "#4ADE80", "bg": "#052E16" },
+        "$description": "Complete, verified, healthy"
+      },
+      "warning": {
+        "light": { "$value": "#F59E0B", "bg": "#FFFBEB" },
+        "dark":  { "$value": "#FBBF24", "bg": "#451A03" },
+        "$description": "Needs attention, degraded, pending"
+      },
+      "error": {
+        "light": { "$value": "#EF4444", "bg": "#FEF2F2" },
+        "dark":  { "$value": "#F87171", "bg": "#450A0A" },
+        "$description": "Failed, blocked, critical"
+      },
+      "info": {
+        "light": { "$value": "#0EA5E9", "bg": "#F0F9FF" },
+        "dark":  { "$value": "#38BDF8", "bg": "#0C4A6E" },
+        "$description": "Informational, neutral highlight"
+      }
+    },
+
+    "engine": {
+      "$description": "Distribution engine identity colors. Each engine has a primary, light background, and dark background variant.",
+      "pull": {
+        "$label": "Pull (SEO / Organic)",
+        "primary":  "#10B981",
+        "light":    "#D1FAE5",
+        "dark":     "#064E3B",
+        "$description": "Emerald — organic growth, search-driven inbound"
+      },
+      "push": {
+        "$label": "Push (Waitlist / Outbound)",
+        "primary":  "#8B5CF6",
+        "light":    "#EDE9FE",
+        "dark":     "#4C1D95",
+        "$description": "Violet — proactive outreach, waitlist campaigns"
+      },
+      "bridge": {
+        "$label": "Bridge (Connectors / Integrations)",
+        "primary":  "#F59E0B",
+        "light":    "#FEF3C7",
+        "dark":     "#78350F",
+        "$description": "Amber — linking systems, partnerships, API connectors"
+      },
+      "search": {
+        "$label": "Search (Google / Paid Discovery)",
+        "primary":  "#0EA5E9",
+        "light":    "#E0F2FE",
+        "dark":     "#0C4A6E",
+        "$description": "Sky — paid search, discovery channels"
+      },
+      "equity": {
+        "$label": "Equity (Partners / Brand)",
+        "primary":  "#F43F5E",
+        "light":    "#FFE4E6",
+        "dark":     "#881337",
+        "$description": "Rose — co-marketing, affiliate, brand equity"
+      },
+      "persistence": {
+        "$label": "Persistence (Retention / Lifecycle)",
+        "primary":  "#64748B",
+        "light":    "#F1F5F9",
+        "dark":     "#1E293B",
+        "$description": "Slate — steady-state retention, drip, lifecycle"
+      }
+    },
+
+    "button": {
+      "$description": "Button-specific colors for both modes.",
+      "primary-bg": {
+        "light": { "$value": "#6366F1" },
+        "dark":  { "$value": "#6366F1" },
+        "$description": "Primary CTA background — accent color"
+      },
+      "primary-text": {
+        "light": { "$value": "#FFFFFF" },
+        "dark":  { "$value": "#FFFFFF" },
+        "$description": "Primary CTA text — always white on indigo"
+      },
+      "primary-hover": {
+        "light": { "$value": "#4F46E5" },
+        "dark":  { "$value": "#4F46E5" },
+        "$description": "Primary CTA hover"
+      },
+      "secondary-bg": {
+        "light": { "$value": "#FFFFFF" },
+        "dark":  { "$value": "#1E293B" },
+        "$description": "Secondary/outline button background"
+      },
+      "secondary-text": {
+        "light": { "$value": "#4F46E5" },
+        "dark":  { "$value": "#A5B4FC" },
+        "$description": "Secondary button text — accent colored"
+      },
+      "secondary-border": {
+        "light": { "$value": "#E2E8F0" },
+        "dark":  { "$value": "#475569" },
+        "$description": "Secondary button border"
+      },
+      "destructive-bg": {
+        "light": { "$value": "#EF4444" },
+        "dark":  { "$value": "#DC2626" },
+        "$description": "Destructive action background"
+      },
+      "destructive-text": {
+        "light": { "$value": "#FFFFFF" },
+        "dark":  { "$value": "#FFFFFF" },
+        "$description": "Destructive action text"
+      },
+      "ghost-hover": {
+        "light": { "$value": "#F1F5F9" },
+        "dark":  { "$value": "#334155" },
+        "$description": "Ghost button hover background"
+      }
+    },
+
+    "confidence": {
+      "$description": "Score confidence indicators for distribution health metrics. Dots + progress bars.",
+      "high": {
+        "light": { "$value": "#22C55E", "bg": "#F0FDF4" },
+        "dark":  { "$value": "#4ADE80", "bg": "#052E16" },
+        "$description": "Green — strong performance (>80%)"
+      },
+      "medium": {
+        "light": { "$value": "#F59E0B", "bg": "#FFFBEB" },
+        "dark":  { "$value": "#FBBF24", "bg": "#451A03" },
+        "$description": "Amber — moderate performance (40–80%), actionable"
+      },
+      "low": {
+        "light": { "$value": "#EF4444", "bg": "#FEF2F2" },
+        "dark":  { "$value": "#F87171", "bg": "#450A0A" },
+        "$description": "Red — weak performance (<40%), needs intervention"
+      }
+    },
+
+    "progress": {
+      "$description": "Progress bar and metric visualization colors.",
+      "track": {
+        "light": { "$value": "#E2E8F0" },
+        "dark":  { "$value": "#334155" },
+        "$description": "Progress bar background track"
+      },
+      "fill": {
+        "light": { "$value": "#6366F1" },
+        "dark":  { "$value": "#818CF8" },
+        "$description": "Default progress bar fill — accent"
+      },
+      "fill-success": {
+        "light": { "$value": "#22C55E" },
+        "dark":  { "$value": "#4ADE80" },
+        "$description": "Completed / target-met fill"
+      }
+    }
+  },
+
+  "typography": {
+    "fontFamily": {
+      "sans":  { "$value": "'Inter', system-ui, -apple-system, sans-serif", "$description": "Primary UI font — clean, neutral, widely supported" },
+      "mono":  { "$value": "'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace", "$description": "Scores, percentages, KPI numbers, code snippets" }
+    },
+
+    "scale": {
+      "$description": "Stripe-influenced: consistent 14px body, hierarchy through weight and color. Fey-style large display metrics.",
+      "display":      { "size": "2.25rem",   "lineHeight": "1.1",  "letterSpacing": "-0.025em", "fontWeight": 700, "$description": "Hero score metrics, KPI highlights — Fey-inspired large numbers" },
+      "heading-1":    { "size": "1.5rem",    "lineHeight": "1.2",  "letterSpacing": "-0.015em", "fontWeight": 600, "$description": "Page titles" },
+      "heading-2":    { "size": "1.25rem",   "lineHeight": "1.3",  "letterSpacing": "-0.01em",  "fontWeight": 600, "$description": "Section titles, engine headings" },
+      "heading-3":    { "size": "1rem",      "lineHeight": "1.4",  "letterSpacing": "0",        "fontWeight": 600, "$description": "Card titles, subsections" },
+      "body-lg":      { "size": "0.9375rem", "lineHeight": "1.5",  "letterSpacing": "0",        "fontWeight": 400, "$description": "Large body text, descriptions" },
+      "body":         { "size": "0.875rem",  "lineHeight": "1.5",  "letterSpacing": "0",        "fontWeight": 400, "$description": "Default body — 14px like Stripe" },
+      "body-sm":      { "size": "0.8125rem", "lineHeight": "1.5",  "letterSpacing": "0",        "fontWeight": 400, "$description": "Secondary text, table cells" },
+      "caption":      { "size": "0.75rem",   "lineHeight": "1.4",  "letterSpacing": "0.01em",   "fontWeight": 500, "$description": "Small labels, helper text, timestamps" },
+      "micro-label":  { "size": "0.6875rem", "lineHeight": "1.3",  "letterSpacing": "0.05em",   "fontWeight": 600, "textTransform": "uppercase", "$description": "Uppercase section labels, engine tags — Stripe pattern" },
+      "mono-display": { "size": "2rem",      "lineHeight": "1.1",  "letterSpacing": "-0.02em",  "fontWeight": 700, "fontFamily": "mono", "$description": "Large mono numbers — distribution scores, percentages" },
+      "mono-body":    { "size": "0.875rem",  "lineHeight": "1.5",  "letterSpacing": "0",        "fontWeight": 400, "fontFamily": "mono", "$description": "Inline metrics, score values in tables" }
+    }
+  },
+
+  "layout": {
+    "container": {
+      "maxWidth": "1440px",
+      "padding": {
+        "mobile":  "16px",
+        "tablet":  "24px",
+        "desktop": "32px",
+        "wide":    "40px"
+      }
+    },
+    "sidebar": {
+      "width": "240px",
+      "collapsedWidth": "64px",
+      "$description": "Fixed left sidebar — grouped nav with engine sections and uppercase section labels"
+    },
+    "navbar": { "height": "0px", "$description": "No top navbar — sidebar-only navigation (Stripe pattern)" },
+    "section": {
+      "verticalPadding": "24-32px",
+      "gap": "24px",
+      "$description": "Kraken-style generous vertical rhythm for dashboard sections"
+    },
+    "grid": {
+      "columns": { "mobile": 1, "tablet": 2, "desktop": 3, "wide": 4 },
+      "gap": "20px",
+      "$description": "Metric card grid — responsive from 1 to 4 columns"
+    },
+    "metricCard": {
+      "minWidth": "280px",
+      "padding": "20px",
+      "$description": "Fey-style metric cards with score, sparkline, and engine color accent"
+    },
+    "breakpoints": {
+      "mobile":  "375px",
+      "tablet":  "768px",
+      "desktop": "1024px",
+      "wide":    "1440px"
+    }
+  },
+
+  "borderRadius": {
+    "base": { "$value": "0.5rem",    "$computed": "8px", "$description": "CSS --radius variable" },
+    "lg":   { "$value": "12px",  "$description": "Cards, containers, modals" },
+    "md":   { "$value": "8px",   "$description": "Buttons, inputs — NOT full pill" },
+    "sm":   { "$value": "6px",   "$description": "Small elements, badges, tags" },
+    "xs":   { "$value": "4px",   "$description": "Inline code blocks, micro-badges" },
+    "pill": { "$value": "9999px", "$description": "Filter chips, engine color dots — NOT for primary CTAs" }
+  },
+
+  "shadow": {
+    "$description": "Light mode: border-first, minimal shadows. Dark mode: subtle elevation for card separation on deep backgrounds.",
+    "light": {
+      "none":     { "$value": "none", "$description": "Cards — NEVER apply shadow in light mode, use border instead" },
+      "sm":       { "$value": "0 1px 2px rgba(0,0,0,0.04)", "$description": "Dropdown menus, tooltips" },
+      "md":       { "$value": "0 4px 8px -2px rgba(0,0,0,0.06), 0 2px 4px -2px rgba(0,0,0,0.03)", "$description": "Command palette, popovers" },
+      "lg":       { "$value": "0 12px 24px -4px rgba(0,0,0,0.08), 0 4px 8px -2px rgba(0,0,0,0.03)", "$description": "Modal dialogs" }
+    },
+    "dark": {
+      "none":     { "$value": "none", "$description": "Flat surfaces on the deepest background" },
+      "subtle":   { "$value": "0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2)", "$description": "Cards — subtle lift from deep dark surface" },
+      "md":       { "$value": "0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3)", "$description": "Dropdowns, command palette" },
+      "lg":       { "$value": "0 12px 32px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.3)", "$description": "Modal dialogs" },
+      "glow":     { "$value": "0 0 20px rgba(99,102,241,0.15)", "$description": "Accent glow for focused/active metric cards" }
+    }
+  },
+
+  "animation": {
+    "duration": {
+      "instant":   "50ms",
+      "fast":      "150ms",
+      "normal":    "250ms",
+      "slow":      "400ms",
+      "entrance":  "500ms",
+      "$description": "Duration scale — fast micro-interactions, slower page transitions"
+    },
+    "easing": {
+      "default":     "cubic-bezier(0.25, 0.1, 0.25, 1)",
+      "easeOut":     "cubic-bezier(0, 0, 0.2, 1)",
+      "easeIn":      "cubic-bezier(0.4, 0, 1, 1)",
+      "spring":      "cubic-bezier(0.34, 1.56, 0.64, 1)",
+      "$description": "Easing curves — spring for playful interactions (score reveals), default for standard transitions"
+    },
+    "entrance": {
+      "fadeUp": { "duration": "400ms", "translate": "16px", "easing": "easeOut" },
+      "fadeIn":  { "duration": "250ms", "easing": "easeOut" },
+      "scaleIn": { "duration": "300ms", "scale": "0.95", "easing": "spring" },
+      "$description": "Page and card entrance animations"
+    },
+    "stagger": {
+      "children": "0.06s",
+      "cards":    "0.08s",
+      "$description": "Stagger delay for sequential metric card reveals"
+    },
+    "transition": {
+      "color":            "150ms",
+      "background":       "150ms",
+      "buttonPress":      "50ms",
+      "sidebarCollapse":  "200ms",
+      "scoreCount":       "800ms",
+      "$description": "Specific transition durations by interaction type"
+    },
+    "score": {
+      "countUp":    { "duration": "800ms", "easing": "easeOut" },
+      "sparkline":  { "duration": "600ms", "easing": "easeOut" },
+      "progressBar": { "duration": "500ms", "easing": "easeOut" },
+      "$description": "Score and data visualization animations — count-up numbers, sparkline draw-in"
+    }
+  },
+
+  "icons": {
+    "library": "lucide-react",
+    "defaultSize": "16px",
+    "navSize": "18px",
+    "heroSize": "24px",
+    "strokeWidth": 1.5,
+    "$description": "Lucide icons throughout. 16px body, 18px nav, 24px hero/empty states. 1.5 stroke for clarity."
+  },
+
+  "decisions": {
+    "$description": "Key design decisions with rationale. Reference these when building components or reviewing designs.",
+    "1": {
+      "topic": "Accent color — Electric Indigo #6366F1",
+      "choice": "#6366F1 as primary, #4F46E5 hover, #A5B4FC muted",
+      "rationale": "High-energy SaaS identity. Distinct from BelegPilot's teal. Indigo conveys intelligence and ambition — fitting for a distribution intelligence product. Strong contrast on both white and dark surfaces."
+    },
+    "2": {
+      "topic": "Dual-mode: border-first (light) + elevation (dark)",
+      "choice": "No card shadows in light mode; subtle elevation shadows in dark mode",
+      "rationale": "Light mode follows Stripe's border-first philosophy for crispness. Dark mode needs subtle elevation because border contrast is lower on dark surfaces — a pure border approach looks flat."
+    },
+    "3": {
+      "topic": "Engine color system — 6 distinct hues",
+      "choice": "Emerald, violet, amber, sky, rose, slate — one per distribution engine",
+      "rationale": "Each engine is instantly identifiable by color alone. Colors chosen to be perceptually distinct, colorblind-accessible in primary form, and with dedicated light/dark background variants for chip and card usage."
+    },
+    "4": {
+      "topic": "Fonts — Inter (UI) + JetBrains Mono (data)",
+      "choice": "Inter for all UI text, JetBrains Mono for scores, percentages, and KPI numbers",
+      "rationale": "Inter is the established SaaS standard — familiar, legible, excellent at 14px. JetBrains Mono provides tabular numerals critical for score alignment in metric cards and tables."
+    },
+    "5": {
+      "topic": "Page background — indigo-tinted, not flat white",
+      "choice": "#EEF2FF (light), #1E1B4B (dark)",
+      "rationale": "Soft indigo tint in light mode creates depth between page and white cards (Kraken influence). Dark mode uses deep indigo rather than pure black for brand cohesion."
+    },
+    "6": {
+      "topic": "Body font size — 14px baseline",
+      "choice": "0.875rem (14px) as default body",
+      "rationale": "Stripe standard. Data-dense dashboards need compact text. Hierarchy achieved through weight (400/500/600/700) and color (ink.default through ink.muted), not size jumps."
+    },
+    "7": {
+      "topic": "Button radius — 8px, not pill",
+      "choice": "border-radius: 8px (rounded-md)",
+      "rationale": "Subtle rounded corners convey professionalism. Pill-shaped buttons signal consumer products — wrong tone for a B2B distribution intelligence tool."
+    },
+    "8": {
+      "topic": "Metric card design — Fey-inspired",
+      "choice": "280px min-width cards with engine color accent, large mono score, sparkline",
+      "rationale": "Fey's metric card pattern (large number + trend + context) is ideal for distribution scores. Engine color appears as a left border or top accent stripe for instant channel identification."
+    },
+    "9": {
+      "topic": "Score animation — count-up with spring easing",
+      "choice": "800ms count-up with easeOut, sparkline draw-in at 600ms",
+      "rationale": "Animated score reveals create perceived value and engagement. Spring easing adds slight overshoot for a satisfying feel without being distracting."
+    },
+    "10": {
+      "topic": "Sidebar — 240px with engine grouping",
+      "choice": "240px sidebar (collapsible to 64px icon rail), grouped by engine",
+      "rationale": "Wider than BelegPilot's 220px to accommodate engine names with color dots. Uppercase micro-label section headers (Stripe pattern) create clear navigation hierarchy."
+    }
+  }
+}
