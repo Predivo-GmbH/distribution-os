@@ -21,11 +21,10 @@ const NAV_ITEMS = [
 ]
 
 export function AppLayout({ children, products, showBriefingBadge }: Props) {
-  const [inboxCount, setInboxCount] = useState(0)
+  const [inboxCount, setInboxCount] = useState(() => getPendingCount())
 
-  // Poll inbox count every 30s + on mount
+  // Poll inbox count every 30s
   useEffect(() => {
-    setInboxCount(getPendingCount())
     const interval = setInterval(() => setInboxCount(getPendingCount()), 30000)
     return () => clearInterval(interval)
   }, [])

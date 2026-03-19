@@ -20,17 +20,19 @@ const TONE_OPTIONS: { key: keyof KnowledgeBaseTone; labelA: string; labelB: stri
 
 export function KnowledgeBaseTab({ state }: Props) {
   const [selectedProductId, setSelectedProductId] = useState<string>(state.products[0]?.id ?? '')
-  const [kb, setKb] = useState<KnowledgeBase>(defaultKnowledgeBase())
+  const [kb, setKb] = useState<KnowledgeBase>(() =>
+    state.products[0]?.id ? loadKnowledgeBase(state.products[0].id) : defaultKnowledgeBase()
+  )
   const [expandedSections, setExpandedSections] = useState<Set<Section>>(new Set(['voice', 'icp', 'positioning', 'tone']))
   const [saved, setSaved] = useState(false)
   const [newExample, setNewExample] = useState('')
 
-  // Load KB when product changes
-  useEffect(() => {
-    if (selectedProductId) {
-      setKb(loadKnowledgeBase(selectedProductId))
+  function handleProductChange(productId: string) {
+    setSelectedProductId(productId)
+    if (productId) {
+      setKb(loadKnowledgeBase(productId))
     }
-  }, [selectedProductId])
+  }
 
   // Auto-save on kb change (debounced)
   useEffect(() => {
@@ -81,7 +83,7 @@ export function KnowledgeBaseTab({ state }: Props) {
         <div className="flex items-center gap-3">
           <select
             value={selectedProductId}
-            onChange={e => setSelectedProductId(e.target.value)}
+            onChange={e => handleProductChange(e.target.value)}
             className="px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] font-medium focus:outline-none focus:border-[var(--color-edge-focus)]"
           >
             {state.products.map(p => (

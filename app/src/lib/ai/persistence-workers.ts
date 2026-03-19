@@ -2,7 +2,7 @@
    Persistence Engine Workers — Retention / Diagnostics
    ============================================================ */
 
-import type { Product, AppState } from '@/types'
+import type { Product } from '@/types'
 import { runWorker } from './worker-base'
 
 export async function runWeeklyDiagnostician(product: Product, weekData?: string) {

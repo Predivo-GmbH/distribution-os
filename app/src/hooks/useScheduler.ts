@@ -72,7 +72,10 @@ export async function executeWorker(workerType: WorkerType, product: Product): P
 
 export function useScheduler(products: Product[]) {
   const productsRef = useRef(products)
-  productsRef.current = products
+
+  useEffect(() => {
+    productsRef.current = products
+  })
 
   useEffect(() => {
     // Run immediately on mount

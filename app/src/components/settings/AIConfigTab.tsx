@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import type { AIConfig } from '@/lib/ai/config'
 import { loadAIConfig, saveAIConfig, isAIConfigured } from '@/lib/ai/config'
@@ -7,10 +7,6 @@ export function AIConfigTab() {
   const [config, setConfig] = useState<AIConfig>(loadAIConfig())
   const [saved, setSaved] = useState(false)
   const [showKey, setShowKey] = useState(false)
-
-  useEffect(() => {
-    setConfig(loadAIConfig())
-  }, [])
 
   function handleSave() {
     saveAIConfig(config)

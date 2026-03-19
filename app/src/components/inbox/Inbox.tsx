@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { Inbox as InboxIcon, Check, Pencil, RefreshCw, X, ChevronDown, ChevronRight, Filter } from 'lucide-react'
 import type { AppState, InboxArtifact, ArtifactStatus, Engine } from '@/types'
 import { ENGINE_META, WORKER_LABELS } from '@/types'
@@ -20,7 +20,7 @@ const STATUS_LABELS: Record<ArtifactStatus, { label: string; color: string; bg: 
 }
 
 export function Inbox({ state }: Props) {
-  const [artifacts, setArtifacts] = useState<InboxArtifact[]>([])
+  const [artifacts, setArtifacts] = useState<InboxArtifact[]>(() => loadInbox())
   const [statusFilter, setStatusFilter] = useState<FilterStatus>('all')
   const [productFilter, setProductFilter] = useState<string>('all')
   const [engineFilter, setEngineFilter] = useState<string>('all')
@@ -29,11 +29,6 @@ export function Inbox({ state }: Props) {
   const [editContent, setEditContent] = useState('')
   const [directionNote, setDirectionNote] = useState('')
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
-
-  // Load artifacts
-  useEffect(() => {
-    setArtifacts(loadInbox())
-  }, [])
 
   function refresh() {
     setArtifacts(loadInbox())

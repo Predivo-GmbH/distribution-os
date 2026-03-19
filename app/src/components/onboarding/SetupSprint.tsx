@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Zap, BookOpen, Key, Link2, Clock, Play, CheckCircle2, ChevronRight, ArrowLeft } from 'lucide-react'
+import { Zap, BookOpen, Key, Link2, Play, CheckCircle2, ChevronRight, ArrowLeft } from 'lucide-react'
 import type { AppState, Product } from '@/types'
-import { ENGINE_META, WORKER_LABELS } from '@/types'
+import { ENGINE_META } from '@/types'
 import { KnowledgeBaseTab } from '@/components/settings/KnowledgeBaseTab'
 import { AIConfigTab } from '@/components/settings/AIConfigTab'
 import { IntegrationsTab } from '@/components/settings/IntegrationsTab'
@@ -28,7 +28,6 @@ const STEPS = [
 
 export function SetupSprint({ state, onComplete }: Props) {
   const [step, setStep] = useState<Step>(1)
-  const [firstRunTriggered, setFirstRunTriggered] = useState(false)
   const [firstRunStatus, setFirstRunStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle')
   const [artifactCount, setArtifactCount] = useState(0)
 
@@ -61,7 +60,6 @@ export function SetupSprint({ state, onComplete }: Props) {
       return
     }
 
-    setFirstRunTriggered(true)
     setFirstRunStatus('running')
 
     try {
