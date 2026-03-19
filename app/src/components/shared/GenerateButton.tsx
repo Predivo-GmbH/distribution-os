@@ -18,13 +18,18 @@ export function GenerateButton({ task, product }: Props) {
   const [done, setDone] = useState(false)
 
   const mapping = getWorkerForTask(task.title, task.engine)
+
+  // Check if there's already a pending artifact for this task (read once on mount)
+  const [hasPending] = useState(() => {
+    if (!mapping) return false
+    const artifacts = loadInbox()
+    return artifacts.some(
+      a => a.productId === product.id && a.workerType === mapping.workerType && a.status === 'pending'
+    )
+  })
+
   if (!mapping) return null
   if (!isAIConfigured()) return null
-
-  // Check if there's already a pending artifact for this task
-  const hasPending = loadInbox().some(
-    a => a.productId === product.id && a.workerType === mapping.workerType && a.status === 'pending'
-  )
 
   async function handleGenerate(e: React.MouseEvent) {
     e.stopPropagation()

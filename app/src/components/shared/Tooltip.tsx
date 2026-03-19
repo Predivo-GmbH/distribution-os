@@ -24,6 +24,8 @@ export function Tooltip({ content, children }: Props) {
       className="relative inline-block"
       onMouseEnter={show}
       onMouseLeave={hide}
+      onFocus={show}
+      onBlur={hide}
     >
       <span className="border-b border-dotted border-[var(--color-ink-muted)] cursor-help">
         {children}

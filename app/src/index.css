@@ -37,6 +37,7 @@
 /* ---- Light mode ---- */
 :root {
   color-scheme: light;
+  --sidebar-width: 240px;
 
   --color-ink: #0F172A;
   --color-ink-sub: #1E293B;
@@ -45,6 +46,7 @@
   --color-ink-inverted: #FFFFFF;
 
   --color-surface: #FFFFFF;
+  --color-bg: #EEF2FF;
   --color-surface-page: #EEF2FF;
   --color-surface-alt: #E0E7FF;
   --color-surface-hover: #F1F5F9;
@@ -97,6 +99,7 @@
   --color-ink-inverted: #0F172A;
 
   --color-surface: #1E293B;
+  --color-bg: #1E1B4B;
   --color-surface-page: #1E1B4B;
   --color-surface-alt: #312E81;
   --color-surface-hover: #334155;
@@ -167,4 +170,15 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--color-edge-focus);
+  outline-offset: 2px;
+}
+
+/* Remove default outline only when focus-visible handles it */
+*:focus:not(:focus-visible) {
+  outline: none;
 }

@@ -239,7 +239,7 @@ export function BriefingRoom({ onVisit }: Props) {
       </div>
 
       {/* Tab bar */}
-      <div className="flex gap-1 p-1 bg-[var(--color-surface-hover)] rounded-lg">
+      <div className="flex gap-1 p-1 bg-[var(--color-surface-hover)] rounded-lg overflow-x-auto">
         {TABS.map(t => (
           <button
             key={t.key}

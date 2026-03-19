@@ -58,6 +58,9 @@ export function SchedulerTab() {
           </div>
           <button
             onClick={toggleEnabled}
+            role="switch"
+            aria-checked={config.enabled}
+            aria-label="Automation Scheduler"
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
               config.enabled ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-edge-outline)]'
             }`}
@@ -92,8 +95,8 @@ export function SchedulerTab() {
                       </span>
                       <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
                         schedule.cadence === 'daily'
-                          ? 'bg-amber-100 text-amber-700'
-                          : 'bg-blue-100 text-blue-700'
+                          ? 'bg-[var(--color-warning-bg)] text-[var(--color-warning)]'
+                          : 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
                       }`}>
                         {schedule.cadence}
                       </span>
@@ -146,6 +149,9 @@ export function SchedulerTab() {
                     {/* Enable toggle */}
                     <button
                       onClick={() => updateSchedule(idx, { enabled: !schedule.enabled })}
+                      role="switch"
+                      aria-checked={schedule.enabled}
+                      aria-label={`${WORKER_LABELS[schedule.workerType]} schedule`}
                       className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
                         schedule.enabled ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-edge-outline)]'
                       }`}

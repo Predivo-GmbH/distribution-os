@@ -21,7 +21,7 @@ Deno.serve(async (req: Request) => {
   try {
     event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret)
   } catch (err) {
-    return new Response(`Webhook signature verification failed: ${(err as Error).message}`, { status: 400 })
+    return new Response('Webhook verification failed', { status: 400 })
   }
 
   const admin = getSupabaseAdmin()
@@ -33,13 +33,16 @@ Deno.serve(async (req: Request) => {
       const subscriptionId = session.subscription as string
 
       // Find user by stripe_customer_id and upgrade to pro
-      await admin
+      const { error: checkoutError } = await admin
         .from('user_preferences')
         .update({
           subscription_tier: 'pro',
           stripe_subscription_id: subscriptionId,
         })
         .eq('stripe_customer_id', customerId)
+      if (checkoutError) {
+        return new Response('Database update failed', { status: 500 })
+      }
       break
     }
 
@@ -48,13 +51,16 @@ Deno.serve(async (req: Request) => {
       const customerId = subscription.customer as string
       const isActive = subscription.status === 'active' || subscription.status === 'trialing'
 
-      await admin
+      const { error: updateError } = await admin
         .from('user_preferences')
         .update({
           subscription_tier: isActive ? 'pro' : 'free',
           stripe_subscription_id: subscription.id,
         })
         .eq('stripe_customer_id', customerId)
+      if (updateError) {
+        return new Response('Database update failed', { status: 500 })
+      }
       break
     }
 
@@ -62,13 +68,16 @@ Deno.serve(async (req: Request) => {
       const subscription = event.data.object as Stripe.Subscription
       const customerId = subscription.customer as string
 
-      await admin
+      const { error: deleteError } = await admin
         .from('user_preferences')
         .update({
           subscription_tier: 'free',
           stripe_subscription_id: null,
         })
         .eq('stripe_customer_id', customerId)
+      if (deleteError) {
+        return new Response('Database update failed', { status: 500 })
+      }
       break
     }
   }

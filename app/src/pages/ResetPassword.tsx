@@ -21,8 +21,8 @@ export function ResetPassword() {
     try {
       await resetPassword(email)
       setSent(true)
-    } catch (err) {
-      setError((err as Error).message)
+    } catch {
+      setError('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -36,8 +36,8 @@ export function ResetPassword() {
     try {
       await updatePassword(newPassword)
       window.location.href = '/dashboard'
-    } catch (err) {
-      setError((err as Error).message)
+    } catch {
+      setError('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -62,7 +62,7 @@ export function ResetPassword() {
 
         <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-6">
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
+            <div className="mb-4 p-3 rounded-lg bg-[var(--color-error-bg)] border border-[var(--color-error)]/20 text-sm text-[var(--color-error)]">
               {error}
             </div>
           )}

@@ -40,8 +40,8 @@ export function Settings({ state, dispatch, prefs, onDarkModeChange, onWeekStart
       <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">Settings</h1>
 
       {/* Tab bar */}
-      <div className="border-b border-[var(--color-edge)]">
-        <nav className="flex gap-6">
+      <div className="border-b border-[var(--color-edge)] overflow-x-auto">
+        <nav className="flex gap-4 md:gap-6 min-w-max">
           {TABS.map(tab => (
             <button
               key={tab.id}

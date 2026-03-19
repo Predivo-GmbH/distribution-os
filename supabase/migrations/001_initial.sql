@@ -102,6 +102,8 @@ CREATE POLICY "Users can insert own week records"
   ON week_records FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update own week records"
   ON week_records FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own week records"
+  ON week_records FOR DELETE USING (auth.uid() = user_id);
 
 -- User Preferences: users can only access their own
 CREATE POLICY "Users can view own preferences"
@@ -110,6 +112,8 @@ CREATE POLICY "Users can insert own preferences"
   ON user_preferences FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update own preferences"
   ON user_preferences FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own preferences"
+  ON user_preferences FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
 -- Auto-update updated_at

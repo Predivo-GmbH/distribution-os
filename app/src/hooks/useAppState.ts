@@ -1,6 +1,6 @@
 import { useReducer, useEffect } from 'react'
 import type { AppState, Product, Task, WeekRecord } from '@/types'
-import { loadState, saveState, generateId, getWeekId } from '@/lib/storage'
+import { loadState, saveState, generateId, getWeekId, cleanupProductData } from '@/lib/storage'
 
 export type Action =
   | { type: 'ADD_PRODUCT'; payload: Omit<Product, 'id' | 'createdAt' | 'updatedAt'> }
@@ -33,12 +33,14 @@ function reducer(state: AppState, action: Action): AppState {
             : p
         ),
       }
-    case 'REMOVE_PRODUCT':
+    case 'REMOVE_PRODUCT': {
+      cleanupProductData(action.payload)
       return {
         ...state,
         products: state.products.filter(p => p.id !== action.payload),
         tasks: state.tasks.filter(t => t.productId !== action.payload),
       }
+    }
     case 'SET_TASKS':
       return { ...state, tasks: action.payload }
     case 'TOGGLE_TASK':

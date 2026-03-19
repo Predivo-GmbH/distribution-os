@@ -57,7 +57,7 @@ export function Landing() {
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-accent-light)] text-[var(--color-accent-text)] text-xs font-semibold mb-6">
           Built for solo founders
         </div>
-        <h1 className="text-5xl font-bold text-[var(--color-ink)] tracking-tight leading-[1.1] mb-6">
+        <h1 className="text-3xl md:text-5xl font-bold text-[var(--color-ink)] tracking-tight leading-[1.1] mb-6">
           Stop building. <br />Start distributing.
         </h1>
         <p className="text-lg text-[var(--color-ink-body)] max-w-2xl mx-auto mb-10">
@@ -148,7 +148,7 @@ export function Landing() {
 
       {/* Footer */}
       <footer className="border-t border-[var(--color-edge)] py-8">
-        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-[var(--color-ink-muted)]">
             Distribution OS — Built by Prodiva GmbH
           </p>

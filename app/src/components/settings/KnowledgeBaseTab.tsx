@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useId } from 'react'
 import { Brain, ChevronDown, ChevronRight, Plus, X, CheckCircle2 } from 'lucide-react'
 import type { AppState, KnowledgeBase, KnowledgeBaseTone } from '@/types'
 import { defaultKnowledgeBase } from '@/types'
@@ -26,6 +26,9 @@ export function KnowledgeBaseTab({ state }: Props) {
   const [expandedSections, setExpandedSections] = useState<Set<Section>>(new Set(['voice', 'icp', 'positioning', 'tone']))
   const [saved, setSaved] = useState(false)
   const [newExample, setNewExample] = useState('')
+  const isFirstRender = useRef(true)
+  const productSelectId = useId()
+  const voiceTextareaId = useId()
 
   function handleProductChange(productId: string) {
     setSelectedProductId(productId)
@@ -34,9 +37,13 @@ export function KnowledgeBaseTab({ state }: Props) {
     }
   }
 
-  // Auto-save on kb change (debounced)
+  // Auto-save on kb change (debounced) — skip initial mount
   useEffect(() => {
     if (!selectedProductId) return
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
     const timer = setTimeout(() => {
       saveKnowledgeBase(selectedProductId, kb)
       setSaved(true)
@@ -81,7 +88,9 @@ export function KnowledgeBaseTab({ state }: Props) {
       {/* Product selector */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
+          <label htmlFor={productSelectId} className="sr-only">Select product</label>
           <select
+            id={productSelectId}
             value={selectedProductId}
             onChange={e => handleProductChange(e.target.value)}
             className="px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] font-medium focus:outline-none focus:border-[var(--color-edge-focus)]"
@@ -136,7 +145,9 @@ export function KnowledgeBaseTab({ state }: Props) {
             </div>
           ))}
           <div className="flex gap-2">
+            <label htmlFor={voiceTextareaId} className="sr-only">Voice example</label>
             <textarea
+              id={voiceTextareaId}
               value={newExample}
               onChange={e => setNewExample(e.target.value)}
               placeholder="Paste a writing example here..."
@@ -350,11 +361,13 @@ function Field({
   value: string
   onChange: (v: string) => void
 }) {
+  const id = useId()
   return (
     <div>
-      <label className="block text-sm font-medium text-[var(--color-ink)] mb-1">{label}</label>
+      <label htmlFor={id} className="block text-sm font-medium text-[var(--color-ink)] mb-1">{label}</label>
       {hint && <p className="text-xs text-[var(--color-ink-muted)] mb-1.5">{hint}</p>}
       <textarea
+        id={id}
         value={value}
         onChange={e => onChange(e.target.value)}
         rows={2}

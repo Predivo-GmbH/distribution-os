@@ -16,7 +16,7 @@ test.describe('Inbox', () => {
     await seedInbox(page)
     await page.goto('/dashboard')
     // The sidebar should show Inbox with a badge count
-    const sidebar = page.locator('aside')
+    const sidebar = page.locator('aside').first()
     await expect(sidebar.getByText('Inbox')).toBeVisible()
     // Badge shows "1" (one pending artifact)
     await expect(sidebar.getByText('1')).toBeVisible()

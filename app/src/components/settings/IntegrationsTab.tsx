@@ -50,6 +50,9 @@ export function IntegrationsTab() {
             </div>
             <button
               onClick={() => setConfig(prev => ({ ...prev, linkedin: { ...prev.linkedin, autoPublish: !prev.linkedin.autoPublish } }))}
+              role="switch"
+              aria-checked={config.linkedin.autoPublish}
+              aria-label="LinkedIn auto-publish"
               className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
                 config.linkedin.autoPublish ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-edge-outline)]'
               }`}
@@ -175,6 +178,9 @@ function IntegrationCard({ title, description, connected, onToggle, children }: 
         </div>
         <button
           onClick={onToggle}
+          role="switch"
+          aria-checked={connected}
+          aria-label={`${title} connection`}
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
             connected ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-edge-outline)]'
           }`}

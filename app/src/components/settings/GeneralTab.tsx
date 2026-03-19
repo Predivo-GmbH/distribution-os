@@ -42,6 +42,9 @@ export function GeneralTab({ state, dispatch, prefs, onDarkModeChange, onWeekSta
           </div>
           <button
             onClick={() => onDarkModeChange(!prefs.darkMode)}
+            role="switch"
+            aria-checked={prefs.darkMode}
+            aria-label="Dark Mode"
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
               prefs.darkMode ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-edge-outline)]'
             }`}

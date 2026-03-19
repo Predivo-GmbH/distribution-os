@@ -28,6 +28,16 @@ Deno.serve(async (req: Request) => {
   try {
     const { returnUrl } = await req.json()
 
+    const ALLOWED_ORIGINS = ['https://distributionos.predivo.ch', 'http://localhost:5173']
+    try {
+      const parsed = new URL(returnUrl)
+      if (!ALLOWED_ORIGINS.includes(parsed.origin)) {
+        return createJsonResponse(req, { error: 'Invalid return URL' }, 400)
+      }
+    } catch {
+      return createJsonResponse(req, { error: 'Invalid return URL' }, 400)
+    }
+
     const { data: prefs } = await admin
       .from('user_preferences')
       .select('stripe_customer_id')
@@ -45,6 +55,6 @@ Deno.serve(async (req: Request) => {
 
     return createJsonResponse(req, { url: session.url })
   } catch (err) {
-    return createJsonResponse(req, { error: (err as Error).message }, 500)
+    return createJsonResponse(req, { error: 'Portal session creation failed' }, 500)
   }
 })

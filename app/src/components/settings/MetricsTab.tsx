@@ -45,7 +45,7 @@ export function MetricsTab({ state }: Props) {
         <h3 className="text-base font-semibold text-[var(--color-ink)] mb-4">Weekly Streak History</h3>
 
         {recentWeeks.length > 0 ? (
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {recentWeeks.map(week => {
               const totalScore = week.tasks
                 .filter(t => t.completed)

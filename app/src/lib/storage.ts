@@ -3,7 +3,7 @@
    All data persists locally — no server, no auth.
    ============================================================ */
 
-import type { AppState, Product, Task, WeekRecord, UserPreferences, InboxArtifact, ArtifactStatus } from '@/types'
+import type { AppState, WeekRecord, UserPreferences, InboxArtifact, ArtifactStatus } from '@/types'
 
 const STORAGE_KEY = 'distribution-os'
 
@@ -29,7 +29,12 @@ export function loadState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return defaultState()
-    const parsed = JSON.parse(raw) as AppState
+    const parsed = { ...defaultState(), ...JSON.parse(raw) } as AppState
+
+    // Ensure arrays exist (schema migration safety)
+    if (!Array.isArray(parsed.products)) parsed.products = []
+    if (!Array.isArray(parsed.tasks)) parsed.tasks = []
+    if (!Array.isArray(parsed.weekHistory)) parsed.weekHistory = []
 
     // Week transition: archive old tasks when a new week starts
     const currentWeek = getWeekId()
@@ -60,57 +65,6 @@ export function saveState(state: AppState): void {
 
 export function generateId(): string {
   return crypto.randomUUID()
-}
-
-export function addProduct(state: AppState, product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): AppState {
-  const now = new Date().toISOString()
-  const newProduct: Product = {
-    ...product,
-    id: generateId(),
-    createdAt: now,
-    updatedAt: now,
-  }
-  const next = { ...state, products: [...state.products, newProduct] }
-  saveState(next)
-  return next
-}
-
-export function updateProduct(state: AppState, id: string, updates: Partial<Product>): AppState {
-  const next = {
-    ...state,
-    products: state.products.map(p =>
-      p.id === id ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p
-    ),
-  }
-  saveState(next)
-  return next
-}
-
-export function removeProduct(state: AppState, id: string): AppState {
-  const next = {
-    ...state,
-    products: state.products.filter(p => p.id !== id),
-    tasks: state.tasks.filter(t => t.productId !== id),
-  }
-  saveState(next)
-  return next
-}
-
-export function toggleTask(state: AppState, taskId: string): AppState {
-  const next = {
-    ...state,
-    tasks: state.tasks.map(t =>
-      t.id === taskId ? { ...t, completed: !t.completed } : t
-    ),
-  }
-  saveState(next)
-  return next
-}
-
-export function setTasks(state: AppState, tasks: Task[]): AppState {
-  const next = { ...state, tasks }
-  saveState(next)
-  return next
 }
 
 export { getWeekId }
@@ -229,6 +183,27 @@ export function removeKnowledgeBase(productId: string): void {
 export function hasKnowledgeBase(productId: string): boolean {
   const kb = loadKnowledgeBase(productId)
   return kb.voiceExamples.length > 0 || kb.icp.who !== '' || kb.positioning.oneLiner !== ''
+}
+
+/* ============================================================
+   Product Cleanup — Remove orphaned data on product deletion
+   ============================================================ */
+
+const CRM_PREFIX = 'distribution-os-crm:'
+
+export function removeProductArtifacts(productId: string): void {
+  const items = loadInbox().filter(a => a.productId !== productId)
+  saveInbox(items)
+}
+
+export function removeConnectorCRM(productId: string): void {
+  localStorage.removeItem(CRM_PREFIX + productId)
+}
+
+export function cleanupProductData(productId: string): void {
+  removeKnowledgeBase(productId)
+  removeProductArtifacts(productId)
+  removeConnectorCRM(productId)
 }
 
 /* ============================================================

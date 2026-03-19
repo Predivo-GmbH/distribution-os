@@ -125,10 +125,10 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[var(--color-surface)] rounded-xl shadow-lg border border-[var(--color-edge)] mx-4">
+      <div role="dialog" aria-modal="true" aria-labelledby="modal-title" className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[var(--color-surface)] rounded-xl shadow-lg border border-[var(--color-edge)] mx-4">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4">
-          <h2 className="text-lg font-semibold text-[var(--color-ink)]">
+          <h2 id="modal-title" className="text-lg font-semibold text-[var(--color-ink)]">
             {editProduct ? 'Edit Product' : 'Add New Product'}
           </h2>
           <button
@@ -149,7 +149,7 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
               placeholder="e.g. DistroKit, BelegPilot..."
               className="w-full px-3 py-2.5 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] focus:ring-2 focus:ring-[var(--color-edge-focus)]/25"
             />
-            <p className="mt-1 text-xs text-[var(--color-ink-muted)]">Has to be text</p>
+            <p className="mt-1 text-xs text-[var(--color-ink-muted)]">Enter a product name</p>
           </div>
 
           {/* Description */}
@@ -161,7 +161,7 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
               placeholder="Short description of your product"
               className="w-full px-3 py-2.5 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] focus:ring-2 focus:ring-[var(--color-edge-focus)]/25"
             />
-            <p className="mt-1 text-xs text-[var(--color-ink-muted)]">No type item</p>
+            <p className="mt-1 text-xs text-[var(--color-ink-muted)]">Select a product type</p>
           </div>
 
           {/* Revenue */}

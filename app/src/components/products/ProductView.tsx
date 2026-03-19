@@ -21,10 +21,10 @@ const STAGE_RECOMMENDATIONS: Record<string, string> = {
 }
 
 const STAGE_COLORS: Record<string, string> = {
-  'pre-launch': 'bg-amber-100 text-amber-800',
-  'early': 'bg-emerald-100 text-emerald-800',
-  'active': 'bg-blue-100 text-blue-800',
-  'scaling': 'bg-purple-100 text-purple-800',
+  'pre-launch': 'bg-[var(--color-warning-bg)] text-[var(--color-warning)]',
+  'early': 'bg-[var(--color-success-bg)] text-[var(--color-success)]',
+  'active': 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
+  'scaling': 'bg-[var(--color-accent-light)] text-[var(--color-accent-text)]',
 }
 
 export function ProductView({ state, dispatch }: Props) {
@@ -57,7 +57,7 @@ export function ProductView({ state, dispatch }: Props) {
     <div className="space-y-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-sm text-[var(--color-ink-muted)]">
-        <Link to="/" className="hover:text-[var(--color-accent-text)]">Dashboard</Link>
+        <Link to="/dashboard" className="hover:text-[var(--color-accent-text)]">Dashboard</Link>
         <ChevronRight size={14} />
         <Link to="/products" className="hover:text-[var(--color-accent-text)]">Products</Link>
         <ChevronRight size={14} />
@@ -70,7 +70,7 @@ export function ProductView({ state, dispatch }: Props) {
           <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">
             {product.name}
           </h1>
-          <span className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider ${STAGE_COLORS[product.stage] || 'bg-gray-100 text-gray-800'}`}>
+          <span className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider ${STAGE_COLORS[product.stage] || 'bg-[var(--color-surface-hover)] text-[var(--color-ink-muted)]'}`}>
             {product.stage.replace('-', ' ')}
           </span>
         </div>
@@ -128,6 +128,9 @@ export function ProductView({ state, dispatch }: Props) {
                 >
                   <button
                     onClick={() => dispatch({ type: 'TOGGLE_TASK', payload: task.id })}
+                    role="checkbox"
+                    aria-checked={task.completed}
+                    aria-label={task.completed ? 'Mark incomplete' : 'Mark complete'}
                     className="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
                     style={{
                       backgroundColor: task.completed ? 'var(--color-accent)' : 'transparent',

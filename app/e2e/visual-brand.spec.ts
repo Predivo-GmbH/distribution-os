@@ -10,13 +10,13 @@ test.describe('Visual & Brand Consistency', () => {
   test('design system renders with consistent styling', async ({ page }) => {
     await page.goto('/dashboard')
     // Verify the app renders with a styled sidebar and main content
-    await expect(page.locator('aside')).toBeVisible()
+    await expect(page.locator('aside').first()).toBeVisible()
     await expect(page.locator('main')).toBeVisible()
   })
 
   test('sidebar has correct structure', async ({ page }) => {
     await page.goto('/dashboard')
-    const aside = page.locator('aside')
+    const aside = page.locator('aside').first()
     await expect(aside.getByText('Distribution OS')).toBeVisible()
     await expect(aside.getByText('Dashboard')).toBeVisible()
     await expect(aside.getByText('Inbox')).toBeVisible()
@@ -27,7 +27,7 @@ test.describe('Visual & Brand Consistency', () => {
   test('active nav link is highlighted on settings page', async ({ page }) => {
     await page.goto('/settings')
     // The Settings link should be active (has font-medium)
-    const settingsLink = page.locator('aside a', { hasText: 'Settings' })
+    const settingsLink = page.locator('aside').first().locator('a', { hasText: 'Settings' })
     const classes = await settingsLink.getAttribute('class')
     expect(classes).toContain('font-medium')
   })
@@ -54,7 +54,7 @@ test.describe('Visual & Brand Consistency', () => {
   test('responsive layout: sidebar is visible on desktop', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/dashboard')
-    await expect(page.locator('aside')).toBeVisible()
+    await expect(page.locator('aside').first()).toBeVisible()
   })
 
   test('settings tabs render without layout shift', async ({ page }) => {

@@ -22,8 +22,8 @@ export function SignUp() {
     try {
       await sendOtp(email)
       setStep('otp')
-    } catch (err) {
-      setError((err as Error).message)
+    } catch {
+      setError('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -37,8 +37,8 @@ export function SignUp() {
     try {
       await verifyOtp(email, otp)
       setStep('password')
-    } catch (err) {
-      setError((err as Error).message)
+    } catch {
+      setError('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -55,8 +55,8 @@ export function SignUp() {
         await signUp(email, password)
       }
       navigate('/dashboard')
-    } catch (err) {
-      setError((err as Error).message)
+    } catch {
+      setError('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -90,7 +90,7 @@ export function SignUp() {
           </p>
 
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
+            <div className="mb-4 p-3 rounded-lg bg-[var(--color-error-bg)] border border-[var(--color-error)]/20 text-sm text-[var(--color-error)]">
               {error}
             </div>
           )}

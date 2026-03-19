@@ -9,7 +9,7 @@ test.describe('App Navigation', () => {
 
   test('sidebar renders all nav items', async ({ page }) => {
     await page.goto('/dashboard')
-    const sidebar = page.locator('aside')
+    const sidebar = page.locator('aside').first()
     await expect(sidebar.getByText('Dashboard')).toBeVisible()
     await expect(sidebar.getByText('Inbox')).toBeVisible()
     await expect(sidebar.getByText('Products')).toBeVisible()
@@ -24,26 +24,26 @@ test.describe('App Navigation', () => {
 
   test('navigates to Inbox', async ({ page }) => {
     await page.goto('/dashboard')
-    await page.locator('aside').getByText('Inbox').click()
+    await page.locator('aside').first().getByText('Inbox').click()
     await expect(page).toHaveURL('/inbox')
   })
 
   test('navigates to Products', async ({ page }) => {
     await page.goto('/dashboard')
-    await page.locator('aside').getByText('Products').click()
+    await page.locator('aside').first().getByText('Products').click()
     await expect(page).toHaveURL('/products')
   })
 
   test('navigates to Settings', async ({ page }) => {
     await page.goto('/dashboard')
-    await page.locator('aside').getByText('Settings').click()
+    await page.locator('aside').first().getByText('Settings').click()
     await expect(page).toHaveURL('/settings')
     await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
   })
 
   test('shows engine indicators in sidebar', async ({ page }) => {
     await page.goto('/dashboard')
-    const sidebar = page.locator('aside')
+    const sidebar = page.locator('aside').first()
     await expect(sidebar.getByText('Engines')).toBeVisible()
     await expect(sidebar.getByText('Push')).toBeVisible()
     await expect(sidebar.getByText('Pull')).toBeVisible()
