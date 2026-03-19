@@ -49,7 +49,7 @@ Focus on quality over quantity. Each candidate should have a clear, specific rea
    Personalized Outreach Writer
    ------------------------------------------------------------ */
 
-export async function runOutreachWriter(product: Product, connectorInfo: string) {
+export async function runOutreachWriter(product: Product, connectorInfo?: string) {
   return runWorker({
     product,
     engine: 'bridge',
@@ -58,7 +58,7 @@ export async function runOutreachWriter(product: Product, connectorInfo: string)
     maxTokens: 3072,
     userPrompt: `Write a personalized outreach sequence for this connector:
 
-${connectorInfo}
+${connectorInfo || 'No specific connector provided. Generate a template outreach sequence based on the product ICP and positioning.'}
 
 Generate:
 
@@ -137,7 +137,7 @@ Format:
    Demo Script Generator
    ------------------------------------------------------------ */
 
-export async function runDemoScript(product: Product, connectorInfo: string) {
+export async function runDemoScript(product: Product, connectorInfo?: string) {
   return runWorker({
     product,
     engine: 'bridge',
@@ -146,7 +146,7 @@ export async function runDemoScript(product: Product, connectorInfo: string) {
     maxTokens: 3072,
     userPrompt: `Create a demo script tailored for this specific connector conversation:
 
-${connectorInfo}
+${connectorInfo || 'No specific connector provided. Generate a general demo script based on the product ICP and positioning.'}
 
 The script should:
 1. **Opening (30 seconds)** — Frame the demo around THEIR audience's specific problem

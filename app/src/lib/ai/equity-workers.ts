@@ -29,7 +29,7 @@ Rank from most to least relevant. Focus on partners where there's a clear, speci
   })
 }
 
-export async function runPitchPackage(product: Product, partnerInfo: string) {
+export async function runPitchPackage(product: Product, partnerInfo?: string) {
   return runWorker({
     product,
     engine: 'equity',
@@ -38,7 +38,7 @@ export async function runPitchPackage(product: Product, partnerInfo: string) {
     maxTokens: 4096,
     userPrompt: `Create a complete pitch package for this partner:
 
-${partnerInfo}
+${partnerInfo || 'No specific partner provided. Generate a general pitch package template based on the product positioning and ICP.'}
 
 Generate:
 
