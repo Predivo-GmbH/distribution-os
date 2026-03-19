@@ -6,6 +6,10 @@ import { ProductsTab } from './ProductsTab'
 import { TasksTab } from './TasksTab'
 import { MetricsTab } from './MetricsTab'
 import { GeneralTab } from './GeneralTab'
+import { KnowledgeBaseTab } from './KnowledgeBaseTab'
+import { AIConfigTab } from './AIConfigTab'
+import { SchedulerTab } from './SchedulerTab'
+import { IntegrationsTab } from './IntegrationsTab'
 
 interface Props {
   state: AppState
@@ -15,10 +19,14 @@ interface Props {
   onWeekStartChange: (day: UserPreferences['weekStartDay']) => void
 }
 
-type Tab = 'products' | 'tasks' | 'metrics' | 'general'
+type Tab = 'products' | 'knowledge-base' | 'ai-config' | 'integrations' | 'scheduler' | 'tasks' | 'metrics' | 'general'
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'products', label: 'Products' },
+  { id: 'knowledge-base', label: 'Knowledge Base' },
+  { id: 'ai-config', label: 'AI Configuration' },
+  { id: 'integrations', label: 'Integrations' },
+  { id: 'scheduler', label: 'Scheduler' },
   { id: 'tasks', label: 'Tasks' },
   { id: 'metrics', label: 'Metrics' },
   { id: 'general', label: 'General' },
@@ -67,6 +75,10 @@ export function Settings({ state, dispatch, prefs, onDarkModeChange, onWeekStart
 
       {/* Tab content */}
       {activeTab === 'products' && <ProductsTab state={state} dispatch={dispatch} />}
+      {activeTab === 'knowledge-base' && <KnowledgeBaseTab state={state} />}
+      {activeTab === 'ai-config' && <AIConfigTab />}
+      {activeTab === 'integrations' && <IntegrationsTab />}
+      {activeTab === 'scheduler' && <SchedulerTab />}
       {activeTab === 'tasks' && <TasksTab />}
       {activeTab === 'metrics' && <MetricsTab state={state} />}
       {activeTab === 'general' && (

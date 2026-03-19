@@ -4,12 +4,14 @@ const STORAGE_KEY = 'distribution-os-onboarding'
 
 interface OnboardingState {
   firstMissionComplete: boolean
+  setupSprintComplete: boolean
   briefingVisited: boolean
   completedSteps: number[]
 }
 
 const DEFAULT_STATE: OnboardingState = {
   firstMissionComplete: false,
+  setupSprintComplete: false,
   briefingVisited: false,
   completedSteps: [],
 }
@@ -52,6 +54,14 @@ export function useOnboardingState(hasProducts: boolean) {
     })
   }, [])
 
+  const completeSetupSprint = useCallback(() => {
+    setState(prev => {
+      const next = { ...prev, setupSprintComplete: true }
+      save(next)
+      return next
+    })
+  }, [])
+
   const markBriefingVisited = useCallback(() => {
     setState(prev => {
       if (prev.briefingVisited) return prev
@@ -61,11 +71,15 @@ export function useOnboardingState(hasProducts: boolean) {
     })
   }, [])
 
+  const needsSetupSprint = !isFirstTime && hasProducts && !state.setupSprintComplete
+
   return {
     onboarding: state,
     isFirstTime,
+    needsSetupSprint,
     completeStep,
     completeFirstMission,
+    completeSetupSprint,
     markBriefingVisited,
     showBriefingBadge: !state.briefingVisited,
   }

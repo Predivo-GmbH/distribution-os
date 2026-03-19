@@ -3,7 +3,7 @@
    All data persists locally — no server, no auth.
    ============================================================ */
 
-import type { AppState, Product, Task, WeekRecord, UserPreferences } from '@/types'
+import type { AppState, Product, Task, WeekRecord, UserPreferences, InboxArtifact, ArtifactStatus } from '@/types'
 
 const STORAGE_KEY = 'distribution-os'
 
@@ -138,6 +138,97 @@ export function loadPrefs(): UserPreferences {
 
 export function savePrefs(prefs: UserPreferences): void {
   localStorage.setItem(PREFS_KEY, JSON.stringify(prefs))
+}
+
+/* ============================================================
+   Inbox Storage — AI-Generated Artifacts
+   ============================================================ */
+
+const INBOX_KEY = 'distribution-os-inbox'
+
+export function loadInbox(): InboxArtifact[] {
+  try {
+    const raw = localStorage.getItem(INBOX_KEY)
+    if (!raw) return []
+    return JSON.parse(raw) as InboxArtifact[]
+  } catch {
+    return []
+  }
+}
+
+export function saveInbox(artifacts: InboxArtifact[]): void {
+  localStorage.setItem(INBOX_KEY, JSON.stringify(artifacts))
+}
+
+export function addArtifact(artifact: Omit<InboxArtifact, 'id' | 'generatedAt'>): InboxArtifact {
+  const items = loadInbox()
+  const newItem: InboxArtifact = {
+    ...artifact,
+    id: generateId(),
+    generatedAt: new Date().toISOString(),
+  }
+  items.unshift(newItem)
+  saveInbox(items)
+  return newItem
+}
+
+export function updateArtifact(id: string, updates: Partial<InboxArtifact>): void {
+  const items = loadInbox()
+  const idx = items.findIndex(a => a.id === id)
+  if (idx !== -1) {
+    items[idx] = { ...items[idx], ...updates }
+    saveInbox(items)
+  }
+}
+
+export function updateArtifactStatus(id: string, status: ArtifactStatus): void {
+  updateArtifact(id, {
+    status,
+    ...(status === 'approved' ? { approvedAt: new Date().toISOString() } : {}),
+    ...(status === 'published' ? { publishedAt: new Date().toISOString() } : {}),
+  })
+}
+
+export function removeArtifact(id: string): void {
+  const items = loadInbox().filter(a => a.id !== id)
+  saveInbox(items)
+}
+
+export function getPendingCount(): number {
+  return loadInbox().filter(a => a.status === 'pending').length
+}
+
+/* ============================================================
+   Knowledge Base Storage
+   Per-product AI context stored under kb:{productId}
+   ============================================================ */
+
+import type { KnowledgeBase } from '@/types'
+import { defaultKnowledgeBase } from '@/types'
+
+const KB_PREFIX = 'distribution-os-kb:'
+
+export function loadKnowledgeBase(productId: string): KnowledgeBase {
+  try {
+    const raw = localStorage.getItem(KB_PREFIX + productId)
+    if (!raw) return defaultKnowledgeBase()
+    return { ...defaultKnowledgeBase(), ...JSON.parse(raw) }
+  } catch {
+    return defaultKnowledgeBase()
+  }
+}
+
+export function saveKnowledgeBase(productId: string, kb: KnowledgeBase): void {
+  localStorage.setItem(KB_PREFIX + productId, JSON.stringify(kb))
+}
+
+export function removeKnowledgeBase(productId: string): void {
+  localStorage.removeItem(KB_PREFIX + productId)
+}
+
+export function hasKnowledgeBase(productId: string): boolean {
+  const kb = loadKnowledgeBase(productId)
+  return kb.voiceExamples.length > 0 || kb.icp.who !== '' || kb.positioning.oneLiner !== ''
 }
 
 /* ============================================================

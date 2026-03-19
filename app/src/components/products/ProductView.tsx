@@ -6,6 +6,7 @@ import type { Action } from '@/hooks/useAppState'
 import { ChevronRight, Pencil } from 'lucide-react'
 import { IntelligencePanel } from '@/components/shared/IntelligencePanel'
 import { AddProductModal } from '@/components/shared/AddProductModal'
+import { GenerateButton } from '@/components/shared/GenerateButton'
 
 interface Props {
   state: AppState
@@ -121,24 +122,24 @@ export function ProductView({ state, dispatch }: Props) {
             </div>
             <div className="space-y-1">
               {tasks.map(task => (
-                <button
+                <div
                   key={task.id}
-                  onClick={() => dispatch({ type: 'TOGGLE_TASK', payload: task.id })}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-[var(--color-surface)] border border-[var(--color-edge)] hover:bg-[var(--color-surface-hover)] transition-colors text-left"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-[var(--color-surface)] border border-[var(--color-edge)] hover:bg-[var(--color-surface-hover)] transition-colors"
                 >
-                  <div
-                    className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
-                      task.completed
-                        ? 'bg-[var(--color-accent)] border-[var(--color-accent)]'
-                        : 'border-[var(--color-edge-outline)]'
-                    }`}
+                  <button
+                    onClick={() => dispatch({ type: 'TOGGLE_TASK', payload: task.id })}
+                    className="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+                    style={{
+                      backgroundColor: task.completed ? 'var(--color-accent)' : 'transparent',
+                      borderColor: task.completed ? 'var(--color-accent)' : 'var(--color-edge-outline)',
+                    }}
                   >
                     {task.completed && (
                       <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
                         <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     )}
-                  </div>
+                  </button>
                   <span
                     className={`flex-1 text-sm ${
                       task.completed
@@ -148,10 +149,11 @@ export function ProductView({ state, dispatch }: Props) {
                   >
                     {task.title}
                   </span>
+                  {!task.completed && <GenerateButton task={task} product={product} />}
                   <span className="font-mono text-xs font-semibold text-[var(--color-ink-muted)] tabular-nums">
                     +{task.score} pts
                   </span>
-                </button>
+                </div>
               ))}
             </div>
           </div>

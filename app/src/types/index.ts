@@ -52,6 +52,105 @@ export interface AppState {
   weekHistory: WeekRecord[]
 }
 
+/* ============================================================
+   Inbox Types — AI-Generated Artifact Review
+   ============================================================ */
+
+export type ArtifactStatus = 'pending' | 'approved' | 'scheduled' | 'published' | 'regenerating' | 'dismissed'
+
+export type WorkerType =
+  | 'seo-content-writer' | 'keyword-research' | 'search-console-optimizer' | 'backlink-outreach'
+  | 'linkedin-director' | 'email-sequence-writer' | 'lead-magnet-generator' | 'waitlist-copy-writer' | 'content-performance-analyst'
+  | 'connector-research' | 'personalized-outreach' | 'demo-script-generator' | 'follow-up-sequence' | 'connector-performance'
+  | 'keyword-strategy' | 'ad-copy-generator' | 'landing-page-copy' | 'roas-analyst'
+  | 'partner-research' | 'pitch-package' | 'improvement-prioritizer'
+  | 'weekly-diagnostician' | 'messaging-clarity' | 'stage-transition-advisor'
+
+export const WORKER_ENGINE_MAP: Record<WorkerType, Engine> = {
+  'seo-content-writer': 'pull', 'keyword-research': 'pull', 'search-console-optimizer': 'pull', 'backlink-outreach': 'pull',
+  'linkedin-director': 'push', 'email-sequence-writer': 'push', 'lead-magnet-generator': 'push', 'waitlist-copy-writer': 'push', 'content-performance-analyst': 'push',
+  'connector-research': 'bridge', 'personalized-outreach': 'bridge', 'demo-script-generator': 'bridge', 'follow-up-sequence': 'bridge', 'connector-performance': 'bridge',
+  'keyword-strategy': 'search', 'ad-copy-generator': 'search', 'landing-page-copy': 'search', 'roas-analyst': 'search',
+  'partner-research': 'equity', 'pitch-package': 'equity', 'improvement-prioritizer': 'equity',
+  'weekly-diagnostician': 'persistence', 'messaging-clarity': 'persistence', 'stage-transition-advisor': 'persistence',
+}
+
+export const WORKER_LABELS: Record<WorkerType, string> = {
+  'seo-content-writer': 'SEO Content Writer', 'keyword-research': 'Keyword Research', 'search-console-optimizer': 'Search Console Optimizer', 'backlink-outreach': 'Backlink Outreach',
+  'linkedin-director': 'LinkedIn Director', 'email-sequence-writer': 'Email Sequence Writer', 'lead-magnet-generator': 'Lead Magnet Generator', 'waitlist-copy-writer': 'Waitlist Page Copy', 'content-performance-analyst': 'Content Performance Analyst',
+  'connector-research': 'Connector Research', 'personalized-outreach': 'Personalized Outreach', 'demo-script-generator': 'Demo Script Generator', 'follow-up-sequence': 'Follow-up Sequence', 'connector-performance': 'Connector Performance',
+  'keyword-strategy': 'Keyword Strategy', 'ad-copy-generator': 'Ad Copy Generator', 'landing-page-copy': 'Landing Page Copy', 'roas-analyst': 'ROAS Analyst',
+  'partner-research': 'Partner Research', 'pitch-package': 'Pitch Package', 'improvement-prioritizer': 'Improvement Prioritizer',
+  'weekly-diagnostician': 'Weekly Diagnostician', 'messaging-clarity': 'Messaging Clarity', 'stage-transition-advisor': 'Stage Transition Advisor',
+}
+
+export interface InboxArtifact {
+  id: string
+  productId: string
+  engine: Engine
+  workerType: WorkerType
+  taskTitle: string
+  status: ArtifactStatus
+  content: string
+  editedContent?: string
+  directionNote?: string
+  generatedAt: string
+  approvedAt?: string
+  scheduledFor?: string
+  publishedAt?: string
+}
+
+/* ============================================================
+   Knowledge Base Types — AI Generation Context
+   ============================================================ */
+
+export interface KnowledgeBaseICP {
+  who: string
+  pain: string
+  triedBefore: string
+  desiredOutcome: string
+  hangoutsOnline: string
+}
+
+export interface KnowledgeBasePositioning {
+  oneLiner: string
+  benefits: [string, string, string]
+  competitor: string
+  switchReason: string
+}
+
+export interface KnowledgeBaseTone {
+  formality: 'formal' | 'conversational'
+  technicality: 'technical' | 'accessible'
+  boldness: 'bold' | 'measured'
+  lengthPreference: 'short-form' | 'long-form'
+}
+
+export interface ApprovedArtifact {
+  type: string
+  content: string
+  editedFrom: string
+  approvedAt: string
+}
+
+export interface KnowledgeBase {
+  voiceExamples: string[]
+  icp: KnowledgeBaseICP
+  positioning: KnowledgeBasePositioning
+  tone: KnowledgeBaseTone
+  approvedArtifacts: ApprovedArtifact[]
+}
+
+export function defaultKnowledgeBase(): KnowledgeBase {
+  return {
+    voiceExamples: [],
+    icp: { who: '', pain: '', triedBefore: '', desiredOutcome: '', hangoutsOnline: '' },
+    positioning: { oneLiner: '', benefits: ['', '', ''], competitor: '', switchReason: '' },
+    tone: { formality: 'conversational', technicality: 'accessible', boldness: 'bold', lengthPreference: 'short-form' },
+    approvedArtifacts: [],
+  }
+}
+
 export const ENGINE_META: Record<Engine, { label: string; color: string; lightBg: string }> = {
   pull:        { label: 'Pull',        color: 'var(--color-engine-pull)',        lightBg: 'var(--color-engine-pull-light)' },
   push:        { label: 'Push',        color: 'var(--color-engine-push)',        lightBg: 'var(--color-engine-push-light)' },

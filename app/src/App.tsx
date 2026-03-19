@@ -5,7 +5,9 @@ import { ProductView } from '@/components/products/ProductView'
 import { ProductsList } from '@/components/products/ProductsList'
 import { Settings } from '@/components/settings/Settings'
 import { BriefingRoom } from '@/components/briefing/BriefingRoom'
+import { Inbox } from '@/components/inbox/Inbox'
 import { FirstMission } from '@/components/onboarding/FirstMission'
+import { SetupSprint } from '@/components/onboarding/SetupSprint'
 import { Landing } from '@/pages/Landing'
 import { Login } from '@/pages/Login'
 import { SignUp } from '@/pages/SignUp'
@@ -17,6 +19,7 @@ import { useOnboardingState } from '@/hooks/useOnboardingState'
 import { usePreferences } from '@/hooks/usePreferences'
 import { useAuth } from '@/hooks/useAuth'
 import { isSupabaseConfigured } from '@/lib/supabase'
+import { useScheduler } from '@/hooks/useScheduler'
 
 function ProtectedRoutes() {
   const { user, loading } = useAuth()
@@ -55,10 +58,15 @@ export default function App() {
   const hasProducts = state.products.length > 0
   const {
     isFirstTime,
+    needsSetupSprint,
     completeFirstMission,
+    completeSetupSprint,
     markBriefingVisited,
     showBriefingBadge,
   } = useOnboardingState(hasProducts)
+
+  // Run automation scheduler in background
+  useScheduler(state.products)
 
   const appContent = (
     <BrowserRouter>
@@ -86,9 +94,12 @@ export default function App() {
               element={
                 isFirstTime
                   ? <FirstMission dispatch={dispatch} onComplete={completeFirstMission} />
-                  : <Dashboard state={state} dispatch={dispatch} />
+                  : needsSetupSprint
+                    ? <SetupSprint state={state} onComplete={completeSetupSprint} />
+                    : <Dashboard state={state} dispatch={dispatch} />
               }
             />
+            <Route path="/inbox" element={<Inbox state={state} />} />
             <Route path="/briefing" element={<BriefingRoom onVisit={markBriefingVisited} />} />
             <Route path="/products" element={<ProductsList state={state} dispatch={dispatch} />} />
             <Route path="/products/:id" element={<ProductView state={state} dispatch={dispatch} />} />

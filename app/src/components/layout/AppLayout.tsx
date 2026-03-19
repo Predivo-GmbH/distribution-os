@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Package, Settings, BookOpen } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { LayoutDashboard, Package, Settings, BookOpen, Inbox } from 'lucide-react'
 import type { Product } from '@/types'
 import { ENGINE_META } from '@/types'
 import { cn } from '@/lib/utils'
+import { getPendingCount } from '@/lib/storage'
 
 interface Props {
   children: ReactNode
@@ -13,11 +15,21 @@ interface Props {
 
 const NAV_ITEMS = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/inbox', icon: Inbox, label: 'Inbox' },
   { to: '/products', icon: Package, label: 'Products' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]
 
 export function AppLayout({ children, products, showBriefingBadge }: Props) {
+  const [inboxCount, setInboxCount] = useState(0)
+
+  // Poll inbox count every 30s + on mount
+  useEffect(() => {
+    setInboxCount(getPendingCount())
+    const interval = setInterval(() => setInboxCount(getPendingCount()), 30000)
+    return () => clearInterval(interval)
+  }, [])
+
   // Collect active engines from all products
   const activeEngines = [...new Set(products.flatMap(p => [p.primaryEngine, ...p.secondaryEngines]))]
 
@@ -57,6 +69,11 @@ export function AppLayout({ children, products, showBriefingBadge }: Props) {
             >
               <Icon size={16} strokeWidth={1.5} />
               {label}
+              {label === 'Inbox' && inboxCount > 0 && (
+                <span className="ml-auto px-1.5 py-0.5 rounded text-[10px] font-bold bg-[var(--color-accent)] text-white leading-none tabular-nums">
+                  {inboxCount}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>

@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Search } from 'lucide-react'
+import { Search, Inbox } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import type { AppState } from '@/types'
 import { ENGINE_META } from '@/types'
 import type { Action } from '@/hooks/useAppState'
 import { getTasksForProduct } from '@/data/task-templates'
-import { generateId } from '@/lib/storage'
+import { generateId, getPendingCount } from '@/lib/storage'
 import { IntelligencePanel } from '@/components/shared/IntelligencePanel'
+import { GenerateButton } from '@/components/shared/GenerateButton'
 
 interface Props {
   state: AppState
@@ -13,7 +15,9 @@ interface Props {
 }
 
 export function Dashboard({ state, dispatch }: Props) {
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
+  const inboxPending = getPendingCount()
   const dateRange = useMemo(() => {
     const now = new Date()
     const start = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
@@ -121,6 +125,27 @@ export function Dashboard({ state, dispatch }: Props) {
         </div>
       </div>
 
+      {/* Inbox summary card */}
+      {inboxPending > 0 && (
+        <button
+          onClick={() => navigate('/inbox')}
+          className="w-full flex items-center gap-4 bg-[var(--color-accent-light)] border border-[var(--color-accent)]/20 rounded-xl p-4 hover:bg-[var(--color-accent-light)]/80 transition-colors text-left"
+        >
+          <div className="w-10 h-10 rounded-lg bg-[var(--color-accent)] flex items-center justify-center shrink-0">
+            <Inbox size={18} className="text-white" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-[var(--color-ink)]">
+              {inboxPending} item{inboxPending !== 1 ? 's' : ''} pending review
+            </p>
+            <p className="text-xs text-[var(--color-ink-muted)]">
+              AI-generated artifacts across {state.products.length} product{state.products.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+          <span className="text-xs font-medium text-[var(--color-accent-text)]">Review &rarr;</span>
+        </button>
+      )}
+
       {/* Per-engine metric cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {engineMetrics.map(({ engine, score, max, pct, trend }) => (
@@ -179,54 +204,61 @@ export function Dashboard({ state, dispatch }: Props) {
           <div className="w-4" />
           <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--color-ink-muted)] w-20">Engine</span>
           <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--color-ink-muted)] flex-1">Task</span>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--color-ink-muted)] w-20 text-center">AI</span>
           <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--color-ink-muted)] w-16 text-right">Score</span>
         </div>
 
         <div className="space-y-1">
           {Object.entries(tasksByEngine).flatMap(([engine, tasks]) =>
-            tasks.map(task => (
-              <button
-                key={task.id}
-                onClick={() => dispatch({ type: 'TOGGLE_TASK', payload: task.id })}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-[var(--color-surface)] border border-[var(--color-edge)] hover:bg-[var(--color-surface-hover)] transition-colors text-left"
-              >
+            tasks.map(task => {
+              const product = state.products.find(p => p.id === task.productId)
+              return (
                 <div
-                  className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
-                    task.completed
-                      ? 'bg-[var(--color-accent)] border-[var(--color-accent)]'
-                      : 'border-[var(--color-edge-outline)]'
-                  }`}
+                  key={task.id}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-[var(--color-surface)] border border-[var(--color-edge)] hover:bg-[var(--color-surface-hover)] transition-colors"
                 >
-                  {task.completed && (
-                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                      <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  )}
+                  <button
+                    onClick={() => dispatch({ type: 'TOGGLE_TASK', payload: task.id })}
+                    className="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+                    style={{
+                      backgroundColor: task.completed ? 'var(--color-accent)' : 'transparent',
+                      borderColor: task.completed ? 'var(--color-accent)' : 'var(--color-edge-outline)',
+                    }}
+                  >
+                    {task.completed && (
+                      <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                        <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </button>
+                  <span
+                    className="w-20 shrink-0 inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.05em] font-mono"
+                    style={{ color: ENGINE_META[engine as keyof typeof ENGINE_META]?.color }}
+                  >
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: ENGINE_META[engine as keyof typeof ENGINE_META]?.color }}
+                    />
+                    {ENGINE_META[engine as keyof typeof ENGINE_META]?.label}
+                  </span>
+                  <span
+                    className={`flex-1 text-sm ${
+                      task.completed
+                        ? 'text-[var(--color-ink-muted)] line-through'
+                        : 'text-[var(--color-ink)]'
+                    }`}
+                  >
+                    {task.title}
+                  </span>
+                  <span className="w-20 flex justify-center">
+                    {product && !task.completed && <GenerateButton task={task} product={product} />}
+                  </span>
+                  <span className="font-mono text-xs font-semibold text-[var(--color-ink-muted)] tabular-nums w-16 text-right">
+                    +{task.score} pts
+                  </span>
                 </div>
-                <span
-                  className="w-20 shrink-0 inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.05em] font-mono"
-                  style={{ color: ENGINE_META[engine as keyof typeof ENGINE_META]?.color }}
-                >
-                  <div
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: ENGINE_META[engine as keyof typeof ENGINE_META]?.color }}
-                  />
-                  {ENGINE_META[engine as keyof typeof ENGINE_META]?.label}
-                </span>
-                <span
-                  className={`flex-1 text-sm ${
-                    task.completed
-                      ? 'text-[var(--color-ink-muted)] line-through'
-                      : 'text-[var(--color-ink)]'
-                  }`}
-                >
-                  {task.title}
-                </span>
-                <span className="font-mono text-xs font-semibold text-[var(--color-ink-muted)] tabular-nums w-16 text-right">
-                  +{task.score} pts
-                </span>
-              </button>
-            ))
+              )
+            })
           )}
         </div>
       </div>
