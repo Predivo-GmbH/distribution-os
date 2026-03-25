@@ -17,7 +17,7 @@ test.describe('Password Gate', () => {
 
   test('accepts correct password and shows app', async ({ page }) => {
     await page.goto('/')
-    await page.getByPlaceholder('Access code').fill('distributionos2026')
+    await page.getByPlaceholder('Access code').fill('predivo2026')
     await page.getByRole('button', { name: 'Enter' }).click()
     // After gate, should see landing page
     await expect(page.getByText('Distribution OS', { exact: true }).first()).toBeVisible()
