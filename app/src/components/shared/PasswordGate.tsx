@@ -1,7 +1,16 @@
 import { useState, type ReactNode } from 'react'
 
-const DEV_PASSWORD = 'distributionos2026'
+// SHA-256 hex hash of the access code (never store plaintext)
+const PASSWORD_HASH =
+  '3bd8037a8ed38a35825983767f94e6cf3b18c3deee1601daee71faec0d83565f'
 const SESSION_KEY = 'distribution-os-dev-access'
+
+async function sha256(message: string): Promise<string> {
+  const data = new TextEncoder().encode(message)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+}
 
 interface Props {
   children: ReactNode
@@ -16,9 +25,10 @@ export function PasswordGate({ children }: Props) {
 
   if (granted) return <>{children}</>
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (input === DEV_PASSWORD) {
+    const hash = await sha256(input)
+    if (hash === PASSWORD_HASH) {
       sessionStorage.setItem(SESSION_KEY, 'true')
       setGranted(true)
     } else {
