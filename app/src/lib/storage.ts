@@ -1,9 +1,10 @@
 /* ============================================================
-   localStorage Data Layer
-   All data persists locally — no server, no auth.
+   localStorage Data Layer + Supabase sync
+   Local reads for speed, async Supabase sync for cloud persistence.
    ============================================================ */
 
 import type { AppState, WeekRecord, UserPreferences, InboxArtifact, ArtifactStatus } from '@/types'
+import { isSupabaseConfigured } from '@/lib/supabase'
 
 const STORAGE_KEY = 'distribution-os'
 
@@ -123,6 +124,13 @@ export function addArtifact(artifact: Omit<InboxArtifact, 'id' | 'generatedAt'>)
   }
   items.unshift(newItem)
   saveInbox(items)
+
+  if (isSupabaseConfigured) {
+    import('@/lib/supabase-storage').then(sb =>
+      sb.addInboxArtifact(artifact).catch(() => {})
+    )
+  }
+
   return newItem
 }
 
@@ -132,6 +140,12 @@ export function updateArtifact(id: string, updates: Partial<InboxArtifact>): voi
   if (idx !== -1) {
     items[idx] = { ...items[idx], ...updates }
     saveInbox(items)
+  }
+
+  if (isSupabaseConfigured) {
+    import('@/lib/supabase-storage').then(sb =>
+      sb.updateInboxArtifact(id, updates).catch(() => {})
+    )
   }
 }
 
@@ -146,6 +160,12 @@ export function updateArtifactStatus(id: string, status: ArtifactStatus): void {
 export function removeArtifact(id: string): void {
   const items = loadInbox().filter(a => a.id !== id)
   saveInbox(items)
+
+  if (isSupabaseConfigured) {
+    import('@/lib/supabase-storage').then(sb =>
+      sb.removeInboxArtifact(id).catch(() => {})
+    )
+  }
 }
 
 export function getPendingCount(): number {
@@ -174,10 +194,22 @@ export function loadKnowledgeBase(productId: string): KnowledgeBase {
 
 export function saveKnowledgeBase(productId: string, kb: KnowledgeBase): void {
   localStorage.setItem(KB_PREFIX + productId, JSON.stringify(kb))
+
+  if (isSupabaseConfigured) {
+    import('@/lib/supabase-storage').then(sb =>
+      sb.saveKnowledgeBase(productId, kb).catch(() => {})
+    )
+  }
 }
 
 export function removeKnowledgeBase(productId: string): void {
   localStorage.removeItem(KB_PREFIX + productId)
+
+  if (isSupabaseConfigured) {
+    import('@/lib/supabase-storage').then(sb =>
+      sb.removeKnowledgeBase(productId).catch(() => {})
+    )
+  }
 }
 
 export function hasKnowledgeBase(productId: string): boolean {
