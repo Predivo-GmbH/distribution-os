@@ -8,7 +8,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:5183',
     trace: 'on-first-retry',
   },
   projects: [
@@ -18,8 +18,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npx vite --mode test',
-    url: 'http://localhost:5173',
+    command: 'npx vite --mode test --port 5183',
+    url: 'http://localhost:5183',
     reuseExistingServer: !process.env.CI,
     timeout: 30000,
   },
