@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /signup
+Allow: /pricing
+
+Disallow: /dashboard
+Disallow: /inbox
+Disallow: /briefing
+Disallow: /products
+Disallow: /settings
+Disallow: /reset-password
+
+Sitemap: https://distributionos.predivo.ch/sitemap.xml
