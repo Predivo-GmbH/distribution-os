@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -54,6 +54,8 @@ jobs:
             put ./app/dist/index.html -o /distributionos.predivo.ch/index.html;
             put ./app/dist/.htaccess -o /distributionos.predivo.ch/.htaccess;
             put ./app/dist/favicon.svg -o /distributionos.predivo.ch/favicon.svg;
+            put ./app/dist/robots.txt -o /distributionos.predivo.ch/robots.txt;
+            put ./app/dist/sitemap.xml -o /distributionos.predivo.ch/sitemap.xml;
             quit;
           "
 
