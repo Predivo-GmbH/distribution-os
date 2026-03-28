@@ -1,4 +1,6 @@
 import { useState, type ReactNode } from 'react'
+import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
 
 // SHA-256 hex hash of the access code (never store plaintext)
 const PASSWORD_HASH =
@@ -53,7 +55,7 @@ export function PasswordGate({ children }: Props) {
           </span>
         </div>
 
-        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-6 text-center">
+        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-6 text-center">
           <h1 className="text-xl font-semibold text-[var(--color-ink)] mb-1">
             Early Access
           </h1>
@@ -62,27 +64,20 @@ export function PasswordGate({ children }: Props) {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <input
+            <Input
               type="password"
               value={input}
               onChange={e => { setInput(e.target.value); setError(false) }}
-              className={`w-full px-3 py-2 rounded-lg border text-sm text-center bg-[var(--color-surface)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none ${
-                error
-                  ? 'border-[var(--color-error)]'
-                  : 'border-[var(--color-edge-outline)] focus:border-[var(--color-edge-focus)]'
-              }`}
+              className={`text-center ${error ? 'border-[var(--color-error)]' : ''}`}
               placeholder="Access code"
               autoFocus
             />
             {error && (
               <p className="text-xs text-[var(--color-error)]">Incorrect code. Try again.</p>
             )}
-            <button
-              type="submit"
-              className="w-full py-2.5 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
-            >
+            <Button type="submit" size="full">
               Enter
-            </button>
+            </Button>
           </form>
         </div>
       </div>

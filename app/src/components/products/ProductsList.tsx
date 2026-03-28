@@ -27,7 +27,7 @@ export function ProductsList({ state, dispatch }: Props) {
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
         >
           + Add Product
         </button>
@@ -43,7 +43,7 @@ export function ProductsList({ state, dispatch }: Props) {
             <Link
               key={product.id}
               to={`/products/${product.id}`}
-              className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-5 hover:border-[var(--color-accent-muted)] transition-colors group"
+              className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5 hover:border-[var(--color-accent-muted)] transition-colors group"
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
@@ -53,7 +53,7 @@ export function ProductsList({ state, dispatch }: Props) {
                       {product.stage.replace('-', ' ')}
                     </span>
                   </div>
-                  <p className="text-sm text-[var(--color-ink-body)] mt-0.5">{product.description}</p>
+                  <p className="text-sm text-[var(--color-ink-body)] mt-0.5 line-clamp-2">{product.description}</p>
                 </div>
                 <ArrowRight
                   size={16}

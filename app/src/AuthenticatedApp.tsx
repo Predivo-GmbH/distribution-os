@@ -1,0 +1,72 @@
+import { lazy, Suspense } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { AppLayout } from '@/components/layout/AppLayout'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { useAppState } from '@/hooks/useAppState'
+import { useOnboardingState } from '@/hooks/useOnboardingState'
+import { usePreferences } from '@/hooks/usePreferences'
+import { useScheduler } from '@/hooks/useScheduler'
+
+const Dashboard = lazy(() => import('@/components/dashboard/Dashboard').then(m => ({ default: m.Dashboard })))
+const ProductView = lazy(() => import('@/components/products/ProductView').then(m => ({ default: m.ProductView })))
+const ProductsList = lazy(() => import('@/components/products/ProductsList').then(m => ({ default: m.ProductsList })))
+const Settings = lazy(() => import('@/components/settings/Settings').then(m => ({ default: m.Settings })))
+const BriefingRoom = lazy(() => import('@/components/briefing/BriefingRoom').then(m => ({ default: m.BriefingRoom })))
+const Inbox = lazy(() => import('@/components/inbox/Inbox').then(m => ({ default: m.Inbox })))
+const FirstMission = lazy(() => import('@/components/onboarding/FirstMission').then(m => ({ default: m.FirstMission })))
+const SetupSprint = lazy(() => import('@/components/onboarding/SetupSprint').then(m => ({ default: m.SetupSprint })))
+
+/**
+ * Authenticated app shell — lazy-loaded from App.tsx so that useAppState,
+ * usePreferences, useScheduler (and their Supabase storage imports) stay
+ * off the public page critical path. Saves ~165 KB for unauthenticated visitors.
+ */
+export function AuthenticatedApp() {
+  const { state, dispatch } = useAppState()
+  const { prefs, setDarkMode, setWeekStartDay } = usePreferences()
+  const hasProducts = state.products.length > 0
+  const {
+    isFirstTime,
+    needsSetupSprint,
+    completeFirstMission,
+    completeSetupSprint,
+    markBriefingVisited,
+    showBriefingBadge,
+  } = useOnboardingState(hasProducts)
+
+  // Run automation scheduler in background
+  useScheduler(state.products)
+
+  return (
+    <AppLayout products={state.products} showBriefingBadge={showBriefingBadge}>
+      <Suspense fallback={<LoadingSpinner />}>
+        <Routes>
+          <Route
+            path="/dashboard"
+            element={
+              isFirstTime
+                ? <FirstMission dispatch={dispatch} onComplete={completeFirstMission} />
+                : needsSetupSprint
+                  ? <SetupSprint state={state} onComplete={completeSetupSprint} />
+                  : <Dashboard state={state} dispatch={dispatch} />
+            }
+          />
+          <Route path="/inbox" element={<Inbox state={state} />} />
+          <Route path="/briefing" element={<BriefingRoom onVisit={markBriefingVisited} />} />
+          <Route path="/products" element={<ProductsList state={state} dispatch={dispatch} />} />
+          <Route path="/products/:id" element={<ProductView state={state} dispatch={dispatch} />} />
+          <Route path="/settings" element={
+            <Settings
+              state={state}
+              dispatch={dispatch}
+              prefs={prefs}
+              onDarkModeChange={setDarkMode}
+              onWeekStartChange={setWeekStartDay}
+            />
+          } />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </Suspense>
+    </AppLayout>
+  )
+}

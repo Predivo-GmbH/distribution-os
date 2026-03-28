@@ -39,7 +39,7 @@ export function ProductsTab({ state, dispatch }: Props) {
         </p>
         <button
           onClick={openAdd}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
         >
           + Add Product
         </button>
@@ -54,7 +54,7 @@ export function ProductsTab({ state, dispatch }: Props) {
           return (
             <div
               key={product.id}
-              className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-5"
+              className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
@@ -71,7 +71,7 @@ export function ProductsTab({ state, dispatch }: Props) {
                 </div>
                 <button
                   onClick={() => openEdit(product)}
-                  className="text-sm text-[var(--color-accent-text)] hover:underline"
+                  className="min-h-[44px] min-w-[44px] inline-flex items-center text-sm text-[var(--color-accent-text)] hover:underline"
                 >
                   Edit
                 </button>
@@ -98,13 +98,13 @@ export function ProductsTab({ state, dispatch }: Props) {
               </div>
 
               {/* Stats row */}
-              <div className="flex items-center gap-6 text-xs text-[var(--color-ink-muted)]">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[var(--color-ink-muted)]">
                 <span>Stage: <span className="capitalize">{product.stage.replace('-', ' ')}</span></span>
                 <span>Revenue: {product.revenue ? `$${product.revenue.toLocaleString()} MRR` : '—'}</span>
                 <span>Tasks this week: {productTasks.length}</span>
                 <button
                   onClick={() => handleDelete(product.id)}
-                  className="ml-auto p-1.5 rounded-lg text-[var(--color-ink-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] transition-colors"
+                  className="ml-auto min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-[var(--color-ink-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] transition-colors"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -118,7 +118,7 @@ export function ProductsTab({ state, dispatch }: Props) {
             <p className="text-sm">No products registered yet.</p>
             <button
               onClick={openAdd}
-              className="mt-3 text-sm text-[var(--color-accent-text)] hover:underline"
+              className="mt-3 min-h-[44px] inline-flex items-center text-sm text-[var(--color-accent-text)] hover:underline"
             >
               Add your first product
             </button>

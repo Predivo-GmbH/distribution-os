@@ -2,7 +2,9 @@ import { handleCors, createJsonResponse } from '../_shared/cors.ts'
 import { getSupabaseAdmin } from '../_shared/supabaseAdmin.ts'
 import Stripe from 'https://esm.sh/stripe@17?target=deno'
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2025-04-30.basil' })
+const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
+if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY env var')
+const stripe = new Stripe(stripeKey, { apiVersion: '2025-04-30.basil' })
 
 Deno.serve(async (req: Request) => {
   const corsResponse = handleCors(req)

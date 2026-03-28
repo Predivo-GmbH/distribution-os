@@ -23,26 +23,28 @@ const ENGINES: Engine[] = ['pull', 'push', 'bridge', 'search', 'equity', 'persis
 
 export function EngineSelect({ primaryEngine, secondaryEngines, onPrimaryChange, onSecondaryToggle, onNext, onBack }: Props) {
   return (
-    <div className="max-w-xl mx-auto py-12">
+    <div className="max-w-xl mx-auto py-6 sm:py-12">
       <p className="text-xs font-semibold uppercase tracking-[0.05em] text-[var(--color-accent-text)] mb-2">
         Step 4 of 5
       </p>
       <h2 className="text-2xl font-bold text-[var(--color-ink)] tracking-tight mb-2">
         Choose your distribution engines
       </h2>
-      <p className="text-sm text-[var(--color-ink-body)] mb-8">
+      <p className="text-sm text-[var(--color-ink-body)] mb-5 sm:mb-8">
         Engines are the channels through which you distribute your product. Pick one primary engine to focus on, then optionally add secondary engines. Your weekly tasks will be generated based on these selections.
       </p>
 
       {/* Primary engine */}
       <div className="mb-6">
         <label className="block text-sm font-semibold text-[var(--color-ink)] mb-3">Primary Engine</label>
-        <div className="grid grid-cols-2 gap-2">
+        <div role="radiogroup" aria-label="Primary engine" className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {ENGINES.map(engine => (
             <button
               key={engine}
+              role="radio"
+              aria-checked={primaryEngine === engine}
               onClick={() => onPrimaryChange(engine)}
-              className={`text-left px-4 py-3 rounded-xl border transition-colors ${
+              className={`text-left px-4 py-3 min-h-[44px] rounded-xl border transition-colors ${
                 primaryEngine === engine
                   ? 'border-[var(--color-accent)] bg-[var(--color-accent-light)]'
                   : 'border-[var(--color-edge)] hover:border-[var(--color-edge-outline)]'
@@ -50,6 +52,7 @@ export function EngineSelect({ primaryEngine, secondaryEngines, onPrimaryChange,
             >
               <div className="flex items-center gap-2 mb-1">
                 <div
+                  aria-hidden="true"
                   className="w-2.5 h-2.5 rounded-full"
                   style={{ backgroundColor: ENGINE_META[engine].color }}
                 />
@@ -74,7 +77,7 @@ export function EngineSelect({ primaryEngine, secondaryEngines, onPrimaryChange,
             <button
               key={engine}
               onClick={() => onSecondaryToggle(engine)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
+              className={`inline-flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-md text-xs font-medium border transition-colors ${
                 secondaryEngines.includes(engine)
                   ? 'border-[var(--color-accent)] bg-[var(--color-accent-light)] text-[var(--color-accent-text)]'
                   : 'border-[var(--color-edge)] text-[var(--color-ink-muted)] hover:border-[var(--color-edge-outline)]'
@@ -93,13 +96,13 @@ export function EngineSelect({ primaryEngine, secondaryEngines, onPrimaryChange,
       <div className="flex items-center gap-3">
         <button
           onClick={onBack}
-          className="px-4 py-2.5 rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
+          className="px-4 py-2.5 min-h-[44px] rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
         >
           Back
         </button>
         <button
           onClick={onNext}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
         >
           Continue
         </button>

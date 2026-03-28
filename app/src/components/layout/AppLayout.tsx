@@ -52,7 +52,7 @@ export function AppLayout({ children, products, showBriefingBadge }: Props) {
         {/* Close button — mobile only */}
         <button
           onClick={() => setSidebarOpen(false)}
-          className="md:hidden p-1.5 rounded-lg text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-hover)] transition-colors"
+          className="md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-hover)] transition-colors"
           aria-label="Close sidebar"
         >
           <X size={18} />
@@ -69,7 +69,7 @@ export function AppLayout({ children, products, showBriefingBadge }: Props) {
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors',
+                'flex items-center gap-2 px-3 py-2 min-h-[44px] rounded-lg text-sm transition-colors',
                 isActive
                   ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-text)] font-medium'
                   : 'text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)]'
@@ -125,7 +125,7 @@ export function AppLayout({ children, products, showBriefingBadge }: Props) {
           onClick={() => setSidebarOpen(false)}
           className={({ isActive }) =>
             cn(
-              'flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors',
+              'flex items-center gap-2 px-3 py-2 min-h-[44px] rounded-lg text-sm transition-colors',
               isActive
                 ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-text)] font-medium'
                 : 'text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)]'
@@ -176,7 +176,7 @@ export function AppLayout({ children, products, showBriefingBadge }: Props) {
         <div className="md:hidden flex items-center gap-3 px-4 h-14 border-b border-[var(--color-edge)] bg-[var(--color-surface-sidebar)]">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-1.5 rounded-lg text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-hover)] transition-colors"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-hover)] transition-colors"
             aria-label="Open sidebar"
           >
             <Menu size={20} />

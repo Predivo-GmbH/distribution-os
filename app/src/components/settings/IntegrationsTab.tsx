@@ -48,19 +48,21 @@ export function IntegrationsTab() {
               <p className="text-sm font-medium text-[var(--color-ink)]">Auto-publish</p>
               <p className="text-xs text-[var(--color-ink-muted)]">Posts publish automatically at scheduled times (30-min override window in Inbox)</p>
             </div>
-            <button
-              onClick={() => setConfig(prev => ({ ...prev, linkedin: { ...prev.linkedin, autoPublish: !prev.linkedin.autoPublish } }))}
-              role="switch"
-              aria-checked={config.linkedin.autoPublish}
-              aria-label="LinkedIn auto-publish"
-              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                config.linkedin.autoPublish ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-edge-outline)]'
-              }`}
-            >
-              <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
-                config.linkedin.autoPublish ? 'translate-x-4.5' : 'translate-x-0.5'
-              }`} />
-            </button>
+            <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
+              <button
+                onClick={() => setConfig(prev => ({ ...prev, linkedin: { ...prev.linkedin, autoPublish: !prev.linkedin.autoPublish } }))}
+                role="switch"
+                aria-checked={config.linkedin.autoPublish}
+                aria-label="LinkedIn auto-publish"
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                  config.linkedin.autoPublish ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-edge-outline)]'
+                }`}
+              >
+                <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
+                  config.linkedin.autoPublish ? 'translate-x-4.5' : 'translate-x-0.5'
+                }`} />
+              </button>
+            </div>
           </div>
         </div>
       </IntegrationCard>
@@ -121,7 +123,7 @@ export function IntegrationsTab() {
             <select
               value={config.emailService.provider}
               onChange={e => setConfig(prev => ({ ...prev, emailService: { ...prev.emailService, provider: e.target.value as IntegrationConfig['emailService']['provider'] } }))}
-              className="px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
+              className="min-h-[44px] px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
             >
               <option value="">Select provider...</option>
               <option value="resend">Resend</option>
@@ -144,7 +146,7 @@ export function IntegrationsTab() {
       <div className="flex items-center gap-3">
         <button
           onClick={handleSave}
-          className="px-5 py-2 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+          className="px-5 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
         >
           Save Integrations
         </button>
@@ -164,7 +166,7 @@ function IntegrationCard({ title, description, connected, onToggle, children }: 
   title: string; description: string; connected: boolean; onToggle: () => void; children: React.ReactNode
 }) {
   return (
-    <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-5 space-y-4">
+    <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5 space-y-4">
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2">
@@ -176,19 +178,21 @@ function IntegrationCard({ title, description, connected, onToggle, children }: 
           </div>
           <p className="text-xs text-[var(--color-ink-muted)] mt-0.5">{description}</p>
         </div>
-        <button
-          onClick={onToggle}
-          role="switch"
-          aria-checked={connected}
-          aria-label={`${title} connection`}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-            connected ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-edge-outline)]'
-          }`}
-        >
-          <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
-            connected ? 'translate-x-6' : 'translate-x-1'
-          }`} />
-        </button>
+        <div className="min-h-[44px] flex items-center">
+          <button
+            onClick={onToggle}
+            role="switch"
+            aria-checked={connected}
+            aria-label={`${title} connection`}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              connected ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-edge-outline)]'
+            }`}
+          >
+            <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
+              connected ? 'translate-x-6' : 'translate-x-1'
+            }`} />
+          </button>
+        </div>
       </div>
       {connected && children}
     </div>
@@ -207,11 +211,11 @@ function TokenField({ label, value, onChange, show, onToggleShow, placeholder }:
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full px-3 py-2 pr-10 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] font-mono"
+          className="w-full px-3 py-2 pr-10 min-h-[44px] rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] font-mono"
         />
         <button
           onClick={onToggleShow}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]"
+          className="absolute right-2 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]"
         >
           {show ? <EyeOff size={14} /> : <Eye size={14} />}
         </button>

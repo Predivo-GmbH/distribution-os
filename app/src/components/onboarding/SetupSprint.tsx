@@ -87,7 +87,7 @@ export function SetupSprint({ state, onComplete }: Props) {
   return (
     <div className="max-w-3xl mx-auto">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex items-center gap-3 mb-5 sm:mb-8">
         <div className="w-10 h-10 rounded-xl bg-[var(--color-accent)] flex items-center justify-center">
           <Zap size={20} className="text-white" />
         </div>
@@ -98,7 +98,7 @@ export function SetupSprint({ state, onComplete }: Props) {
       </div>
 
       {/* Step indicator */}
-      <div className="flex items-center gap-1 mb-8">
+      <div className="flex items-center gap-1 mb-5 sm:mb-8 overflow-x-auto">
         {STEPS.map((s, i) => {
           const Icon = s.icon
           const isActive = s.num === step
@@ -107,7 +107,7 @@ export function SetupSprint({ state, onComplete }: Props) {
             <div key={s.num} className="flex items-center">
               <button
                 onClick={() => s.num <= step && setStep(s.num as Step)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2 min-h-[44px] rounded-lg text-sm transition-colors ${
                   isActive
                     ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-text)] font-medium'
                     : isDone
@@ -131,7 +131,7 @@ export function SetupSprint({ state, onComplete }: Props) {
       </div>
 
       {/* Progress bar */}
-      <div className="h-1 bg-[var(--color-progress-track)] rounded-full mb-8 overflow-hidden">
+      <div className="h-1 bg-[var(--color-progress-track)] rounded-full mb-5 sm:mb-8 overflow-hidden">
         <div
           className="h-full bg-[var(--color-accent)] transition-all duration-300 ease-out rounded-full"
           style={{ width: `${((step - 1) / 4) * 100}%` }}
@@ -212,7 +212,7 @@ export function SetupSprint({ state, onComplete }: Props) {
           <SchedulerTab />
 
           {/* First Run section */}
-          <div className="bg-[var(--color-surface)] border-2 border-[var(--color-accent)]/30 rounded-xl p-6 space-y-4">
+          <div className="bg-[var(--color-surface)] border-2 border-[var(--color-accent)]/30 rounded-xl p-4 sm:p-6 space-y-4">
             <div className="flex items-center gap-2">
               <Play size={18} className="text-[var(--color-accent)]" />
               <h3 className="text-base font-semibold text-[var(--color-ink)]">First Run</h3>
@@ -225,10 +225,10 @@ export function SetupSprint({ state, onComplete }: Props) {
             </p>
 
             {firstRunStatus === 'idle' && (
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={back}
-                  className="px-4 py-2.5 rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
+                  className="w-full sm:w-auto px-4 py-2.5 min-h-[44px] rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
                 >
                   <ArrowLeft size={14} className="inline mr-1" />
                   Back
@@ -236,7 +236,7 @@ export function SetupSprint({ state, onComplete }: Props) {
                 {aiConfigured ? (
                   <button
                     onClick={handleFirstRun}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
                   >
                     <Play size={14} />
                     Run All Workers Now
@@ -244,7 +244,7 @@ export function SetupSprint({ state, onComplete }: Props) {
                 ) : (
                   <button
                     onClick={onComplete}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
                   >
                     Complete Setup
                   </button>
@@ -252,7 +252,7 @@ export function SetupSprint({ state, onComplete }: Props) {
                 {aiConfigured && (
                   <button
                     onClick={onComplete}
-                    className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors"
+                    className="w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors"
                   >
                     Skip first run
                   </button>
@@ -278,7 +278,7 @@ export function SetupSprint({ state, onComplete }: Props) {
                 </p>
                 <button
                   onClick={onComplete}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
                 >
                   Go to Inbox
                   <ChevronRight size={14} />
@@ -294,7 +294,7 @@ export function SetupSprint({ state, onComplete }: Props) {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={onComplete}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
                   >
                     Continue to Dashboard
                   </button>
@@ -344,7 +344,7 @@ function StepWrapper({
         {onBack && (
           <button
             onClick={onBack}
-            className="px-4 py-2.5 rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
+            className="px-4 py-2.5 min-h-[44px] rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
           >
             <ArrowLeft size={14} className="inline mr-1" />
             Back
@@ -353,7 +353,7 @@ function StepWrapper({
         <button
           onClick={onNext}
           disabled={!canProceed}
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 px-6 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {nextLabel}
           <ChevronRight size={14} />

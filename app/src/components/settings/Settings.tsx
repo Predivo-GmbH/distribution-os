@@ -8,6 +8,7 @@ import { MetricsTab } from './MetricsTab'
 import { GeneralTab } from './GeneralTab'
 import { KnowledgeBaseTab } from './KnowledgeBaseTab'
 import { AIConfigTab } from './AIConfigTab'
+import { PageMeta } from '@/components/shared/PageMeta'
 import { SchedulerTab } from './SchedulerTab'
 import { IntegrationsTab } from './IntegrationsTab'
 
@@ -36,17 +37,22 @@ export function Settings({ state, dispatch, prefs, onDarkModeChange, onWeekStart
   const [activeTab, setActiveTab] = useState<Tab>('products')
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
+      <PageMeta title="Settings — Distribution OS" noindex />
       <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">Settings</h1>
 
       {/* Tab bar */}
-      <div className="border-b border-[var(--color-edge)] overflow-x-auto">
-        <nav className="flex gap-4 md:gap-6 min-w-max">
+      <div className="border-b border-[var(--color-edge)] overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0" style={{ maskImage: 'linear-gradient(to right, black 90%, transparent)' }}>
+        <div role="tablist" aria-label="Settings sections" className="flex gap-4 md:gap-6 min-w-max">
           {TABS.map(tab => (
             <button
               key={tab.id}
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              aria-controls={`settings-tabpanel-${tab.id}`}
+              id={`settings-tab-${tab.id}`}
               onClick={() => setActiveTab(tab.id)}
-              className={`pb-3 text-sm font-medium transition-colors relative ${
+              className={`pb-3 pt-2 min-h-[44px] text-sm font-medium transition-colors relative whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'text-[var(--color-accent-text)]'
                   : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-body)]'
@@ -58,7 +64,7 @@ export function Settings({ state, dispatch, prefs, onDarkModeChange, onWeekStart
               )}
             </button>
           ))}
-        </nav>
+        </div>
       </div>
 
       {/* Intelligence Panel — only on Products tab */}
@@ -74,21 +80,23 @@ export function Settings({ state, dispatch, prefs, onDarkModeChange, onWeekStart
       )}
 
       {/* Tab content */}
-      {activeTab === 'products' && <ProductsTab state={state} dispatch={dispatch} />}
-      {activeTab === 'knowledge-base' && <KnowledgeBaseTab state={state} />}
-      {activeTab === 'ai-config' && <AIConfigTab />}
-      {activeTab === 'integrations' && <IntegrationsTab />}
-      {activeTab === 'scheduler' && <SchedulerTab />}
-      {activeTab === 'tasks' && <TasksTab />}
-      {activeTab === 'metrics' && <MetricsTab state={state} />}
+      {activeTab === 'products' && <div role="tabpanel" id="settings-tabpanel-products" aria-labelledby="settings-tab-products"><ProductsTab state={state} dispatch={dispatch} /></div>}
+      {activeTab === 'knowledge-base' && <div role="tabpanel" id="settings-tabpanel-knowledge-base" aria-labelledby="settings-tab-knowledge-base"><KnowledgeBaseTab state={state} /></div>}
+      {activeTab === 'ai-config' && <div role="tabpanel" id="settings-tabpanel-ai-config" aria-labelledby="settings-tab-ai-config"><AIConfigTab /></div>}
+      {activeTab === 'integrations' && <div role="tabpanel" id="settings-tabpanel-integrations" aria-labelledby="settings-tab-integrations"><IntegrationsTab /></div>}
+      {activeTab === 'scheduler' && <div role="tabpanel" id="settings-tabpanel-scheduler" aria-labelledby="settings-tab-scheduler"><SchedulerTab /></div>}
+      {activeTab === 'tasks' && <div role="tabpanel" id="settings-tabpanel-tasks" aria-labelledby="settings-tab-tasks"><TasksTab /></div>}
+      {activeTab === 'metrics' && <div role="tabpanel" id="settings-tabpanel-metrics" aria-labelledby="settings-tab-metrics"><MetricsTab state={state} /></div>}
       {activeTab === 'general' && (
-        <GeneralTab
-          state={state}
-          dispatch={dispatch}
-          prefs={prefs}
-          onDarkModeChange={onDarkModeChange}
-          onWeekStartChange={onWeekStartChange}
-        />
+        <div role="tabpanel" id="settings-tabpanel-general" aria-labelledby="settings-tab-general">
+          <GeneralTab
+            state={state}
+            dispatch={dispatch}
+            prefs={prefs}
+            onDarkModeChange={onDarkModeChange}
+            onWeekStartChange={onWeekStartChange}
+          />
+        </div>
       )}
     </div>
   )

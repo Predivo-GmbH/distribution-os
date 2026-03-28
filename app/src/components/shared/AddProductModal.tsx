@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { X } from 'lucide-react'
 import type { Product, ProductStage, Engine } from '@/types'
 import { ENGINE_META } from '@/types'
 import type { Action } from '@/hooks/useAppState'
+import { Input } from '@/components/ui/Input'
 
 interface Props {
   open: boolean
@@ -58,16 +59,55 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
   }, [editProduct, open])
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const handleEscape = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') onClose()
-  }, [onClose])
+  const modalRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLElement | null>(null)
 
+  // Capture the trigger element when modal opens, restore focus on close
   useEffect(() => {
     if (open) {
-      document.addEventListener('keydown', handleEscape)
-      return () => document.removeEventListener('keydown', handleEscape)
+      triggerRef.current = document.activeElement as HTMLElement
     }
-  }, [open, handleEscape])
+  }, [open])
+
+  const handleClose = useCallback(() => {
+    onClose()
+    // Return focus to trigger button after close
+    setTimeout(() => triggerRef.current?.focus(), 0)
+  }, [onClose])
+
+  // Keyboard: Escape to close + focus trap (Tab/Shift+Tab)
+  useEffect(() => {
+    if (!open) return
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        handleClose()
+        return
+      }
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (e.shiftKey) {
+          if (document.activeElement === first) { e.preventDefault(); last.focus() }
+        } else {
+          if (document.activeElement === last) { e.preventDefault(); first.focus() }
+        }
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [open, handleClose])
+
+  // Auto-focus first input on mount
+  useEffect(() => {
+    if (open && modalRef.current) {
+      const firstInput = modalRef.current.querySelector<HTMLElement>('input, textarea, select')
+      firstInput?.focus()
+    }
+  }, [open])
 
   function toggleSecondary(engine: Engine) {
     setSecondaryEngines(prev =>
@@ -121,33 +161,33 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40"
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       {/* Modal */}
-      <div role="dialog" aria-modal="true" aria-labelledby="modal-title" className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[var(--color-surface)] rounded-xl shadow-lg border border-[var(--color-edge)] mx-4">
+      <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="modal-title" className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[var(--color-surface)] rounded-xl shadow-lg border border-[var(--color-edge)] mx-4">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-4">
+        <div className="flex items-center justify-between px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4">
           <h2 id="modal-title" className="text-lg font-semibold text-[var(--color-ink)]">
             {editProduct ? 'Edit Product' : 'Add New Product'}
           </h2>
           <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-hover)] transition-colors"
+            onClick={handleClose}
+            aria-label="Close modal"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-hover)] transition-colors"
           >
             <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
+        <form onSubmit={handleSubmit} className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-4">
           {/* Product Name */}
           <div>
             <label className="block text-sm font-medium text-[var(--color-ink)] mb-1">Product Name</label>
-            <input
+            <Input
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="e.g. DistroKit, BelegPilot..."
-              className="w-full px-3 py-2.5 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] focus:ring-2 focus:ring-[var(--color-edge-focus)]/25"
             />
             <p className="mt-1 text-xs text-[var(--color-ink-muted)]">Enter a product name</p>
           </div>
@@ -155,37 +195,37 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-[var(--color-ink)] mb-1">Description</label>
-            <input
+            <Input
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="Short description of your product"
-              className="w-full px-3 py-2.5 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] focus:ring-2 focus:ring-[var(--color-edge-focus)]/25"
             />
-            <p className="mt-1 text-xs text-[var(--color-ink-muted)]">Select a product type</p>
+            <p className="mt-1 text-xs text-[var(--color-ink-muted)]">Briefly describe what this product does</p>
           </div>
 
           {/* Revenue */}
           <div>
             <label className="block text-sm font-medium text-[var(--color-ink)] mb-1">Monthly Revenue (optional)</label>
-            <input
+            <Input
               type="number"
               value={revenue}
               onChange={e => setRevenue(e.target.value)}
               placeholder="e.g. 2500"
-              className="w-full px-3 py-2.5 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] focus:ring-2 focus:ring-[var(--color-edge-focus)]/25"
             />
           </div>
 
           {/* Product Stage */}
           <div>
             <label className="block text-sm font-medium text-[var(--color-ink)] mb-2">Product Stage</label>
-            <div className="grid grid-cols-4 gap-2">
+            <div role="radiogroup" aria-label="Product stage" className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {STAGES.map(s => (
                 <button
                   key={s.value}
                   type="button"
+                  role="radio"
+                  aria-checked={stage === s.value}
                   onClick={() => setStage(s.value)}
-                  className={`px-3 py-2 rounded-lg border text-center transition-colors ${
+                  className={`px-3 py-2 min-h-[44px] rounded-lg border text-center transition-colors ${
                     stage === s.value
                       ? 'border-[var(--color-accent)] bg-[var(--color-accent-light)] text-[var(--color-accent-text)] font-medium'
                       : 'border-[var(--color-edge)] text-[var(--color-ink-body)] hover:border-[var(--color-edge-outline)]'
@@ -208,54 +248,58 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
                 const isSelected = isPrimary || isSecondary
 
                 return (
-                  <button
-                    key={engine}
-                    type="button"
-                    onClick={() => {
-                      if (isPrimary) return // Can't deselect primary here
-                      if (isSecondary) {
+                  <div key={engine} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border text-left transition-colors ${
+                    isSelected
+                      ? 'border-[var(--color-accent)] bg-[var(--color-accent-light)]'
+                      : 'border-[var(--color-edge)] hover:border-[var(--color-edge-outline)]'
+                  }`}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (isPrimary) return
                         toggleSecondary(engine)
-                      } else {
-                        // If no primary yet or clicking selects as secondary
-                        toggleSecondary(engine)
-                      }
-                    }}
-                    onDoubleClick={() => setPrimaryEngine(engine)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border text-left transition-colors ${
-                      isSelected
-                        ? 'border-[var(--color-accent)] bg-[var(--color-accent-light)]'
-                        : 'border-[var(--color-edge)] hover:border-[var(--color-edge-outline)]'
-                    }`}
-                  >
-                    <div
-                      className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
-                        isSelected
-                          ? 'bg-[var(--color-accent)] border-[var(--color-accent)]'
-                          : 'border-[var(--color-edge-outline)]'
-                      }`}
+                      }}
+                      className="flex items-center gap-3 flex-1 min-w-0 min-h-[44px]"
                     >
-                      {isSelected && (
-                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                          <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      )}
-                    </div>
-                    <div
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: ENGINE_META[engine].color }}
-                    />
-                    <div className="min-w-0">
-                      <span className="text-sm font-medium text-[var(--color-ink)]">
-                        {ENGINE_META[engine].label}
-                        {isPrimary && (
-                          <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-[var(--color-accent-text)]">Primary</span>
+                      <div
+                        className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
+                          isSelected
+                            ? 'bg-[var(--color-accent)] border-[var(--color-accent)]'
+                            : 'border-[var(--color-edge-outline)]'
+                        }`}
+                      >
+                        {isSelected && (
+                          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                            <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
                         )}
-                      </span>
-                      <p className="text-xs text-[var(--color-ink-muted)]">
-                        {ENGINE_DESCRIPTIONS[engine]}
-                      </p>
-                    </div>
-                  </button>
+                      </div>
+                      <div
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: ENGINE_META[engine].color }}
+                      />
+                      <div className="min-w-0">
+                        <span className="text-sm font-medium text-[var(--color-ink)]">
+                          {ENGINE_META[engine].label}
+                          {isPrimary && (
+                            <span className="ml-2 text-[10px] font-bold uppercase tracking-[0.05em] text-[var(--color-accent-text)]">Primary</span>
+                          )}
+                        </span>
+                        <p className="text-xs text-[var(--color-ink-muted)]">
+                          {ENGINE_DESCRIPTIONS[engine]}
+                        </p>
+                      </div>
+                    </button>
+                    {isSelected && !isPrimary && (
+                      <button
+                        type="button"
+                        onClick={() => setPrimaryEngine(engine)}
+                        className="shrink-0 px-3 py-2 min-h-[44px] rounded text-xs font-medium text-[var(--color-accent-text)] hover:bg-[var(--color-accent-light)] border border-[var(--color-accent)]/30 transition-colors"
+                      >
+                        Set as Primary
+                      </button>
+                    )}
+                  </div>
                 )
               })}
             </div>
@@ -265,15 +309,15 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
           <div className="flex items-center justify-end gap-3 pt-2">
             <button
               type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 rounded-lg text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
+              onClick={handleClose}
+              className="px-4 py-2.5 min-h-[44px] rounded-lg text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!name.trim()}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {editProduct ? 'Save Changes' : '+ Add Product'}
             </button>

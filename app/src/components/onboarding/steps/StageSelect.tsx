@@ -32,7 +32,7 @@ const STAGES: { value: ProductStage; label: string; desc: string }[] = [
 
 export function StageSelect({ stage, onStageChange, onNext, onBack }: Props) {
   return (
-    <div className="max-w-lg mx-auto py-12">
+    <div className="max-w-lg mx-auto py-6 sm:py-12">
       <p className="text-xs font-semibold uppercase tracking-[0.05em] text-[var(--color-accent-text)] mb-2">
         Step 3 of 5
       </p>
@@ -43,12 +43,14 @@ export function StageSelect({ stage, onStageChange, onNext, onBack }: Props) {
         Your stage determines which distribution tasks are most relevant right now. You can change this later as your product grows.
       </p>
 
-      <div className="space-y-2 mb-8">
+      <div role="radiogroup" aria-label="Product stage" className="space-y-2 mb-8">
         {STAGES.map(s => (
           <button
             key={s.value}
+            role="radio"
+            aria-checked={stage === s.value}
             onClick={() => onStageChange(s.value)}
-            className={`w-full text-left px-4 py-3.5 rounded-xl border transition-colors ${
+            className={`w-full text-left px-4 py-3.5 min-h-[44px] rounded-xl border transition-colors ${
               stage === s.value
                 ? 'border-[var(--color-accent)] bg-[var(--color-accent-light)]'
                 : 'border-[var(--color-edge)] hover:border-[var(--color-edge-outline)]'
@@ -56,6 +58,7 @@ export function StageSelect({ stage, onStageChange, onNext, onBack }: Props) {
           >
             <div className="flex items-center gap-3">
               <div
+                aria-hidden="true"
                 className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
                   stage === s.value
                     ? 'border-[var(--color-accent)]'
@@ -78,13 +81,13 @@ export function StageSelect({ stage, onStageChange, onNext, onBack }: Props) {
       <div className="flex items-center gap-3">
         <button
           onClick={onBack}
-          className="px-4 py-2.5 rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
+          className="px-4 py-2.5 min-h-[44px] rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
         >
           Back
         </button>
         <button
           onClick={onNext}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
         >
           Continue
         </button>

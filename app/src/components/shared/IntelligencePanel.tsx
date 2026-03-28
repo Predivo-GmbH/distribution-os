@@ -30,7 +30,7 @@ export function IntelligencePanel({ id, title, children }: Props) {
     <div className="bg-[var(--color-accent-light)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
       <button
         onClick={toggle}
-        className="w-full flex items-center gap-2.5 px-5 py-3.5 text-left hover:bg-[var(--color-accent-light)] transition-colors"
+        className="w-full flex items-center gap-2.5 px-4 sm:px-5 py-3.5 text-left hover:bg-[var(--color-accent-light)] transition-colors"
       >
         <Lightbulb size={15} className="text-[var(--color-accent)] shrink-0" />
         <span className="text-sm font-medium text-[var(--color-accent-text)] flex-1">
@@ -44,7 +44,7 @@ export function IntelligencePanel({ id, title, children }: Props) {
         />
       </button>
       {!collapsed && (
-        <div className="px-5 pb-4 pt-0 text-sm text-[var(--color-ink-body)] leading-relaxed">
+        <div className="px-4 sm:px-5 pb-4 pt-0 text-sm text-[var(--color-ink-body)] leading-relaxed">
           {children}
         </div>
       )}

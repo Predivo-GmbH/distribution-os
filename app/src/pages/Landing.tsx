@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, Zap, Target, Handshake, Search, Trophy, RefreshCw } from 'lucide-react'
+import { Logo } from '@/components/shared/Logo'
 
 const ENGINES = [
   { icon: Zap, name: 'Pull Engine', desc: 'SEO, content marketing, and organic growth that compounds over time.', color: 'var(--color-engine-pull)' },
@@ -22,29 +23,23 @@ export function Landing() {
     <div className="min-h-dvh bg-[var(--color-bg)]">
       {/* Nav */}
       <header className="border-b border-[var(--color-edge)]">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[var(--color-accent)] flex items-center justify-center">
-              <div className="flex flex-col items-end gap-[3px]">
-                <div className="w-[11px] h-[4px] rounded-sm bg-white" />
-                <div className="w-[17px] h-[4px] rounded-sm bg-white/80" />
-                <div className="w-[22px] h-[4px] rounded-sm bg-white/60" />
-              </div>
-            </div>
+            <Logo />
             <span className="font-semibold text-[var(--color-ink)] text-sm tracking-tight">
               Distribution OS
             </span>
           </div>
-          <div className="flex items-center gap-4">
-            <Link to="/pricing" className="text-sm text-[var(--color-ink-body)] hover:text-[var(--color-ink)] transition-colors">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link to="/pricing" className="hidden sm:inline-flex items-center min-h-[44px] text-sm text-[var(--color-ink-body)] hover:text-[var(--color-ink)] transition-colors">
               Pricing
             </Link>
-            <Link to="/login" className="text-sm text-[var(--color-ink-body)] hover:text-[var(--color-ink)] transition-colors">
+            <Link to="/login" className="inline-flex items-center min-h-[44px] text-sm text-[var(--color-ink-body)] hover:text-[var(--color-ink)] transition-colors">
               Log In
             </Link>
             <Link
               to="/signup"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
             >
               Get Started <ArrowRight size={14} />
             </Link>
@@ -53,7 +48,7 @@ export function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="max-w-4xl mx-auto px-6 pt-24 pb-20 text-center">
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-16 sm:pb-20 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-accent-light)] text-[var(--color-accent-text)] text-xs font-semibold mb-6">
           Built for solo founders
         </div>
@@ -63,16 +58,16 @@ export function Landing() {
         <p className="text-lg text-[var(--color-ink-body)] max-w-2xl mx-auto mb-10">
           Distribution OS gives solo SaaS founders a weekly execution system across 6 proven distribution engines. Score your progress, build streaks, and compound your reach.
         </p>
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           <Link
             to="/signup"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
           >
             Start Free <ArrowRight size={16} />
           </Link>
           <Link
             to="/pricing"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-[var(--color-edge)] text-sm font-medium text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 min-h-[44px] rounded-lg border-2 border-[var(--color-edge)] text-sm font-medium text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
           >
             View Pricing
           </Link>
@@ -80,11 +75,11 @@ export function Landing() {
       </section>
 
       {/* 6 Engines */}
-      <section className="max-w-6xl mx-auto px-6 pb-24">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16 sm:pb-24">
         <h2 className="text-2xl font-bold text-[var(--color-ink)] text-center mb-3">
           6 Distribution Engines
         </h2>
-        <p className="text-sm text-[var(--color-ink-body)] text-center mb-12 max-w-lg mx-auto">
+        <p className="text-sm text-[var(--color-ink-body)] text-center mb-8 sm:mb-12 max-w-lg mx-auto">
           Every SaaS product needs distribution. These six engines cover every channel — from organic pull to persistent retention.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -110,7 +105,7 @@ export function Landing() {
 
       {/* How it works */}
       <section className="border-t border-[var(--color-edge)] bg-[var(--color-surface)]">
-        <div className="max-w-4xl mx-auto px-6 py-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-24">
           <h2 className="text-2xl font-bold text-[var(--color-ink)] text-center mb-12">
             How It Works
           </h2>
@@ -131,7 +126,7 @@ export function Landing() {
       </section>
 
       {/* CTA */}
-      <section className="max-w-4xl mx-auto px-6 py-24 text-center">
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
         <h2 className="text-3xl font-bold text-[var(--color-ink)] mb-4">
           Ready to distribute?
         </h2>
@@ -140,7 +135,7 @@ export function Landing() {
         </p>
         <Link
           to="/signup"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
         >
           Get Started Free <ArrowRight size={16} />
         </Link>
@@ -148,13 +143,13 @@ export function Landing() {
 
       {/* Footer */}
       <footer className="border-t border-[var(--color-edge)] py-8">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-[var(--color-ink-muted)]">
             Distribution OS — Built by Prodiva GmbH
           </p>
           <div className="flex items-center gap-4 text-xs text-[var(--color-ink-muted)]">
-            <Link to="/pricing" className="hover:text-[var(--color-ink-body)] transition-colors">Pricing</Link>
-            <Link to="/login" className="hover:text-[var(--color-ink-body)] transition-colors">Log In</Link>
+            <Link to="/pricing" className="px-2 min-h-[44px] inline-flex items-center hover:text-[var(--color-ink-body)] transition-colors">Pricing</Link>
+            <Link to="/login" className="px-2 min-h-[44px] inline-flex items-center hover:text-[var(--color-ink-body)] transition-colors">Log In</Link>
           </div>
         </div>
       </footer>

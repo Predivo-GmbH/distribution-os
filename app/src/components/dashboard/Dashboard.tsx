@@ -91,7 +91,7 @@ export function Dashboard({ state, dispatch }: Props) {
   }, {} as Record<string, typeof filteredTasks>)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <IntelligencePanel id="dashboard-how" title="What you're building toward">
         <div className="space-y-2">
           <p><strong>Every task you complete is a brick in your distribution system.</strong> The goal isn't to check boxes — it's to build consistent growth channels that compound over time. Founders who do distribution work every week for 3–6 months see predictable, sustainable growth replace the guesswork.</p>
@@ -116,10 +116,10 @@ export function Dashboard({ state, dispatch }: Props) {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search..."
-              className="w-full sm:w-40 pl-8 pr-3 py-2 rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] sm:focus:w-56 transition-all"
+              className="w-full sm:w-40 min-h-[44px] pl-8 pr-3 py-2 rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] sm:focus:w-56 transition-all"
             />
           </div>
-          <div className="font-mono text-3xl font-bold text-[var(--color-accent)] tabular-nums shrink-0">
+          <div className="font-mono text-2xl sm:text-3xl font-bold text-[var(--color-accent)] tabular-nums shrink-0">
             {totalScore}/{maxScore}
           </div>
         </div>
@@ -151,7 +151,7 @@ export function Dashboard({ state, dispatch }: Props) {
         {engineMetrics.map(({ engine, score, max, pct, trend }) => (
           <div
             key={engine}
-            className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-5"
+            className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5"
           >
             <div className="flex items-center gap-2 mb-1">
               <div
@@ -228,17 +228,21 @@ export function Dashboard({ state, dispatch }: Props) {
                     role="checkbox"
                     aria-checked={task.completed}
                     aria-label={task.completed ? 'Mark incomplete' : 'Mark complete'}
-                    className="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
-                    style={{
-                      backgroundColor: task.completed ? 'var(--color-accent)' : 'transparent',
-                      borderColor: task.completed ? 'var(--color-accent)' : 'var(--color-edge-outline)',
-                    }}
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 -m-3 p-3 cursor-pointer"
                   >
-                    {task.completed && (
-                      <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                        <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    )}
+                    <div
+                      className="w-4 h-4 rounded border-2 flex items-center justify-center transition-colors"
+                      style={{
+                        backgroundColor: task.completed ? 'var(--color-accent)' : 'transparent',
+                        borderColor: task.completed ? 'var(--color-accent)' : 'var(--color-edge-outline)',
+                      }}
+                    >
+                      {task.completed && (
+                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                          <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </div>
                   </button>
                   <span
                     className="hidden sm:inline-flex w-20 shrink-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.05em] font-mono"
@@ -263,7 +267,7 @@ export function Dashboard({ state, dispatch }: Props) {
                   >
                     {task.title}
                   </span>
-                  <span className="hidden sm:flex w-20 justify-center">
+                  <span className="flex w-20 justify-center">
                     {product && !task.completed && <GenerateButton task={task} product={product} />}
                   </span>
                   <span className="font-mono text-xs font-semibold text-[var(--color-ink-muted)] tabular-nums w-auto sm:w-16 text-right shrink-0">

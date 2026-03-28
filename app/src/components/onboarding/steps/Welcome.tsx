@@ -6,7 +6,7 @@ interface Props {
 
 export function Welcome({ onNext }: Props) {
   return (
-    <div className="flex flex-col items-center text-center max-w-lg mx-auto py-12">
+    <div className="flex flex-col items-center text-center max-w-lg mx-auto py-6 sm:py-12">
       <div className="w-20 h-20 rounded-2xl bg-[var(--color-accent)] flex items-center justify-center mb-8">
         <Rocket size={36} className="text-white" strokeWidth={1.5} />
       </div>
@@ -21,7 +21,7 @@ export function Welcome({ onNext }: Props) {
       </p>
 
       {/* The purpose */}
-      <div className="bg-[var(--color-accent-light)] border border-[var(--color-edge)] rounded-xl p-5 text-left w-full mb-6">
+      <div className="bg-[var(--color-accent-light)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5 text-left w-full mb-6">
         <p className="text-sm font-semibold text-[var(--color-accent-text)] mb-2">Your goal</p>
         <p className="text-sm text-[var(--color-ink-body)] leading-relaxed">
           Build a <strong>sustainable distribution system</strong> that gets your product in front of the right people — consistently, week after week. Not a viral hack. Not guesswork. A repeatable machine that compounds over time until growth becomes predictable.
@@ -29,7 +29,7 @@ export function Welcome({ onNext }: Props) {
       </div>
 
       {/* How it works */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-5 text-left w-full mb-8">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5 text-left w-full mb-8">
         <p className="text-sm font-semibold text-[var(--color-ink)] mb-3">How it works:</p>
         <ol className="space-y-2.5 text-sm text-[var(--color-ink-body)]">
           <li className="flex gap-3">

@@ -14,7 +14,7 @@ export function MetricsTab({ state }: Props) {
   const recentWeeks = [...state.weekHistory].reverse().slice(0, 4)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <p className="text-sm text-[var(--color-ink-body)]">
         Track your weekly distribution scoring and streaks across all products.
       </p>

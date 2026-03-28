@@ -57,16 +57,16 @@ export function ProductView({ state, dispatch }: Props) {
     <div className="space-y-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-sm text-[var(--color-ink-muted)]">
-        <Link to="/dashboard" className="hover:text-[var(--color-accent-text)]">Dashboard</Link>
+        <Link to="/dashboard" className="hover:text-[var(--color-accent-text)] py-2">Dashboard</Link>
         <ChevronRight size={14} />
-        <Link to="/products" className="hover:text-[var(--color-accent-text)]">Products</Link>
+        <Link to="/products" className="hover:text-[var(--color-accent-text)] py-2">Products</Link>
         <ChevronRight size={14} />
         <span className="text-[var(--color-ink)]">{product.name}</span>
       </div>
 
       {/* Product header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">
             {product.name}
           </h1>
@@ -76,7 +76,7 @@ export function ProductView({ state, dispatch }: Props) {
         </div>
         <button
           onClick={() => setShowEditModal(true)}
-          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
         >
           <Pencil size={14} />
           Edit
@@ -84,7 +84,7 @@ export function ProductView({ state, dispatch }: Props) {
       </div>
 
       {/* Strategy recommendation */}
-      <div className="bg-[var(--color-accent-light)] border border-[var(--color-edge)] rounded-xl p-5">
+      <div className="bg-[var(--color-accent-light)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.05em] text-[var(--color-accent-text)] mb-1">
           Stage Recommendation — {product.stage.replace('-', ' ')}
         </p>
@@ -124,24 +124,28 @@ export function ProductView({ state, dispatch }: Props) {
               {tasks.map(task => (
                 <div
                   key={task.id}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-[var(--color-surface)] border border-[var(--color-edge)] hover:bg-[var(--color-surface-hover)] transition-colors"
+                  className="w-full flex flex-wrap items-center gap-3 px-4 py-3 rounded-lg bg-[var(--color-surface)] border border-[var(--color-edge)] hover:bg-[var(--color-surface-hover)] transition-colors"
                 >
                   <button
                     onClick={() => dispatch({ type: 'TOGGLE_TASK', payload: task.id })}
                     role="checkbox"
                     aria-checked={task.completed}
                     aria-label={task.completed ? 'Mark incomplete' : 'Mark complete'}
-                    className="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
-                    style={{
-                      backgroundColor: task.completed ? 'var(--color-accent)' : 'transparent',
-                      borderColor: task.completed ? 'var(--color-accent)' : 'var(--color-edge-outline)',
-                    }}
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 -m-3 p-3 cursor-pointer"
                   >
-                    {task.completed && (
-                      <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                        <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    )}
+                    <div
+                      className="w-4 h-4 rounded border-2 flex items-center justify-center transition-colors"
+                      style={{
+                        backgroundColor: task.completed ? 'var(--color-accent)' : 'transparent',
+                        borderColor: task.completed ? 'var(--color-accent)' : 'var(--color-edge-outline)',
+                      }}
+                    >
+                      {task.completed && (
+                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                          <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </div>
                   </button>
                   <span
                     className={`flex-1 text-sm ${

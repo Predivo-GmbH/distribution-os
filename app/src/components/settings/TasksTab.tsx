@@ -35,7 +35,7 @@ export function TasksTab() {
             {templates.map((template, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between px-4 py-2.5 rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)]"
+                className="flex items-center justify-between px-4 py-3 rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)]"
               >
                 <span className="text-sm text-[var(--color-ink)]">{template.title}</span>
                 <span className="text-xs font-mono font-semibold text-[var(--color-ink-muted)] tabular-nums shrink-0 ml-4">

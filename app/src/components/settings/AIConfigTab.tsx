@@ -34,7 +34,7 @@ export function AIConfigTab() {
       </div>
 
       {/* API Key */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-5 space-y-4">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5 space-y-4">
         <h3 className="text-base font-semibold text-[var(--color-ink)]">Anthropic API</h3>
 
         <div>
@@ -46,11 +46,11 @@ export function AIConfigTab() {
               value={config.apiKey}
               onChange={e => setConfig(prev => ({ ...prev, apiKey: e.target.value }))}
               placeholder="sk-ant-..."
-              className="w-full px-3 py-2 pr-10 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] font-mono"
+              className="w-full px-3 py-2 pr-10 min-h-[44px] rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] font-mono"
             />
             <button
               onClick={() => setShowKey(!showKey)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]"
+              className="absolute right-2 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]"
             >
               {showKey ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
@@ -62,7 +62,7 @@ export function AIConfigTab() {
           <select
             value={config.model}
             onChange={e => setConfig(prev => ({ ...prev, model: e.target.value }))}
-            className="px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
+            className="min-h-[44px] px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
           >
             <option value="claude-sonnet-4-20250514">Claude Sonnet 4 (recommended)</option>
             <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (faster, cheaper)</option>
@@ -80,13 +80,13 @@ export function AIConfigTab() {
             min={1024}
             max={16384}
             step={1024}
-            className="w-32 px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)] font-mono"
+            className="w-32 px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)] font-mono"
           />
         </div>
       </div>
 
       {/* Proxy */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-5 space-y-4">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5 space-y-4">
         <h3 className="text-base font-semibold text-[var(--color-ink)]">Advanced</h3>
 
         <div>
@@ -99,7 +99,7 @@ export function AIConfigTab() {
             value={config.proxyUrl}
             onChange={e => setConfig(prev => ({ ...prev, proxyUrl: e.target.value }))}
             placeholder="https://your-proxy.example.com"
-            className="w-full px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)]"
+            className="w-full px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)]"
           />
         </div>
       </div>
@@ -108,7 +108,7 @@ export function AIConfigTab() {
       <div className="flex items-center gap-3">
         <button
           onClick={handleSave}
-          className="px-5 py-2 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+          className="px-5 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
         >
           Save Configuration
         </button>

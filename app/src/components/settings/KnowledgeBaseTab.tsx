@@ -86,14 +86,14 @@ export function KnowledgeBaseTab({ state }: Props) {
   return (
     <div className="space-y-6">
       {/* Product selector */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
           <label htmlFor={productSelectId} className="sr-only">Select product</label>
           <select
             id={productSelectId}
             value={selectedProductId}
             onChange={e => handleProductChange(e.target.value)}
-            className="px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] font-medium focus:outline-none focus:border-[var(--color-edge-focus)]"
+            className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] font-medium focus:outline-none focus:border-[var(--color-edge-focus)]"
           >
             {state.products.map(p => (
               <option key={p.id} value={p.id}>{p.name}</option>
@@ -138,7 +138,7 @@ export function KnowledgeBaseTab({ state }: Props) {
               <p className="text-sm text-[var(--color-ink-body)] whitespace-pre-wrap line-clamp-3">{example}</p>
               <button
                 onClick={() => removeVoiceExample(i)}
-                className="absolute top-2 right-2 p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-[var(--color-error-bg)] text-[var(--color-ink-muted)] hover:text-[var(--color-error)] transition-all"
+                className="absolute top-2 right-2 p-1 rounded opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-[var(--color-error-bg)] text-[var(--color-ink-muted)] hover:text-[var(--color-error)] transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
               >
                 <X size={14} />
               </button>
@@ -152,13 +152,13 @@ export function KnowledgeBaseTab({ state }: Props) {
               onChange={e => setNewExample(e.target.value)}
               placeholder="Paste a writing example here..."
               rows={3}
-              className="flex-1 px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] resize-none"
+              className="flex-1 px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] resize-none"
             />
           </div>
           <button
             onClick={addVoiceExample}
             disabled={!newExample.trim()}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-[var(--color-accent-text)] hover:bg-[var(--color-accent-light)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-lg text-sm font-medium text-[var(--color-accent-text)] hover:bg-[var(--color-accent-light)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Plus size={14} /> Add Example
           </button>
@@ -236,7 +236,7 @@ export function KnowledgeBaseTab({ state }: Props) {
                     setKb(prev => ({ ...prev, positioning: { ...prev.positioning, benefits } }))
                   }}
                   placeholder={`Benefit ${i + 1}`}
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)]"
+                  className="w-full px-3 py-2.5 min-h-[44px] rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)]"
                 />
               ))}
             </div>
@@ -265,12 +265,12 @@ export function KnowledgeBaseTab({ state }: Props) {
       >
         <div className="space-y-4">
           {TONE_OPTIONS.map(opt => (
-            <div key={opt.key} className="flex items-center justify-between">
+            <div key={opt.key} className="flex items-center justify-between gap-3">
               <span className="text-sm text-[var(--color-ink-body)]">{opt.labelA} vs {opt.labelB}</span>
-              <div className="flex rounded-lg border border-[var(--color-edge-outline)] overflow-hidden">
+              <div className="flex rounded-lg border border-[var(--color-edge-outline)] overflow-hidden shrink-0">
                 <button
                   onClick={() => setKb(prev => ({ ...prev, tone: { ...prev.tone, [opt.key]: opt.valueA } }))}
-                  className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                  className={`px-3 py-2 min-h-[44px] text-xs font-medium transition-colors ${
                     kb.tone[opt.key] === opt.valueA
                       ? 'bg-[var(--color-accent)] text-white'
                       : 'bg-[var(--color-surface)] text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-hover)]'
@@ -280,7 +280,7 @@ export function KnowledgeBaseTab({ state }: Props) {
                 </button>
                 <button
                   onClick={() => setKb(prev => ({ ...prev, tone: { ...prev.tone, [opt.key]: opt.valueB } }))}
-                  className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                  className={`px-3 py-2 min-h-[44px] text-xs font-medium transition-colors ${
                     kb.tone[opt.key] === opt.valueB
                       ? 'bg-[var(--color-accent)] text-white'
                       : 'bg-[var(--color-surface)] text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-hover)]'
@@ -324,7 +324,7 @@ function SectionCard({
     <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
       <button
         onClick={() => onToggle(section)}
-        className="w-full flex items-center justify-between p-5 text-left hover:bg-[var(--color-surface-hover)] transition-colors"
+        className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-[var(--color-surface-hover)] transition-colors"
       >
         <div>
           <div className="flex items-center gap-2">
@@ -342,7 +342,7 @@ function SectionCard({
         {expanded ? <ChevronDown size={16} className="text-[var(--color-ink-muted)]" /> : <ChevronRight size={16} className="text-[var(--color-ink-muted)]" />}
       </button>
       {expanded && (
-        <div className="px-5 pb-5 border-t border-[var(--color-edge)]">
+        <div className="px-4 pb-4 sm:px-5 sm:pb-5 border-t border-[var(--color-edge)]">
           <div className="pt-4">{children}</div>
         </div>
       )}
@@ -371,7 +371,7 @@ function Field({
         value={value}
         onChange={e => onChange(e.target.value)}
         rows={2}
-        className="w-full px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] resize-none"
+        className="w-full px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] resize-none"
       />
     </div>
   )

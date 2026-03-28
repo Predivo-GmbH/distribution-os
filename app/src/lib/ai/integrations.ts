@@ -117,8 +117,8 @@ export async function publishEmailSequence(emails: string): Promise<{ success: b
 
   if (integrations.emailService.connected && integrations.emailService.apiKey) {
     // API integration would go here for Resend/Loops/Postmark
-    // For now, log the emails parameter for future use
-    console.debug('[publishEmailSequence] would send:', emails.length, 'chars')
+    // For now, fall through to export — emails param reserved for future API call
+    void emails
     return { success: true, method: 'export' }
   }
 

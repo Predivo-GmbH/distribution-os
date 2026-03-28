@@ -25,7 +25,7 @@ export function MissionBriefing({ name, stage, primaryEngine, secondaryEngines, 
   const totalScore = tasks.reduce((sum, t) => sum + t.score, 0)
 
   return (
-    <div className="max-w-xl mx-auto py-12">
+    <div className="max-w-xl mx-auto py-6 sm:py-12">
       <p className="text-xs font-semibold uppercase tracking-[0.05em] text-[var(--color-accent-text)] mb-2">
         Step 5 of 5
       </p>
@@ -39,7 +39,7 @@ export function MissionBriefing({ name, stage, primaryEngine, secondaryEngines, 
       </p>
 
       {/* Task preview */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-5 mb-6 space-y-5">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5 mb-6 space-y-5">
         {Object.entries(tasksByEngine).map(([engine, engineTasks]) => (
           <div key={engine}>
             <div className="flex items-center gap-2 mb-2">
@@ -79,13 +79,13 @@ export function MissionBriefing({ name, stage, primaryEngine, secondaryEngines, 
       <div className="flex items-center gap-3">
         <button
           onClick={onBack}
-          className="px-4 py-2.5 rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
+          className="px-4 py-2.5 min-h-[44px] rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
         >
           Back
         </button>
         <button
           onClick={onLaunch}
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
+          className="inline-flex items-center gap-2 px-6 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
         >
           Launch Mission
         </button>

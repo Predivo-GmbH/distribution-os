@@ -54,6 +54,12 @@ jobs:
             put ./app/dist/index.html -o /distributionos.predivo.ch/index.html;
             put ./app/dist/.htaccess -o /distributionos.predivo.ch/.htaccess;
             put ./app/dist/favicon.svg -o /distributionos.predivo.ch/favicon.svg;
+            put ./app/dist/favicon.ico -o /distributionos.predivo.ch/favicon.ico;
+            put ./app/dist/apple-touch-icon.png -o /distributionos.predivo.ch/apple-touch-icon.png;
+            put ./app/dist/android-chrome-192x192.png -o /distributionos.predivo.ch/android-chrome-192x192.png;
+            put ./app/dist/android-chrome-512x512.png -o /distributionos.predivo.ch/android-chrome-512x512.png;
+            put ./app/dist/og-image.png -o /distributionos.predivo.ch/og-image.png;
+            put ./app/dist/site.webmanifest -o /distributionos.predivo.ch/site.webmanifest;
             put ./app/dist/robots.txt -o /distributionos.predivo.ch/robots.txt;
             put ./app/dist/sitemap.xml -o /distributionos.predivo.ch/sitemap.xml;
             quit;

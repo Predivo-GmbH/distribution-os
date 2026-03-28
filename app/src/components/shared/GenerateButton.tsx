@@ -33,11 +33,12 @@ export function GenerateButton({ task, product }: Props) {
 
   async function handleGenerate(e: React.MouseEvent) {
     e.stopPropagation()
+    if (!mapping) return
     setLoading(true)
     setError(null)
 
     try {
-      if (mapping!.workerType === 'linkedin-director') {
+      if (mapping.workerType === 'linkedin-director') {
         const result = await runFullWeekly(product)
         if (!result.ideas.success) {
           setError(result.ideas.error || 'Generation failed')
@@ -48,10 +49,10 @@ export function GenerateButton({ task, product }: Props) {
       } else {
         const result = await runWorker({
           product,
-          engine: mapping!.engine,
-          workerType: mapping!.workerType,
+          engine: mapping.engine,
+          workerType: mapping.workerType,
           taskTitle: task.title,
-          userPrompt: buildGenericPrompt(task, mapping!.engine),
+          userPrompt: buildGenericPrompt(task, mapping.engine),
         })
         if (!result.success) {
           setError(result.error || 'Generation failed')
@@ -88,7 +89,7 @@ export function GenerateButton({ task, product }: Props) {
       <button
         onClick={handleGenerate}
         disabled={loading}
-        className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium text-[var(--color-accent-text)] hover:bg-[var(--color-accent-light)] transition-colors disabled:opacity-50"
+        className="inline-flex items-center gap-1 px-3 py-2 min-h-[44px] min-w-[44px] rounded text-xs font-medium text-[var(--color-accent-text)] hover:bg-[var(--color-accent-light)] transition-colors disabled:opacity-50"
         title={mapping.label}
       >
         {loading ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}

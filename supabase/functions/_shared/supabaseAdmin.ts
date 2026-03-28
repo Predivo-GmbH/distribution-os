@@ -4,10 +4,12 @@ let adminClient: SupabaseClient | null = null
 
 export function getSupabaseAdmin(): SupabaseClient {
   if (!adminClient) {
-    adminClient = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-    )
+    const url = Deno.env.get('SUPABASE_URL')
+    const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    if (!url || !key) {
+      throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env vars')
+    }
+    adminClient = createClient(url, key)
   }
   return adminClient
 }

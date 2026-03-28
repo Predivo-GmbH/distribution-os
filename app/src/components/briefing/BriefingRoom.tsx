@@ -3,6 +3,7 @@ import type { Engine } from '@/types'
 import { ENGINE_META } from '@/types'
 import { Tooltip } from '@/components/shared/Tooltip'
 import { ChevronDown } from 'lucide-react'
+import { PageMeta } from '@/components/shared/PageMeta'
 
 interface Props {
   onVisit: () => void
@@ -140,9 +141,11 @@ function EngineCard({ engine }: { engine: Engine }) {
     <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden transition-shadow hover:shadow-sm">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-4 px-5 py-4 text-left"
+        aria-expanded={open}
+        className="w-full flex items-center gap-4 px-5 py-4 text-left min-h-[44px]"
       >
         <div
+          aria-hidden="true"
           className="w-3.5 h-3.5 rounded-full shrink-0"
           style={{ backgroundColor: ENGINE_META[engine].color }}
         />
@@ -154,6 +157,7 @@ function EngineCard({ engine }: { engine: Engine }) {
           {d.timeToResults.split(';')[0]}
         </span>
         <ChevronDown
+          aria-hidden="true"
           size={14}
           className={`text-[var(--color-ink-muted)] shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />
@@ -165,15 +169,15 @@ function EngineCard({ engine }: { engine: Engine }) {
             {/* Three-column info blocks */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-[var(--color-surface-hover)] rounded-lg p-3.5">
-                <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--color-ink-muted)] mb-1.5">What it is</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.05em] text-[var(--color-ink-muted)] mb-1.5">What it is</p>
                 <p className="text-xs text-[var(--color-ink-body)] leading-relaxed">{d.what}</p>
               </div>
               <div className="bg-[var(--color-surface-hover)] rounded-lg p-3.5">
-                <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--color-ink-muted)] mb-1.5">Why it matters</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.05em] text-[var(--color-ink-muted)] mb-1.5">Why it matters</p>
                 <p className="text-xs text-[var(--color-ink-body)] leading-relaxed">{d.why}</p>
               </div>
               <div className="bg-[var(--color-surface-hover)] rounded-lg p-3.5">
-                <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--color-ink-muted)] mb-1.5">When to use it</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.05em] text-[var(--color-ink-muted)] mb-1.5">When to use it</p>
                 <p className="text-xs text-[var(--color-ink-body)] leading-relaxed">{d.when}</p>
               </div>
             </div>
@@ -181,7 +185,7 @@ function EngineCard({ engine }: { engine: Engine }) {
             {/* Two-column: tactics + metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--color-ink-muted)] mb-2">Example tactics</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.05em] text-[var(--color-ink-muted)] mb-2">Example tactics</p>
                 <ul className="space-y-1.5">
                   {d.examples.map(ex => (
                     <li key={ex} className="flex gap-2 text-xs text-[var(--color-ink-body)]">
@@ -195,7 +199,7 @@ function EngineCard({ engine }: { engine: Engine }) {
                 </ul>
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--color-ink-muted)] mb-2">Key metrics to track</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.05em] text-[var(--color-ink-muted)] mb-2">Key metrics to track</p>
                 <ul className="space-y-1.5">
                   {d.metrics.map(m => (
                     <li key={m} className="flex gap-2 text-xs text-[var(--color-ink-body)]">
@@ -209,7 +213,7 @@ function EngineCard({ engine }: { engine: Engine }) {
 
             {/* Time to results badge */}
             <div className="flex items-center gap-2 pt-1">
-              <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--color-ink-muted)]">Time to results:</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">Time to results:</span>
               <span className="text-xs font-mono text-[var(--color-accent)]">{d.timeToResults}</span>
             </div>
           </div>
@@ -228,6 +232,7 @@ export function BriefingRoom({ onVisit }: Props) {
 
   return (
     <div className="space-y-6">
+      <PageMeta title="Briefing Room — Distribution OS" noindex />
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight mb-1">
@@ -239,27 +244,33 @@ export function BriefingRoom({ onVisit }: Props) {
       </div>
 
       {/* Tab bar */}
-      <div className="flex gap-1 p-1 bg-[var(--color-surface-hover)] rounded-lg overflow-x-auto">
-        {TABS.map(t => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
-              tab === t.key
-                ? 'bg-[var(--color-surface)] text-[var(--color-ink)] shadow-sm'
-                : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-body)]'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="[mask-image:linear-gradient(to_right,black_90%,transparent)] sm:[mask-image:none]">
+        <div role="tablist" aria-label="Briefing Room sections" className="flex gap-1 p-1 bg-[var(--color-surface-hover)] rounded-lg overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-1">
+          {TABS.map(t => (
+            <button
+              key={t.key}
+              role="tab"
+              aria-selected={tab === t.key}
+              aria-controls={`briefing-tabpanel-${t.key}`}
+              id={`briefing-tab-${t.key}`}
+              onClick={() => setTab(t.key)}
+              className={`shrink-0 sm:flex-1 px-3 py-2 min-h-[44px] rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                tab === t.key
+                  ? 'bg-[var(--color-surface)] text-[var(--color-ink)] shadow-sm'
+                  : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-body)]'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ═══ OVERVIEW TAB ═══ */}
       {tab === 'overview' && (
-        <div className="space-y-6">
+        <div role="tabpanel" id="briefing-tabpanel-overview" aria-labelledby="briefing-tab-overview" className="space-y-6">
           {/* The "Why" — front and center */}
-          <div className="bg-[var(--color-accent-light)] border border-[var(--color-edge)] rounded-xl p-6">
+          <div className="bg-[var(--color-accent-light)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-6">
             <h2 className="text-base font-semibold text-[var(--color-accent-text)] mb-3">Why does this exist?</h2>
             <div className="space-y-3 text-sm text-[var(--color-ink-body)] leading-relaxed">
               <p>
@@ -272,7 +283,7 @@ export function BriefingRoom({ onVisit }: Props) {
           </div>
 
           {/* The Goal */}
-          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-6">
+          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-6">
             <h2 className="text-base font-semibold text-[var(--color-ink)] mb-3">The end goal</h2>
             <div className="space-y-3 text-sm text-[var(--color-ink-body)] leading-relaxed">
               <p>
@@ -300,7 +311,7 @@ export function BriefingRoom({ onVisit }: Props) {
           </div>
 
           {/* What is Distribution OS */}
-          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-6">
+          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-6">
             <h2 className="text-base font-semibold text-[var(--color-ink)] mb-3">How Distribution OS works</h2>
             <div className="space-y-3 text-sm text-[var(--color-ink-body)] leading-relaxed">
               <p>
@@ -341,12 +352,12 @@ export function BriefingRoom({ onVisit }: Props) {
           {/* Engine overview grid — compact */}
           <div>
             <h2 className="text-sm font-semibold text-[var(--color-ink)] mb-3">The 6 Engines at a Glance</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
               {ENGINES.map(engine => (
                 <button
                   key={engine}
                   onClick={() => setTab('engines')}
-                  className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-lg p-3 text-left hover:border-[var(--color-edge-outline)] transition-colors group"
+                  className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-lg p-3 text-left hover:border-[var(--color-edge-outline)] transition-colors group min-h-[44px]"
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <div
@@ -370,7 +381,7 @@ export function BriefingRoom({ onVisit }: Props) {
 
       {/* ═══ ENGINES TAB ═══ */}
       {tab === 'engines' && (
-        <div className="space-y-3">
+        <div role="tabpanel" id="briefing-tabpanel-engines" aria-labelledby="briefing-tab-engines" className="space-y-3">
           <p className="text-sm text-[var(--color-ink-body)]">
             Each engine is a distinct distribution strategy. Choose a{' '}
             <Tooltip content="Your primary engine gets the most weekly tasks and should be the channel you invest the most time in. Choose based on your stage and where your target users spend time.">
@@ -390,7 +401,7 @@ export function BriefingRoom({ onVisit }: Props) {
 
       {/* ═══ STAGES TAB ═══ */}
       {tab === 'stages' && (
-        <div className="space-y-6">
+        <div role="tabpanel" id="briefing-tabpanel-stages" aria-labelledby="briefing-tab-stages" className="space-y-6">
           <p className="text-sm text-[var(--color-ink-body)]">
             Your product's stage determines which tasks are generated. Update it in Settings as your product grows. Each stage has a recommended{' '}
             <Tooltip content="The engine mix is the percentage of effort allocated to each engine. It shifts as your product matures — early stages favor outbound (Push), later stages favor compounding channels (Pull, Equity).">
@@ -399,32 +410,34 @@ export function BriefingRoom({ onVisit }: Props) {
           </p>
 
           {/* Timeline stepper */}
-          <div className="flex items-center gap-0">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-0 sm:flex sm:items-center">
             {STAGE_DETAILS.map((s, i) => (
-              <div key={s.value} className="flex items-center flex-1">
+              <div key={s.value} className="flex items-center sm:flex-1">
                 <button
                   onClick={() => setActiveStage(i)}
-                  className={`relative flex flex-col items-center gap-1.5 w-full group`}
+                  className={`relative flex flex-col items-center gap-1.5 w-full group min-h-[44px] justify-center`}
                 >
-                  {/* Dot */}
+                  {/* Step number badge (mobile) + Dot (desktop) */}
                   <div
-                    className={`w-4 h-4 rounded-full border-2 transition-colors z-10 ${
+                    className={`w-6 h-6 sm:w-4 sm:h-4 rounded-full border-2 transition-colors z-10 flex items-center justify-center ${
                       activeStage === i
                         ? 'bg-[var(--color-accent)] border-[var(--color-accent)]'
                         : 'bg-[var(--color-surface)] border-[var(--color-edge-outline)] group-hover:border-[var(--color-accent)]'
                     }`}
-                  />
+                  >
+                    <span className={`text-[10px] font-bold sm:hidden ${activeStage === i ? 'text-white' : 'text-[var(--color-ink-muted)]'}`}>{i + 1}</span>
+                  </div>
                   {/* Label */}
                   <span className={`text-xs font-medium transition-colors ${
                     activeStage === i ? 'text-[var(--color-accent-text)]' : 'text-[var(--color-ink-muted)]'
                   }`}>
                     {s.label}
                   </span>
-                  <span className="text-[10px] text-[var(--color-ink-muted)] font-mono">{s.duration}</span>
+                  <span className="text-[10px] text-[var(--color-ink-muted)] font-mono hidden sm:block">{s.duration}</span>
                 </button>
                 {/* Connector line */}
                 {i < STAGE_DETAILS.length - 1 && (
-                  <div className={`h-0.5 flex-1 -mx-2 mt-[-24px] ${
+                  <div className={`hidden sm:block h-0.5 flex-1 -mx-2 mt-[-24px] ${
                     i < activeStage ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-edge)]'
                   }`} />
                 )}
@@ -437,15 +450,15 @@ export function BriefingRoom({ onVisit }: Props) {
             const s = STAGE_DETAILS[activeStage]
             return (
               <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
-                <div className="px-6 pt-5 pb-4">
+                <div className="px-4 sm:px-6 pt-5 pb-4">
                   <p className="text-sm text-[var(--color-ink-body)] leading-relaxed">{s.what}</p>
                 </div>
 
-                <div className="px-6 pb-5 space-y-5 border-t border-[var(--color-edge)] pt-4">
+                <div className="px-4 sm:px-6 pb-5 space-y-5 border-t border-[var(--color-edge)] pt-4">
                   {/* Two-column: Signals + Mistakes */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--color-ink-muted)] mb-2">You're in this stage if…</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.05em] text-[var(--color-ink-muted)] mb-2">You're in this stage if…</p>
                       <ul className="space-y-1.5">
                         {s.signals.map(sig => (
                           <li key={sig} className="flex gap-2 text-xs text-[var(--color-ink-body)]">
@@ -456,7 +469,7 @@ export function BriefingRoom({ onVisit }: Props) {
                       </ul>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--color-ink-muted)] mb-2">Common mistakes</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.05em] text-[var(--color-ink-muted)] mb-2">Common mistakes</p>
                       <ul className="space-y-1.5">
                         {s.mistakes.map(m => (
                           <li key={m} className="flex gap-2 text-xs text-[var(--color-ink-body)]">
@@ -470,7 +483,7 @@ export function BriefingRoom({ onVisit }: Props) {
 
                   {/* Engine mix */}
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--color-ink-muted)] mb-2">Recommended engine mix</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.05em] text-[var(--color-ink-muted)] mb-2">Recommended engine mix</p>
                     <div className="flex gap-0.5 h-3 rounded-full overflow-hidden bg-[var(--color-progress-track)] mb-2">
                       {Object.entries(s.focus).map(([engine, pct]) => (
                         <div
@@ -497,8 +510,8 @@ export function BriefingRoom({ onVisit }: Props) {
                   </div>
 
                   {/* Strategy advice */}
-                  <div className="bg-[var(--color-accent-light)] rounded-lg p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--color-accent-text)] mb-1">Strategy</p>
+                  <div className="bg-[var(--color-accent-light)] rounded-lg p-3 sm:p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.05em] text-[var(--color-accent-text)] mb-1">Strategy</p>
                     <p className="text-sm text-[var(--color-ink-body)] leading-relaxed">{s.advice}</p>
                   </div>
                 </div>
@@ -510,9 +523,9 @@ export function BriefingRoom({ onVisit }: Props) {
 
       {/* ═══ SCORING TAB ═══ */}
       {tab === 'scoring' && (
-        <div className="space-y-6">
+        <div role="tabpanel" id="briefing-tabpanel-scoring" aria-labelledby="briefing-tab-scoring" className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-5">
+            <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
               <p className="font-mono text-3xl font-bold text-[var(--color-accent)] mb-1">2–5</p>
               <p className="text-sm font-semibold text-[var(--color-ink)] mb-1.5">Points per task</p>
               <p className="text-xs text-[var(--color-ink-muted)] leading-relaxed">
@@ -523,7 +536,7 @@ export function BriefingRoom({ onVisit }: Props) {
                 reflecting its strategic impact. Higher-point tasks deliver more value but take more effort.
               </p>
             </div>
-            <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-5">
+            <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
               <p className="font-mono text-3xl font-bold text-[var(--color-accent)] mb-1">Weekly</p>
               <p className="text-sm font-semibold text-[var(--color-ink)] mb-1.5">Score resets</p>
               <p className="text-xs text-[var(--color-ink-muted)] leading-relaxed">
@@ -534,7 +547,7 @@ export function BriefingRoom({ onVisit }: Props) {
                 resets every Monday when new tasks generate. A fresh start each week — no backlog anxiety.
               </p>
             </div>
-            <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-5">
+            <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
               <p className="font-mono text-3xl font-bold text-[var(--color-accent)] mb-1">60%+</p>
               <p className="text-sm font-semibold text-[var(--color-ink)] mb-1.5">Target completion</p>
               <p className="text-xs text-[var(--color-ink-muted)] leading-relaxed">
@@ -567,9 +580,9 @@ export function BriefingRoom({ onVisit }: Props) {
 
       {/* ═══ REFERENCE TAB ═══ */}
       {tab === 'reference' && (
-        <div className="space-y-6">
+        <div role="tabpanel" id="briefing-tabpanel-reference" aria-labelledby="briefing-tab-reference" className="space-y-6">
           {/* Detailed workflow */}
-          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-6">
+          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-6">
             <h2 className="text-base font-semibold text-[var(--color-ink)] mb-4">Weekly Workflow</h2>
             <div className="space-y-4">
               {[
@@ -602,7 +615,7 @@ export function BriefingRoom({ onVisit }: Props) {
           </div>
 
           {/* Glossary */}
-          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-6">
+          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-6">
             <h2 className="text-base font-semibold text-[var(--color-ink)] mb-4">Glossary</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-0">
               {[

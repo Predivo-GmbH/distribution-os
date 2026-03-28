@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Check, X } from 'lucide-react'
+import { Logo } from '@/components/shared/Logo'
 
 const FEATURES = [
   { name: 'Products', free: '1', pro: 'Unlimited' },
@@ -17,26 +18,20 @@ export function Pricing() {
     <div className="min-h-dvh bg-[var(--color-bg)]">
       {/* Nav */}
       <header className="border-b border-[var(--color-edge)]">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[var(--color-accent)] flex items-center justify-center">
-              <div className="flex flex-col items-end gap-[3px]">
-                <div className="w-[11px] h-[4px] rounded-sm bg-white" />
-                <div className="w-[17px] h-[4px] rounded-sm bg-white/80" />
-                <div className="w-[22px] h-[4px] rounded-sm bg-white/60" />
-              </div>
-            </div>
+            <Logo />
             <span className="font-semibold text-[var(--color-ink)] text-sm tracking-tight">
               Distribution OS
             </span>
           </Link>
-          <div className="flex items-center gap-4">
-            <Link to="/login" className="text-sm text-[var(--color-ink-body)] hover:text-[var(--color-ink)] transition-colors">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link to="/login" className="inline-flex items-center min-h-[44px] text-sm text-[var(--color-ink-body)] hover:text-[var(--color-ink)] transition-colors">
               Log In
             </Link>
             <Link
               to="/signup"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
             >
               Get Started
             </Link>
@@ -45,7 +40,7 @@ export function Pricing() {
       </header>
 
       {/* Pricing */}
-      <section className="max-w-4xl mx-auto px-6 pt-20 pb-24">
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 pb-24">
         <h1 className="text-3xl font-bold text-[var(--color-ink)] text-center mb-3">
           Simple, transparent pricing
         </h1>
@@ -54,9 +49,9 @@ export function Pricing() {
         </p>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 sm:mb-16">
           {/* Free */}
-          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-6">
+          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-6">
             <h2 className="text-lg font-semibold text-[var(--color-ink)] mb-1">Free</h2>
             <p className="text-sm text-[var(--color-ink-body)] mb-4">Perfect for getting started</p>
             <div className="flex items-baseline gap-1 mb-6">
@@ -65,7 +60,7 @@ export function Pricing() {
             </div>
             <Link
               to="/signup"
-              className="block w-full py-2.5 rounded-lg border border-[var(--color-edge)] text-center text-sm font-medium text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors mb-6"
+              className="block w-full py-2.5 min-h-[44px] rounded-lg border border-[var(--color-edge)] text-center text-sm font-medium text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors mb-6"
             >
               Get Started Free
             </Link>
@@ -87,7 +82,7 @@ export function Pricing() {
           </div>
 
           {/* Pro */}
-          <div className="bg-[var(--color-surface)] border-2 border-[var(--color-accent)] rounded-xl p-6 relative">
+          <div className="bg-[var(--color-surface)] border-2 border-[var(--color-accent)] rounded-xl p-4 sm:p-6 relative">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-[var(--color-accent)] text-white text-xs font-semibold">
               Recommended
             </div>
@@ -99,7 +94,7 @@ export function Pricing() {
             </div>
             <Link
               to="/signup"
-              className="block w-full py-2.5 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] text-center text-sm font-medium hover:bg-[var(--color-btn-primary-hover)] transition-colors mb-6"
+              className="block w-full py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] text-center text-sm font-medium hover:bg-[var(--color-btn-primary-hover)] transition-colors mb-6"
             >
               Start Free, Upgrade Later
             </Link>
@@ -127,13 +122,13 @@ export function Pricing() {
 
       {/* Footer */}
       <footer className="border-t border-[var(--color-edge)] py-8">
-        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-[var(--color-ink-muted)]">
             Distribution OS — Built by Prodiva GmbH
           </p>
           <div className="flex items-center gap-4 text-xs text-[var(--color-ink-muted)]">
-            <Link to="/" className="hover:text-[var(--color-ink-body)] transition-colors">Home</Link>
-            <Link to="/login" className="hover:text-[var(--color-ink-body)] transition-colors">Log In</Link>
+            <Link to="/" className="px-2 min-h-[44px] inline-flex items-center hover:text-[var(--color-ink-body)] transition-colors">Home</Link>
+            <Link to="/login" className="px-2 min-h-[44px] inline-flex items-center hover:text-[var(--color-ink-body)] transition-colors">Log In</Link>
           </div>
         </div>
       </footer>

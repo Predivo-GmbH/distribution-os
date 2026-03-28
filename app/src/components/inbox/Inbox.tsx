@@ -49,9 +49,10 @@ export function Inbox({ state }: Props) {
     const map = new Map<string, Map<Engine, InboxArtifact[]>>()
     for (const a of filtered) {
       if (!map.has(a.productId)) map.set(a.productId, new Map())
-      const engineMap = map.get(a.productId)!
+      const engineMap = map.get(a.productId) ?? new Map<Engine, InboxArtifact[]>()
       if (!engineMap.has(a.engine)) engineMap.set(a.engine, [])
-      engineMap.get(a.engine)!.push(a)
+      const list = engineMap.get(a.engine)
+      if (list) list.push(a)
     }
     return map
   }, [filtered])
@@ -106,7 +107,7 @@ export function Inbox({ state }: Props) {
         <div className="flex items-center gap-2">
           <button
             onClick={refresh}
-            className="p-2 rounded-lg border border-[var(--color-edge)] text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-hover)] transition-colors"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border border-[var(--color-edge)] text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-hover)] transition-colors"
             title="Refresh"
           >
             <RefreshCw size={14} />
@@ -115,7 +116,7 @@ export function Inbox({ state }: Props) {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-center">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 items-start sm:items-center">
         <div className="flex items-center gap-1.5 text-xs text-[var(--color-ink-muted)]">
           <Filter size={12} />
           Filter:
@@ -124,7 +125,7 @@ export function Inbox({ state }: Props) {
         <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value as FilterStatus)}
-          className="px-2.5 py-1.5 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-xs text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
+          className="w-full sm:w-auto min-h-[44px] px-2.5 py-1.5 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-xs text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
         >
           <option value="all">All statuses</option>
           <option value="pending">Pending Review</option>
@@ -138,7 +139,7 @@ export function Inbox({ state }: Props) {
         <select
           value={productFilter}
           onChange={e => setProductFilter(e.target.value)}
-          className="px-2.5 py-1.5 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-xs text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
+          className="w-full sm:w-auto min-h-[44px] px-2.5 py-1.5 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-xs text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
         >
           <option value="all">All products</option>
           {state.products.map(p => (
@@ -149,7 +150,7 @@ export function Inbox({ state }: Props) {
         <select
           value={engineFilter}
           onChange={e => setEngineFilter(e.target.value)}
-          className="px-2.5 py-1.5 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-xs text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
+          className="w-full sm:w-auto min-h-[44px] px-2.5 py-1.5 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-xs text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
         >
           <option value="all">All engines</option>
           {Object.entries(ENGINE_META).map(([key, meta]) => (
@@ -160,7 +161,7 @@ export function Inbox({ state }: Props) {
         {(statusFilter !== 'all' || productFilter !== 'all' || engineFilter !== 'all') && (
           <button
             onClick={() => { setStatusFilter('all'); setProductFilter('all'); setEngineFilter('all') }}
-            className="text-xs text-[var(--color-accent-text)] hover:underline"
+            className="min-h-[44px] inline-flex items-center px-2 text-xs text-[var(--color-accent-text)] hover:underline"
           >
             Clear filters
           </button>
@@ -250,19 +251,19 @@ export function Inbox({ state }: Props) {
                             <textarea
                               value={editContent}
                               onChange={e => setEditContent(e.target.value)}
-                              rows={10}
-                              className="w-full px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)] resize-y"
+                              rows={5}
+                              className="w-full px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)] resize-y"
                             />
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleEditApprove(artifact.id)}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] text-sm font-medium hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] text-sm font-medium hover:bg-[var(--color-btn-primary-hover)] transition-colors"
                               >
                                 <Check size={14} /> Approve Edit
                               </button>
                               <button
                                 onClick={() => { setEditingId(null); setEditContent('') }}
-                                className="px-3 py-1.5 rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
+                                className="px-3 py-1.5 min-h-[44px] rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
                               >
                                 Cancel
                               </button>
@@ -278,18 +279,18 @@ export function Inbox({ state }: Props) {
                               onChange={e => setDirectionNote(e.target.value)}
                               placeholder="Optional: give the AI a direction for the new version..."
                               rows={3}
-                              className="w-full px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] resize-none"
+                              className="w-full px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)] resize-none"
                             />
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleRegenerate(artifact.id)}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--color-accent)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-lg bg-[var(--color-accent)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
                               >
                                 <RefreshCw size={14} /> Regenerate
                               </button>
                               <button
                                 onClick={() => { setRegeneratingId(null); setDirectionNote('') }}
-                                className="px-3 py-1.5 rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
+                                className="px-3 py-1.5 min-h-[44px] rounded-lg border border-[var(--color-edge)] text-sm text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
                               >
                                 Cancel
                               </button>
@@ -299,28 +300,28 @@ export function Inbox({ state }: Props) {
 
                         {/* Actions — only show for pending artifacts */}
                         {artifact.status === 'pending' && !isEditing && !isRegenerating && (
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
                             <button
                               onClick={() => handleApprove(artifact.id)}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] text-sm font-medium hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+                              className="w-full sm:w-auto inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] text-sm font-medium hover:bg-[var(--color-btn-primary-hover)] transition-colors"
                             >
                               <Check size={14} /> Approve
                             </button>
                             <button
                               onClick={() => { setEditingId(artifact.id); setEditContent(artifact.content) }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-edge)] text-sm font-medium text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
+                              className="w-full sm:w-auto inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-lg border border-[var(--color-edge)] text-sm font-medium text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
                             >
                               <Pencil size={14} /> Edit + Approve
                             </button>
                             <button
                               onClick={() => setRegeneratingId(artifact.id)}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-edge)] text-sm font-medium text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
+                              className="w-full sm:w-auto inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-lg border border-[var(--color-edge)] text-sm font-medium text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] transition-colors"
                             >
                               <RefreshCw size={14} /> Regenerate
                             </button>
                             <button
                               onClick={() => handleDismiss(artifact.id)}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] transition-colors"
+                              className="w-full sm:w-auto inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-lg text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] transition-colors"
                             >
                               <X size={14} /> Dismiss
                             </button>
@@ -332,7 +333,7 @@ export function Inbox({ state }: Props) {
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleDelete(artifact.id)}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] transition-colors"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-lg text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] transition-colors"
                             >
                               <X size={14} /> Remove
                             </button>
