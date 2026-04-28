@@ -30,10 +30,11 @@ Deno.serve(async (req: Request) => {
   try {
     const { returnUrl } = await req.json()
 
-    const ALLOWED_ORIGINS = ['https://distributionos.predivo.ch', 'http://localhost:5173']
+    const appUrl = Deno.env.get('APP_URL') || 'https://distributionos.predivo.ch'
+    const allowedOrigins = [appUrl, 'http://localhost:5173']
     try {
       const parsed = new URL(returnUrl)
-      if (!ALLOWED_ORIGINS.includes(parsed.origin)) {
+      if (!allowedOrigins.includes(parsed.origin)) {
         return createJsonResponse(req, { error: 'Invalid return URL' }, 400)
       }
     } catch {

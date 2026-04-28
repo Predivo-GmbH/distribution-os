@@ -79,6 +79,7 @@ const PREFS_KEY = 'distribution-os-prefs'
 const defaultPrefs: UserPreferences = {
   darkMode: false,
   weekStartDay: 'monday',
+  subscriptionTier: 'free',
 }
 
 export function loadPrefs(): UserPreferences {
@@ -117,9 +118,10 @@ export function saveInbox(artifacts: InboxArtifact[]): void {
 
 export function addArtifact(artifact: Omit<InboxArtifact, 'id' | 'generatedAt'>): InboxArtifact {
   const items = loadInbox()
+  const localId = generateId()
   const newItem: InboxArtifact = {
     ...artifact,
-    id: generateId(),
+    id: localId,
     generatedAt: new Date().toISOString(),
   }
   items.unshift(newItem)
@@ -127,7 +129,7 @@ export function addArtifact(artifact: Omit<InboxArtifact, 'id' | 'generatedAt'>)
 
   if (isSupabaseConfigured) {
     import('@/lib/supabase-storage').then(sb =>
-      sb.addInboxArtifact(artifact).catch(() => {})
+      sb.addInboxArtifact(artifact, localId).catch(() => {})
     )
   }
 

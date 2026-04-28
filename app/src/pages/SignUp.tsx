@@ -5,11 +5,12 @@ import { PageMeta } from '@/components/shared/PageMeta'
 import { Logo } from '@/components/shared/Logo'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { APP_NAME } from '@/lib/app-config'
 
 type Step = 'email' | 'otp' | 'password'
 
 export function SignUp() {
-  const { sendOtp, verifyOtp, signUp } = useAuth()
+  const { sendOtp, verifyOtp, updatePassword } = useAuth()
   const navigate = useNavigate()
   const [step, setStep] = useState<Step>('email')
   const [email, setEmail] = useState('')
@@ -54,9 +55,9 @@ export function SignUp() {
     setLoading(true)
 
     try {
-      // If user skips password, they can always log in via OTP
+      // User is already authenticated from OTP verification — just set password
       if (password) {
-        await signUp(email, password)
+        await updatePassword(password)
       }
       navigate('/dashboard')
     } catch {
@@ -68,13 +69,13 @@ export function SignUp() {
 
   return (
     <div className="min-h-dvh bg-[var(--color-bg)] flex items-center justify-center px-4">
-      <PageMeta title="Sign Up — Distribution OS" noindex />
+      <PageMeta title={`Sign Up — ${APP_NAME}`} noindex />
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2.5 mb-8">
           <Logo />
           <span className="font-semibold text-[var(--color-ink)] text-sm tracking-tight">
-            Distribution OS
+            {APP_NAME}
           </span>
         </div>
 

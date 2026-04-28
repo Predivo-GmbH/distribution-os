@@ -1,5 +1,7 @@
+const APP_URL = Deno.env.get('APP_URL') || 'https://distributionos.predivo.ch'
+
 const ALLOWED_ORIGINS = [
-  'https://distributionos.predivo.ch',
+  APP_URL,
   'http://localhost:5173',
   'http://localhost:3000',
 ]

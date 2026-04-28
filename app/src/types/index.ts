@@ -24,6 +24,7 @@ export type SubscriptionTier = 'free' | 'pro'
 export interface UserPreferences {
   darkMode: boolean
   weekStartDay: 'monday' | 'sunday' | 'saturday'
+  subscriptionTier: SubscriptionTier
 }
 
 export interface Task {

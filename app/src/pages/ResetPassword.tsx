@@ -5,6 +5,7 @@ import { PageMeta } from '@/components/shared/PageMeta'
 import { Logo } from '@/components/shared/Logo'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { APP_NAME } from '@/lib/app-config'
 
 export function ResetPassword() {
   const { resetPassword, updatePassword } = useAuth()
@@ -49,13 +50,13 @@ export function ResetPassword() {
 
   return (
     <div className="min-h-dvh bg-[var(--color-bg)] flex items-center justify-center px-4">
-      <PageMeta title="Reset Password — Distribution OS" noindex />
+      <PageMeta title={`Reset Password — ${APP_NAME}`} noindex />
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2.5 mb-8">
           <Logo />
           <span className="font-semibold text-[var(--color-ink)] text-sm tracking-tight">
-            Distribution OS
+            {APP_NAME}
           </span>
         </div>
 

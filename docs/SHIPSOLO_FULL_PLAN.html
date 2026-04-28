@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShipSolo — Full Product Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0b;
+    --surface: #141416;
+    --surface-2: #1c1c20;
+    --surface-3: #25252b;
+    --border: #2a2a32;
+    --text: #e8e8ed;
+    --text-secondary: #9898a6;
+    --text-muted: #6b6b7b;
+    --accent: #6366f1;
+    --accent-light: #818cf8;
+    --accent-dim: rgba(99,102,241,0.12);
+    --green: #34d399;
+    --green-dim: rgba(52,211,153,0.12);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251,191,36,0.12);
+    --red: #f87171;
+    --red-dim: rgba(248,113,113,0.12);
+    --cyan: #22d3ee;
+    --cyan-dim: rgba(34,211,238,0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --max-width: 960px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  nav { position: sticky; top: 0; z-index: 100; background: rgba(10,10,11,0.88); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0 24px; }
+  nav .inner { max-width: var(--max-width); margin: 0 auto; display: flex; align-items: center; gap: 24px; height: 52px; overflow-x: auto; }
+  nav .logo { font-weight: 800; font-size: 16px; white-space: nowrap; }
+  nav .logo span { color: var(--accent-light); }
+  nav a { color: var(--text-muted); text-decoration: none; font-size: 12px; font-weight: 500; white-space: nowrap; transition: color 0.15s; }
+  nav a:hover { color: var(--text); }
+  .content { max-width: var(--max-width); margin: 0 auto; padding: 0 24px 80px; }
+  .hero { max-width: var(--max-width); margin: 0 auto; padding: 64px 24px 40px; text-align: center; }
+  .hero .badge { display: inline-block; padding: 5px 12px; background: var(--accent-dim); color: var(--accent-light); font-size: 11px; font-weight: 600; border-radius: 16px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 20px; }
+  .hero h1 { font-size: clamp(28px, 4vw, 42px); font-weight: 800; letter-spacing: -1.2px; line-height: 1.15; margin-bottom: 16px; }
+  .hero h1 span { color: var(--accent-light); }
+  .hero .subtitle { font-size: 16px; color: var(--text-secondary); max-width: 640px; margin: 0 auto; }
+  section { margin-bottom: 56px; }
+  .section-label { display: inline-block; padding: 3px 8px; background: var(--accent-dim); color: var(--accent-light); font-size: 10px; font-weight: 600; border-radius: 5px; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 10px; }
+  .section-label.green { background: var(--green-dim); color: var(--green); }
+  .section-label.amber { background: var(--amber-dim); color: var(--amber); }
+  .section-label.cyan { background: var(--cyan-dim); color: var(--cyan); }
+  .section-label.red { background: var(--red-dim); color: var(--red); }
+  h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.6px; margin-bottom: 6px; }
+  h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 6px; margin-top: 28px; }
+  p { color: var(--text-secondary); font-size: 14px; margin-bottom: 12px; }
+  .desc { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; }
+  .divider { height: 1px; background: var(--border); margin: 48px 0; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 12px; }
+  .card h3 { margin-top: 0; }
+  .status { display: inline-block; padding: 2px 8px; font-size: 11px; font-weight: 600; border-radius: 4px; vertical-align: middle; }
+  .status.built { background: var(--green-dim); color: var(--green); }
+  .status.new { background: var(--accent-dim); color: var(--accent-light); }
+  .status.partial { background: var(--amber-dim); color: var(--amber); }
+  .status.removed { background: var(--red-dim); color: var(--red); }
+  .status.deferred { background: var(--surface-3); color: var(--text-muted); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  th { text-align: left; padding: 8px 12px; background: var(--surface-2); color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
+  th:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+  th:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+  td:first-child { color: var(--text); font-weight: 500; }
+  tr:last-child td { border-bottom: none; }
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 16px 0; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; text-align: center; }
+  .stat-card .stat-value { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+  .stat-card .stat-value.green { color: var(--green); }
+  .stat-card .stat-value.accent { color: var(--accent-light); }
+  .stat-card .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+  .sprint-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 12px; display: grid; grid-template-columns: 60px 1fr; gap: 16px; }
+  .sprint-card.critical { border-color: var(--red); }
+  .sprint-num { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: var(--accent-dim); color: var(--accent-light); border-radius: 12px; font-size: 20px; font-weight: 800; }
+  .sprint-num.red { background: var(--red-dim); color: var(--red); }
+  .sprint-body h4 { margin-top: 0; font-size: 16px; margin-bottom: 4px; }
+  .sprint-body .sprint-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+  .sprint-body ul { list-style: none; padding: 0; }
+  .sprint-body ul li { padding: 4px 0 4px 18px; position: relative; color: var(--text-secondary); font-size: 13px; }
+  .sprint-body ul li::before { content: ''; position: absolute; left: 0; top: 11px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent-light); }
+  .group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; margin: 12px 0; }
+  .group-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; }
+  .group-card .group-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .group-card .group-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .group-card .group-count { display: inline-block; padding: 1px 6px; font-size: 10px; font-weight: 600; border-radius: 3px; margin-top: 6px; background: var(--accent-dim); color: var(--accent-light); }
+  .scope-list { list-style: none; padding: 0; }
+  .scope-list li { padding: 8px 0 8px 20px; position: relative; font-size: 13px; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+  .scope-list li:last-child { border-bottom: none; }
+  .scope-list li::before { content: '\2715'; position: absolute; left: 0; color: var(--red); font-weight: 700; font-size: 12px; }
+  footer { max-width: var(--max-width); margin: 0 auto; padding: 20px 24px; text-align: center; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); }
+  @media (max-width: 640px) {
+    .sprint-card { grid-template-columns: 1fr; }
+    .sprint-num { width: 36px; height: 36px; font-size: 16px; }
+    .group-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="inner">
+    <div class="logo">Ship<span>Solo</span></div>
+    <a href="#overview">Overview</a>
+    <a href="#groups">Feature Groups</a>
+    <a href="#sprints">11 Sprints</a>
+    <a href="#deferred">Deferred</a>
+    <a href="#scope">Not in Scope</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="badge">Full Product Plan &mdash; v1 Launch</div>
+  <h1>34 features. <span>48 AI workers.</span> One product.</h1>
+  <p class="subtitle">The only tool that covers idea &rarr; validation &rarr; offer &rarr; brand &rarr; distribution &rarr; proposals &rarr; daily ops &rarr; audit in one place.</p>
+</div>
+
+<div class="content">
+
+  <!-- Overview Stats -->
+  <section id="overview">
+    <div class="section-label">Overview</div>
+    <h2>ShipSolo at a Glance</h2>
+    <p class="desc">Built on Distribution-OS. 34 features across 8 groups. 48 AI workers. 11 sprints to launch.</p>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-value green">24</div><div class="stat-label">Existing Workers</div></div>
+      <div class="stat-card"><div class="stat-value accent">24</div><div class="stat-label">New Workers</div></div>
+      <div class="stat-card"><div class="stat-value green">48</div><div class="stat-label">Total Workers</div></div>
+      <div class="stat-card"><div class="stat-value accent">9</div><div class="stat-label">New Pages</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--amber);">34</div><div class="stat-label">v1 Features</div></div>
+      <div class="stat-card"><div class="stat-value" style="color: var(--cyan);">0+10</div><div class="stat-label">Sprints</div></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Feature Groups -->
+  <section id="groups">
+    <div class="section-label">Feature Groups</div>
+    <h2>All v1 Features by Group</h2>
+    <p class="desc">8 groups covering the complete solo founder journey. Green = already built. Purple = new.</p>
+
+    <!-- Group A -->
+    <h3>Group A — Core Distribution Engine <span class="status built">EXISTS</span></h3>
+    <table>
+      <tr><th>#</th><th>Feature</th><th>Description</th></tr>
+      <tr><td>A1</td><td>6 Distribution Engines</td><td>Pull/Push/Bridge/Search/Equity/Persistence with task scoring</td></tr>
+      <tr><td>A2</td><td>24 AI Workers</td><td>Content generation via callAI() pattern</td></tr>
+      <tr><td>A3</td><td>Weekly Scorecard</td><td>Gamified weekly scoring with history</td></tr>
+      <tr><td>A4</td><td>Product Management</td><td>Multi-product CRUD with stage tracking</td></tr>
+    </table>
+
+    <!-- Group B -->
+    <h3>Group B — Business Lifecycle Phases <span class="status new">NEW</span></h3>
+    <table>
+      <tr><th>#</th><th>Feature</th><th>Route</th><th>Workers</th></tr>
+      <tr><td>B1</td><td>Idea Validator</td><td>/validate</td><td>3 (Market, Competitor, Distribution)</td></tr>
+      <tr><td>B2</td><td>Offer Builder</td><td>/brief</td><td>2 (Product Definer, Offer Designer)</td></tr>
+      <tr><td>B3</td><td>Launch Checklist</td><td>/setup</td><td>0 (UI only)</td></tr>
+      <tr><td>B5</td><td>Content Engine</td><td>/dashboard</td><td>3 (Writer, Video, Outreach)</td></tr>
+      <tr><td>B6</td><td>Proposal Generator</td><td>/proposals</td><td>1 (Proposal Writer)</td></tr>
+      <tr><td>B7</td><td>Daily Dashboard</td><td>/dashboard</td><td>0 (enhanced UI)</td></tr>
+    </table>
+
+    <!-- Group C -->
+    <h3>Group C — Design Pipeline <span class="status new">NEW</span></h3>
+    <table>
+      <tr><th>#</th><th>Feature</th><th>Description</th><th>Status</th></tr>
+      <tr><td>C1</td><td>Brand Scraper</td><td>Firecrawl API extracts brand DNA from reference URLs</td><td><span class="status new">KEEP</span></td></tr>
+      <tr><td style="color:var(--text-muted)">C2</td><td style="color:var(--text-muted);text-decoration:line-through">Logo Generator</td><td style="color:var(--text-muted)">Recraft AI logo creation</td><td><span class="status removed">REMOVED</span></td></tr>
+      <tr><td style="color:var(--text-muted)">C3</td><td style="color:var(--text-muted);text-decoration:line-through">Design Explorer</td><td style="color:var(--text-muted)">Stitch mockup generation</td><td><span class="status removed">REMOVED</span></td></tr>
+      <tr><td>C4</td><td>Token Extractor</td><td>Generates design-tokens.json from scrape + preferences</td><td><span class="status new">KEEP</span></td></tr>
+      <tr><td>C5</td><td>Brand Book Builder</td><td>HTML brand book from tokens + uploaded logo</td><td><span class="status new">KEEP</span></td></tr>
+      <tr><td style="color:var(--text-muted)">C6</td><td style="color:var(--text-muted);text-decoration:line-through">Screen Generator</td><td style="color:var(--text-muted)">Generate screens (depends on Stitch)</td><td><span class="status removed">REMOVED</span></td></tr>
+      <tr><td>C7</td><td>Design Consistency Check</td><td>Validates tokens + brand book coherence</td><td><span class="status new">KEEP</span></td></tr>
+    </table>
+    <p><strong>Pipeline:</strong> C1 &rarr; C4 &rarr; C5 &rarr; C7 (user uploads own logo between C1 and C5)</p>
+
+    <!-- Group E -->
+    <h3>Group E — 8-Domain Audit Framework <span class="status new">NEW</span></h3>
+    <table>
+      <tr><th>#</th><th>Feature</th><th>Weight</th><th>Description</th></tr>
+      <tr><td>E1</td><td>Security Audit</td><td>25pts</td><td>npm vulns, headers, CORS, XSS, RLS, SMTP</td></tr>
+      <tr><td>E2</td><td>SEO Audit</td><td>20pts</td><td>robots.txt, sitemap, meta, JSON-LD, OG</td></tr>
+      <tr><td>E3</td><td>Performance Audit</td><td>20pts</td><td>Bundle size, splitting, images, lazy loading</td></tr>
+      <tr><td>E4</td><td>Code Quality Audit</td><td>20pts</td><td>Build, ESLint, TypeScript, dead code</td></tr>
+      <tr><td>E5</td><td>Accessibility Audit</td><td>15pts</td><td>WCAG 2.1 AA, ARIA, focus, contrast</td></tr>
+      <tr><td>E6</td><td>UI Consistency Audit</td><td>bonus</td><td>Token adherence, cross-page consistency</td></tr>
+      <tr><td>E7</td><td>Responsive Audit</td><td>bonus</td><td>Touch targets, breakpoints, overflow</td></tr>
+      <tr><td>E8</td><td>Mobile Visual Audit</td><td>bonus</td><td>Screenshots at 375/390/768/1024px</td></tr>
+      <tr><td>E9</td><td>Fix Loop</td><td>&mdash;</td><td>Iterative remediation with re-scoring</td></tr>
+      <tr><td>E10</td><td>Audit Report</td><td>&mdash;</td><td>Exportable HTML/PDF with scores</td></tr>
+    </table>
+
+    <!-- Group G -->
+    <h3>Group G — Site Analysis <span class="status new">NEW</span></h3>
+    <table>
+      <tr><th>#</th><th>Feature</th><th>Description</th></tr>
+      <tr><td>G2</td><td>Site Analyzer</td><td>Input URL &rarr; AI reverse-engineers design, conversion psychology, UX patterns</td></tr>
+      <tr><td>G3</td><td>Website Audit</td><td>17-item conversion checklist scoring for any website</td></tr>
+    </table>
+
+    <!-- Group H -->
+    <h3>Group H — Engine Execution Playbooks <span class="status new">NEW</span></h3>
+    <table>
+      <tr><th>#</th><th>Feature</th><th>Engine</th><th>Description</th></tr>
+      <tr><td>H1</td><td>Engine Advisor</td><td>All</td><td>AI recommends starting engine based on niche/resources</td></tr>
+      <tr><td>H2</td><td>Pull Playbook</td><td>Pull</td><td>SEO keyword research, comparison pages, LLM visibility</td></tr>
+      <tr><td>H3</td><td>Push Playbook</td><td>Push</td><td>Waitlist, content pillars, launch psychology</td></tr>
+      <tr><td>H4</td><td>Bridge Playbook</td><td>Bridge</td><td>Connector finding, outreach, partnerships</td></tr>
+      <tr><td>H5</td><td>Search Playbook</td><td>Search</td><td>Google Ads structure, keyword research</td></tr>
+      <tr><td>H6</td><td>Equity Playbook</td><td>Equity</td><td>Partner deals, ownership trades</td></tr>
+      <tr><td>H7</td><td>Persistence Playbook</td><td>Persistence</td><td>Iteration, failure analysis, momentum</td></tr>
+    </table>
+
+    <!-- Group I -->
+    <h3>Group I — Scheduling & Automation <span class="status new">NEW</span></h3>
+    <table>
+      <tr><th>#</th><th>Feature</th><th>Description</th></tr>
+      <tr><td>I1</td><td>Daily Routine Scheduler</td><td>4-block daily routine: Market Pulse &rarr; Build &rarr; Content &rarr; Outreach</td></tr>
+      <tr><td>I2</td><td>Weekly Automations</td><td>Recurring tasks: marketing refresh, review, competitor check</td></tr>
+      <tr><td>I3</td><td>Activity Monitor</td><td>Real-time deploy, content, pipeline monitoring</td></tr>
+    </table>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Sprints -->
+  <section id="sprints">
+    <div class="section-label amber">Build Order</div>
+    <h2>Sprint 0 + 10 Sprints</h2>
+    <p class="desc">Sprint 0 audits existing code for SaaS readiness. Sprints 1-10 build new features.</p>
+
+    <div class="sprint-card critical">
+      <div class="sprint-num red">0</div>
+      <div class="sprint-body">
+        <h4>SaaS Compatibility Audit</h4>
+        <div class="sprint-meta">CRITICAL &mdash; Must complete before Sprint 1</div>
+        <ul>
+          <li>Auth: Supabase mandatory, remove PasswordGate for production</li>
+          <li>Multi-tenancy: RLS on all tables, queries scoped to auth.uid()</li>
+          <li>Storage: Supabase primary, localStorage = cache</li>
+          <li>Billing: Stripe integration, tier gate enforcement</li>
+          <li>API Keys: Edge function proxy, BYOK support, no client-side exposure</li>
+          <li>Scheduler: Evaluate browser-only vs server-side</li>
+          <li>Hardcoded values: Remove all internal references</li>
+          <li>Landing page: Placeholder for Sprint 10</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-card">
+      <div class="sprint-num">1</div>
+      <div class="sprint-body">
+        <h4>Idea Validation Pipeline (B1)</h4>
+        <div class="sprint-meta">3 new workers &bull; /validate &bull; Medium</div>
+        <ul>
+          <li>Market Researcher, Competitor Analyst, Distribution Specialist workers</li>
+          <li>Single-page UI with idea input + progress indicators + structured results</li>
+          <li>Auto-populates Knowledge Base with validated ICP/positioning data</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-card">
+      <div class="sprint-num">2</div>
+      <div class="sprint-body">
+        <h4>Offer Builder (B2)</h4>
+        <div class="sprint-meta">2 new workers &bull; /brief &bull; Medium</div>
+        <ul>
+          <li>Product Definer + Offer Designer workers</li>
+          <li>Generates: product name, persona, 3 MVP features, 3-tier pricing, objection busters</li>
+          <li>Inline editing + approval flow. Feeds Knowledge Base.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-card">
+      <div class="sprint-num">3</div>
+      <div class="sprint-body">
+        <h4>Launch Checklist (B3)</h4>
+        <div class="sprint-meta">0 workers (UI only) &bull; /setup &bull; Light</div>
+        <ul>
+          <li>Step-by-step wizard: domain, Supabase, SMTP, Stripe, AI keys</li>
+          <li>Encrypted credential store per-project</li>
+          <li>.env.local template generation</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-card">
+      <div class="sprint-num">4</div>
+      <div class="sprint-body">
+        <h4>Design Pipeline (C1, C4, C5, C7)</h4>
+        <div class="sprint-meta">4 new workers &bull; /build-kit &bull; Medium</div>
+        <ul>
+          <li>Brand Analyzer (Firecrawl), Token Extractor, Brand Book Generator, Consistency Checker</li>
+          <li>User uploads own logo (no Recraft)</li>
+          <li>Outputs: design-tokens.json, brand-book.html, consistency report</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-card">
+      <div class="sprint-num">5</div>
+      <div class="sprint-body">
+        <h4>Proposals + Content Engine (B5, B6)</h4>
+        <div class="sprint-meta">4 new workers &bull; /proposals &bull; Medium</div>
+        <ul>
+          <li>Proposal Writer: transcript &rarr; tailored proposal + follow-up sequence</li>
+          <li>Content Engine: Writer + Video Script + Outreach DM workers</li>
+          <li>Export: PDF/Markdown</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-card">
+      <div class="sprint-num">6</div>
+      <div class="sprint-body">
+        <h4>Engine Playbooks + Advisor (H1-H7)</h4>
+        <div class="sprint-meta">1 new worker &bull; Integrated into engine views &bull; Medium</div>
+        <ul>
+          <li>Engine Advisor worker: recommends starting engine</li>
+          <li>6 playbook views integrated into engine detail tabs</li>
+          <li>Task generation from playbook steps</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-card">
+      <div class="sprint-num">7</div>
+      <div class="sprint-body">
+        <h4>8-Domain Audit (E1-E10)</h4>
+        <div class="sprint-meta">8 new workers &bull; /audit &bull; Heavy</div>
+        <ul>
+          <li>GitHub repo connection (OAuth or token)</li>
+          <li>8 parallel audit workers (one per domain)</li>
+          <li>Scored report generation (HTML/PDF export)</li>
+          <li>Fix loop with guided remediation + re-scoring</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-card">
+      <div class="sprint-num">8</div>
+      <div class="sprint-body">
+        <h4>Scheduling + Daily Ops (I1-I3, B7)</h4>
+        <div class="sprint-meta">0 workers (UI + automation) &bull; /schedule &bull; Medium</div>
+        <ul>
+          <li>Daily routine scheduler (4 customizable blocks)</li>
+          <li>Weekly automation runner</li>
+          <li>Activity monitor feed</li>
+          <li>Enhanced daily dashboard with AI suggestions</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-card">
+      <div class="sprint-num">9</div>
+      <div class="sprint-body">
+        <h4>Site Analysis + Stripe + Tier Gating (G2, G3)</h4>
+        <div class="sprint-meta">2 new workers &bull; /analyze &bull; Medium-Heavy</div>
+        <ul>
+          <li>Site Analyzer: URL &rarr; design/conversion breakdown</li>
+          <li>Website Audit: 17-item scored checklist</li>
+          <li>Stripe checkout, webhooks, billing portal</li>
+          <li>All tier gates enforced across all features</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-card">
+      <div class="sprint-num">10</div>
+      <div class="sprint-body">
+        <h4>Rebrand + Landing Page + Polish</h4>
+        <div class="sprint-meta">0 workers &bull; Rebuild / &bull; Medium</div>
+        <ul>
+          <li>Final naming decision (ShipSolo vs Distribution OS)</li>
+          <li>10-section conversion-optimized landing page</li>
+          <li>Responsive polish across all pages</li>
+          <li>Founding member badge + urgency counter</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Deferred -->
+  <section id="deferred">
+    <div class="section-label" style="background:var(--surface-3);color:var(--text-muted)">v2</div>
+    <h2>Deferred to v2 (12 features)</h2>
+    <p class="desc">Added after launch based on user demand. Not needed for core value proposition.</p>
+
+    <table>
+      <tr><th>Group</th><th>Features</th><th>Reason</th></tr>
+      <tr><td>D (Code Quality)</td><td>D1-D6: Code Review, Design Review, Security Review, Build Health, Plan Generator, Learning Loop</td><td>Dev tooling &mdash; competes with CodeRabbit/Snyk. Not core founder workflow.</td></tr>
+      <tr><td>F (Testing)</td><td>F1-F4: CI Pipeline Builder, Feature Registry, Coverage Gate, Production Monitor</td><td>Target users (Bolt/Lovable founders) don't set up CI themselves.</td></tr>
+      <tr><td>B</td><td>B4: Sprint Planner</td><td>Users have Linear/Notion. Not ShipSolo's job.</td></tr>
+      <tr><td>G</td><td>G1: Pattern Library, G4: Analysis Template</td><td>Low leverage. Content exists but generic.</td></tr>
+    </table>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Not in Scope -->
+  <section id="scope">
+    <div class="section-label red">Boundaries</div>
+    <h2>Not in Scope (v1)</h2>
+    <ul class="scope-list">
+      <li><strong>No logo generation</strong> &mdash; no Recraft (user uploads own)</li>
+      <li><strong>No mockup generation</strong> &mdash; no Stitch (user uses own design tool)</li>
+      <li><strong>No screen generation</strong> &mdash; removed dependency on Stitch</li>
+      <li><strong>No application code generation</strong> &mdash; user uses Bolt/Lovable/Cursor</li>
+      <li><strong>No test infrastructure</strong> &mdash; deferred to v2</li>
+      <li><strong>No code review tooling</strong> &mdash; deferred to v2</li>
+      <li><strong>No team/collaboration</strong> &mdash; single-user only</li>
+      <li><strong>No community/marketplace</strong></li>
+      <li><strong>No mobile app</strong></li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>Predivo GmbH &mdash; 2026-04-28 &mdash; ShipSolo Full Product Plan v2</footer>
+
+</body>
+</html>

@@ -13,11 +13,32 @@ import type {
 import { defaultKnowledgeBase } from '@/types'
 import type { Json, Database } from '@/types/database'
 
+let cachedUserId: string | null = null
+
 async function getUserId(): Promise<string> {
-  const { data } = await supabase.auth.getUser()
-  if (!data.user) throw new Error('No authenticated user')
-  return data.user.id
+  if (cachedUserId) return cachedUserId
+
+  // Use getSession first (cached, avoids network call on every operation)
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session?.user) {
+    cachedUserId = session.user.id
+    return cachedUserId
+  }
+
+  // Session expired — try refreshing
+  const { data: refreshData } = await supabase.auth.refreshSession()
+  if (refreshData.session?.user) {
+    cachedUserId = refreshData.session.user.id
+    return cachedUserId
+  }
+
+  throw new Error('No authenticated user')
 }
+
+// Clear cache on auth state change
+supabase.auth.onAuthStateChange((_event, session) => {
+  cachedUserId = session?.user?.id ?? null
+})
 
 /* ============================================================
    Products
@@ -46,20 +67,24 @@ export async function loadProducts(): Promise<Product[]> {
   }))
 }
 
-export async function addProduct(product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<Product> {
+export async function addProduct(product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>, clientId?: string): Promise<Product> {
   const uid = await getUserId()
+  const insertData: Record<string, unknown> = {
+    user_id: uid,
+    name: product.name,
+    description: product.description,
+    stage: product.stage.replace('-', '_') as 'pre_launch' | 'early' | 'active' | 'scaling',
+    primary_engine: product.primaryEngine,
+    secondary_engines: product.secondaryEngines,
+    color: product.color,
+    revenue: product.revenue ?? null,
+  }
+  // Use client-generated ID to prevent ID divergence between local and server
+  if (clientId) insertData.id = clientId
+
   const { data, error } = await supabase
     .from('products')
-    .insert({
-      user_id: uid,
-      name: product.name,
-      description: product.description,
-      stage: product.stage.replace('-', '_') as 'pre_launch' | 'early' | 'active' | 'scaling',
-      primary_engine: product.primaryEngine,
-      secondary_engines: product.secondaryEngines,
-      color: product.color,
-      revenue: product.revenue ?? null,
-    })
+    .insert(insertData)
     .select()
     .single()
   if (error) throw error
@@ -79,6 +104,7 @@ export async function addProduct(product: Omit<Product, 'id' | 'createdAt' | 'up
 }
 
 export async function updateProduct(id: string, updates: Partial<Product>): Promise<void> {
+  const uid = await getUserId()
   const dbUpdates: Record<string, unknown> = {}
   if (updates.name !== undefined) dbUpdates.name = updates.name
   if (updates.description !== undefined) dbUpdates.description = updates.description
@@ -88,12 +114,13 @@ export async function updateProduct(id: string, updates: Partial<Product>): Prom
   if (updates.color !== undefined) dbUpdates.color = updates.color
   if (updates.revenue !== undefined) dbUpdates.revenue = updates.revenue ?? null
 
-  const { error } = await supabase.from('products').update(dbUpdates).eq('id', id)
+  const { error } = await supabase.from('products').update(dbUpdates).eq('id', id).eq('user_id', uid)
   if (error) throw error
 }
 
 export async function removeProduct(id: string): Promise<void> {
-  const { error } = await supabase.from('products').delete().eq('id', id)
+  const uid = await getUserId()
+  const { error } = await supabase.from('products').delete().eq('id', id).eq('user_id', uid)
   if (error) throw error
 }
 
@@ -142,12 +169,14 @@ export async function saveTasks(tasks: Task[]): Promise<void> {
 }
 
 export async function toggleTask(taskId: string, completed: boolean): Promise<void> {
-  const { error } = await supabase.from('tasks').update({ completed }).eq('id', taskId)
+  const uid = await getUserId()
+  const { error } = await supabase.from('tasks').update({ completed }).eq('id', taskId).eq('user_id', uid)
   if (error) throw error
 }
 
 export async function deleteTasksByProduct(productId: string): Promise<void> {
-  const { error } = await supabase.from('tasks').delete().eq('product_id', productId)
+  const uid = await getUserId()
+  const { error } = await supabase.from('tasks').delete().eq('product_id', productId).eq('user_id', uid)
   if (error) throw error
 }
 
@@ -162,11 +191,12 @@ export async function loadUserPreferences(): Promise<UserPreferences> {
     .select('*')
     .eq('user_id', uid)
     .single()
-  if (error || !data) return { darkMode: false, weekStartDay: 'monday' }
+  if (error || !data) return { darkMode: false, weekStartDay: 'monday', subscriptionTier: 'free' }
   const row = data as Database['public']['Tables']['user_preferences']['Row']
   return {
     darkMode: row.dark_mode,
     weekStartDay: row.week_start_day as UserPreferences['weekStartDay'],
+    subscriptionTier: (row.subscription_tier as UserPreferences['subscriptionTier']) ?? 'free',
   }
 }
 
@@ -212,21 +242,24 @@ export async function loadInboxArtifacts(): Promise<InboxArtifact[]> {
   }))
 }
 
-export async function addInboxArtifact(artifact: Omit<InboxArtifact, 'id' | 'generatedAt'>): Promise<InboxArtifact> {
+export async function addInboxArtifact(artifact: Omit<InboxArtifact, 'id' | 'generatedAt'>, clientId?: string): Promise<InboxArtifact> {
   const uid = await getUserId()
+  const insertData: Record<string, unknown> = {
+    user_id: uid,
+    product_id: artifact.productId,
+    engine: artifact.engine,
+    worker_type: artifact.workerType,
+    task_title: artifact.taskTitle,
+    status: artifact.status,
+    content: artifact.content,
+    edited_content: artifact.editedContent ?? null,
+    direction_note: artifact.directionNote ?? null,
+  }
+  if (clientId) insertData.id = clientId
+
   const { data, error } = await supabase
     .from('inbox_artifacts')
-    .insert({
-      user_id: uid,
-      product_id: artifact.productId,
-      engine: artifact.engine,
-      worker_type: artifact.workerType,
-      task_title: artifact.taskTitle,
-      status: artifact.status,
-      content: artifact.content,
-      edited_content: artifact.editedContent ?? null,
-      direction_note: artifact.directionNote ?? null,
-    })
+    .insert(insertData)
     .select()
     .single()
   if (error) throw error
@@ -249,6 +282,7 @@ export async function addInboxArtifact(artifact: Omit<InboxArtifact, 'id' | 'gen
 }
 
 export async function updateInboxArtifact(id: string, updates: Partial<InboxArtifact>): Promise<void> {
+  const uid = await getUserId()
   const dbUpdates: Record<string, unknown> = {}
   if (updates.status !== undefined) dbUpdates.status = updates.status
   if (updates.content !== undefined) dbUpdates.content = updates.content
@@ -258,21 +292,23 @@ export async function updateInboxArtifact(id: string, updates: Partial<InboxArti
   if (updates.scheduledFor !== undefined) dbUpdates.scheduled_for = updates.scheduledFor
   if (updates.publishedAt !== undefined) dbUpdates.published_at = updates.publishedAt
 
-  const { error } = await supabase.from('inbox_artifacts').update(dbUpdates).eq('id', id)
+  const { error } = await supabase.from('inbox_artifacts').update(dbUpdates).eq('id', id).eq('user_id', uid)
   if (error) throw error
 }
 
 export async function updateArtifactStatus(id: string, status: ArtifactStatus): Promise<void> {
+  const uid = await getUserId()
   const updates: Record<string, unknown> = { status }
   if (status === 'approved') updates.approved_at = new Date().toISOString()
   if (status === 'published') updates.published_at = new Date().toISOString()
 
-  const { error } = await supabase.from('inbox_artifacts').update(updates).eq('id', id)
+  const { error } = await supabase.from('inbox_artifacts').update(updates).eq('id', id).eq('user_id', uid)
   if (error) throw error
 }
 
 export async function removeInboxArtifact(id: string): Promise<void> {
-  const { error } = await supabase.from('inbox_artifacts').delete().eq('id', id)
+  const uid = await getUserId()
+  const { error } = await supabase.from('inbox_artifacts').delete().eq('id', id).eq('user_id', uid)
   if (error) throw error
 }
 

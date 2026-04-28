@@ -4,6 +4,7 @@ import { ENGINE_META } from '@/types'
 import { Tooltip } from '@/components/shared/Tooltip'
 import { ChevronDown } from 'lucide-react'
 import { PageMeta } from '@/components/shared/PageMeta'
+import { APP_NAME } from '@/lib/app-config'
 
 interface Props {
   onVisit: () => void
@@ -232,7 +233,7 @@ export function BriefingRoom({ onVisit }: Props) {
 
   return (
     <div className="space-y-6">
-      <PageMeta title="Briefing Room — Distribution OS" noindex />
+      <PageMeta title={`Briefing Room — ${APP_NAME}`} noindex />
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight mb-1">
@@ -277,7 +278,7 @@ export function BriefingRoom({ onVisit }: Props) {
                 <strong>Most SaaS products don't fail because the product is bad — they fail because nobody knows they exist.</strong> As a solo founder, you're responsible for building AND distributing your product. But distribution is where most founders stall: they know they should "do marketing" but don't know what specifically to do this week.
               </p>
               <p>
-                Distribution OS exists to solve exactly that problem. It turns the vague goal of "grow my product" into a concrete, weekly checklist of high-impact actions — personalized to where your product is right now and which growth channels you've chosen.
+                {APP_NAME} exists to solve exactly that problem. It turns the vague goal of "grow my product" into a concrete, weekly checklist of high-impact actions — personalized to where your product is right now and which growth channels you've chosen.
               </p>
             </div>
           </div>
@@ -312,10 +313,10 @@ export function BriefingRoom({ onVisit }: Props) {
 
           {/* What is Distribution OS */}
           <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-6">
-            <h2 className="text-base font-semibold text-[var(--color-ink)] mb-3">How Distribution OS works</h2>
+            <h2 className="text-base font-semibold text-[var(--color-ink)] mb-3">How {APP_NAME} works</h2>
             <div className="space-y-3 text-sm text-[var(--color-ink-body)] leading-relaxed">
               <p>
-                Distribution OS is a{' '}
+                {APP_NAME} is a{' '}
                 <Tooltip content="Every Monday, a new set of tasks is generated based on your products, their stages, and your active engines. You work through these tasks during the week and track your progress.">
                   weekly command center
                 </Tooltip>{' '}

@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import { ResetPassword } from '../ResetPassword'
+import { APP_NAME } from '@/lib/app-config'
 
 // Mock useAuth
 vi.mock('@/hooks/useAuth', () => ({
@@ -52,8 +53,8 @@ describe('ResetPassword Page', () => {
     expect(screen.getByRole('link', { name: 'Back to Login' })).toHaveAttribute('href', '/login')
   })
 
-  it('shows Distribution OS branding', () => {
+  it('shows app branding', () => {
     renderResetPassword()
-    expect(screen.getByText('Distribution OS')).toBeInTheDocument()
+    expect(screen.getByText(APP_NAME)).toBeInTheDocument()
   })
 })

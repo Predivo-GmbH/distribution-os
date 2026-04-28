@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import { SignUp } from '../SignUp'
+import { APP_NAME } from '@/lib/app-config'
 
 // Mock useAuth
 vi.mock('@/hooks/useAuth', () => ({
@@ -52,9 +53,9 @@ describe('SignUp Page', () => {
     expect(screen.getByRole('link', { name: 'Log in' })).toHaveAttribute('href', '/login')
   })
 
-  it('shows Distribution OS branding', () => {
+  it('shows app branding', () => {
     renderSignUp()
-    expect(screen.getByText('Distribution OS')).toBeInTheDocument()
+    expect(screen.getByText(APP_NAME)).toBeInTheDocument()
   })
 
   it('email input is required', () => {

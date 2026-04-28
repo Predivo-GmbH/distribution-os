@@ -6,6 +6,7 @@ import type { Product } from '@/types'
 import { ENGINE_META } from '@/types'
 import { cn } from '@/lib/utils'
 import { getPendingCount } from '@/lib/storage'
+import { APP_NAME } from '@/lib/app-config'
 
 interface Props {
   children: ReactNode
@@ -46,7 +47,7 @@ export function AppLayout({ children, products, showBriefingBadge }: Props) {
             </div>
           </div>
           <span className="font-semibold text-[var(--color-ink)] text-sm tracking-tight">
-            Distribution OS
+            {APP_NAME}
           </span>
         </div>
         {/* Close button — mobile only */}
@@ -182,7 +183,7 @@ export function AppLayout({ children, products, showBriefingBadge }: Props) {
             <Menu size={20} />
           </button>
           <span className="font-semibold text-[var(--color-ink)] text-sm tracking-tight">
-            Distribution OS
+            {APP_NAME}
           </span>
         </div>
         <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-6 md:py-8">

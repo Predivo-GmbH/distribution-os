@@ -5,6 +5,7 @@ import { PageMeta } from '@/components/shared/PageMeta'
 import { Logo } from '@/components/shared/Logo'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { APP_NAME } from '@/lib/app-config'
 
 export function Login() {
   const { signIn } = useAuth()
@@ -31,13 +32,13 @@ export function Login() {
 
   return (
     <div className="min-h-dvh bg-[var(--color-bg)] flex items-center justify-center px-4">
-      <PageMeta title="Log In — Distribution OS" noindex />
+      <PageMeta title={`Log In — ${APP_NAME}`} noindex />
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2.5 mb-8">
           <Logo />
           <span className="font-semibold text-[var(--color-ink)] text-sm tracking-tight">
-            Distribution OS
+            {APP_NAME}
           </span>
         </div>
 
@@ -46,7 +47,7 @@ export function Login() {
             Welcome back
           </h1>
           <p className="text-sm text-[var(--color-ink-muted)] text-center mb-6">
-            Log in to your Distribution OS account
+            Log in to your {APP_NAME} account
           </p>
 
           {error && (

@@ -9,7 +9,7 @@ vi.mock('@/lib/supabase', () => ({
 }))
 
 vi.mock('@/lib/supabase-storage', () => ({
-  loadUserPreferences: vi.fn().mockResolvedValue({ darkMode: false, weekStartDay: 'monday' }),
+  loadUserPreferences: vi.fn().mockResolvedValue({ darkMode: false, weekStartDay: 'monday', subscriptionTier: 'free' }),
   saveUserPreferences: vi.fn().mockResolvedValue(undefined),
 }))
 

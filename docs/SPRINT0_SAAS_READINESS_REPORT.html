@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 0 — SaaS Readiness Report | Distribution-OS</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface-2: #334155;
+    --border: #475569;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --critical: #ef4444;
+    --critical-bg: #450a0a;
+    --high: #f97316;
+    --high-bg: #431407;
+    --medium: #eab308;
+    --medium-bg: #422006;
+    --low: #3b82f6;
+    --low-bg: #172554;
+    --good: #22c55e;
+    --good-bg: #052e16;
+    --accent: #8b5cf6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, var(--surface) 0%, #1a1a2e 100%);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+  .header h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+  .header .subtitle { color: var(--text-muted); font-size: 1.1rem; }
+  .header .date { color: var(--accent); margin-top: 1rem; font-size: 0.9rem; }
+
+  /* Score Card */
+  .score-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .score-item {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .score-item .number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .score-item .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .score-item.critical .number { color: var(--critical); }
+  .score-item.high .number { color: var(--high); }
+  .score-item.medium .number { color: var(--medium); }
+  .score-item.low .number { color: var(--low); }
+  .score-item.total .number { color: var(--text); }
+
+  /* Verdict */
+  .verdict {
+    background: var(--critical-bg);
+    border: 2px solid var(--critical);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  .verdict h2 { color: var(--critical); font-size: 1.3rem; }
+  .verdict p { color: var(--text-muted); margin-top: 0.5rem; }
+
+  /* Domain sections */
+  .domain {
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  .domain-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .domain-header h3 { font-size: 1.1rem; }
+  .domain-badges { display: flex; gap: 0.5rem; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .badge.critical { background: var(--critical-bg); color: var(--critical); border: 1px solid var(--critical); }
+  .badge.high { background: var(--high-bg); color: var(--high); border: 1px solid var(--high); }
+  .badge.medium { background: var(--medium-bg); color: var(--medium); border: 1px solid var(--medium); }
+  .badge.low { background: var(--low-bg); color: var(--low); border: 1px solid var(--low); }
+  .badge.good { background: var(--good-bg); color: var(--good); border: 1px solid var(--good); }
+
+  .domain-body { padding: 1.5rem; }
+
+  /* Issue table */
+  .issue-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .issue-table th {
+    text-align: left;
+    padding: 0.75rem;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+  .issue-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(71,85,105,0.3);
+    vertical-align: top;
+  }
+  .issue-table tr:last-child td { border-bottom: none; }
+  .issue-table .severity { white-space: nowrap; font-weight: 700; }
+  .issue-table .severity.critical { color: var(--critical); }
+  .issue-table .severity.high { color: var(--high); }
+  .issue-table .severity.medium { color: var(--medium); }
+  .issue-table .severity.low { color: var(--low); }
+  .file-ref { color: var(--accent); font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.8rem; }
+
+  /* Architecture section */
+  .arch-section {
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .arch-section h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    color: var(--accent);
+  }
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .arch-card {
+    background: var(--surface-2);
+    border-radius: 8px;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+  }
+  .arch-card h4 { color: var(--critical); margin-bottom: 0.5rem; font-size: 0.9rem; }
+  .arch-card .arrow { color: var(--good); font-weight: 700; margin: 0.75rem 0; }
+  .arch-card h4.good { color: var(--good); }
+  .arch-card p { color: var(--text-muted); font-size: 0.85rem; }
+
+  /* Fix priority */
+  .fix-priority {
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .fix-priority h2 { font-size: 1.3rem; margin-bottom: 1rem; }
+  .fix-list { list-style: none; }
+  .fix-list li {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+  }
+  .fix-list li .step {
+    background: var(--accent);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    body { padding: 1rem; }
+    .header h1 { font-size: 1.5rem; }
+    .arch-grid { grid-template-columns: 1fr; }
+    .score-card { grid-template-columns: repeat(2, 1fr); }
+    .issue-table { font-size: 0.8rem; }
+    .issue-table th, .issue-table td { padding: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Header -->
+<div class="header">
+  <h1>Sprint 0 — SaaS Readiness Report</h1>
+  <div class="subtitle">Distribution-OS / ShipSolo — Full 8-Domain Audit</div>
+  <div class="date">Generated: 2026-04-28 | Audited by: 8 parallel agents | Codebase: C:\Business\Internal Projects\Distribution-OS</div>
+</div>
+
+<!-- Score Card -->
+<div class="score-card">
+  <div class="score-item total">
+    <div class="number">82</div>
+    <div class="label">Total Issues</div>
+  </div>
+  <div class="score-item critical">
+    <div class="number">25</div>
+    <div class="label">Critical</div>
+  </div>
+  <div class="score-item high">
+    <div class="number">26</div>
+    <div class="label">High</div>
+  </div>
+  <div class="score-item medium">
+    <div class="number">21</div>
+    <div class="label">Medium</div>
+  </div>
+  <div class="score-item low">
+    <div class="number">10</div>
+    <div class="label">Low</div>
+  </div>
+</div>
+
+<!-- Verdict -->
+<div class="verdict">
+  <h2>NOT READY FOR SAAS LAUNCH</h2>
+  <p>25 critical + 26 high severity issues must be resolved before Sprint 1 begins. The codebase works well as an internal single-user tool but lacks authentication enforcement, data isolation, billing, server-side scheduling, and API security required for multi-tenant SaaS.</p>
+</div>
+
+<!-- ============================================ -->
+<!-- DOMAIN 1: Authentication -->
+<!-- ============================================ -->
+<div class="domain">
+  <div class="domain-header">
+    <h3>Domain 1: Authentication</h3>
+    <div class="domain-badges">
+      <span class="badge critical">3 CRITICAL</span>
+      <span class="badge high">2 HIGH</span>
+      <span class="badge medium">2 MEDIUM</span>
+    </div>
+  </div>
+  <div class="domain-body">
+    <table class="issue-table">
+      <thead><tr><th>#</th><th>Severity</th><th>Issue</th><th>File</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1.1</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>PasswordGate is pre-launch access control, not user authentication. Single shared password, no per-user identity.</td>
+          <td><span class="file-ref">PasswordGate.tsx:5-78</span></td>
+          <td>Remove PasswordGate from App.tsx. Replace with Supabase Auth enforcement on all routes.</td>
+        </tr>
+        <tr>
+          <td>1.2</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>Auth is optional — app runs without authentication if Supabase env vars are missing. Graceful fallback to local-only mode.</td>
+          <td><span class="file-ref">App.tsx:24-33</span></td>
+          <td>Make Supabase env vars required. Hard-fail if missing in production build.</td>
+        </tr>
+        <tr>
+          <td>1.3</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>No user state without Supabase — useAuth returns null user, but app still loads and functions.</td>
+          <td><span class="file-ref">useAuth.ts:8-30</span></td>
+          <td>Redirect to error page if Supabase not configured. Never allow unauthenticated access.</td>
+        </tr>
+        <tr>
+          <td>1.4</td>
+          <td class="severity high">HIGH</td>
+          <td>Data falls back to localStorage when Supabase unavailable — no sync status indicator, mutations proceed silently.</td>
+          <td><span class="file-ref">useAppState.ts:97-118</span></td>
+          <td>Show error and disable mutations if Supabase is down. Add retry logic.</td>
+        </tr>
+        <tr>
+          <td>1.5</td>
+          <td class="severity high">HIGH</td>
+          <td>All storage operations silently swallow Supabase sync errors with .catch(() => {}).</td>
+          <td><span class="file-ref">storage.ts:128-131</span></td>
+          <td>Log errors, notify user, implement retry with backoff.</td>
+        </tr>
+        <tr>
+          <td>1.6</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>Password optional at signup — user can register with email only, no password required.</td>
+          <td><span class="file-ref">SignUp.tsx:56-61</span></td>
+          <td>Enforce password requirement or explicitly document OTP-only as valid.</td>
+        </tr>
+        <tr>
+          <td>1.7</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>Preferences hook skips Supabase sync on first render — may load stale localStorage data.</td>
+          <td><span class="file-ref">usePreferences.ts:32-35</span></td>
+          <td>Always load from Supabase on mount. Use localStorage as fallback only.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top:1rem; color:var(--good); font-size:0.85rem;">
+      <strong>Positive:</strong> RLS policies are correctly implemented on all tables (products, tasks, week_records, user_preferences, inbox_artifacts, knowledge_base). All policies check auth.uid() = user_id.
+    </p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- DOMAIN 2: Multi-tenancy -->
+<!-- ============================================ -->
+<div class="domain">
+  <div class="domain-header">
+    <h3>Domain 2: Multi-tenancy / Data Isolation</h3>
+    <div class="domain-badges">
+      <span class="badge critical">3 CRITICAL</span>
+      <span class="badge high">2 HIGH</span>
+      <span class="badge medium">1 MEDIUM</span>
+    </div>
+  </div>
+  <div class="domain-body">
+    <table class="issue-table">
+      <thead><tr><th>#</th><th>Severity</th><th>Issue</th><th>File</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>2.1</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>UPDATE operations filter only by record ID, not user_id — any user could update another user's record if they know the ID.</td>
+          <td><span class="file-ref">supabase-storage.ts:91,145,261,270</span></td>
+          <td>Add user_id filter to all UPDATE queries. RLS provides defense-in-depth but client should also scope.</td>
+        </tr>
+        <tr>
+          <td>2.2</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>DELETE operations missing user_id check — relies entirely on RLS for isolation.</td>
+          <td><span class="file-ref">supabase-storage.ts:96,150,275</span></td>
+          <td>Add explicit user_id filter to all DELETE queries.</td>
+        </tr>
+        <tr>
+          <td>2.3</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>Artifact status updates (approve/reject) are completely unscoped by user — only filter by artifact ID.</td>
+          <td><span class="file-ref">supabase-storage.ts:261,270</span></td>
+          <td>Add user_id scope to artifact status mutations.</td>
+        </tr>
+        <tr>
+          <td>2.4</td>
+          <td class="severity high">HIGH</td>
+          <td>saveTasks() doesn't validate that product_id belongs to current user — could write tasks to another user's product.</td>
+          <td><span class="file-ref">supabase-storage.ts:125-142</span></td>
+          <td>Validate product ownership before task writes. Add FK constraint checks.</td>
+        </tr>
+        <tr>
+          <td>2.5</td>
+          <td class="severity high">HIGH</td>
+          <td>localStorage keys are global (not user-scoped): distribution-os, distribution-os-prefs, distribution-os-inbox, distribution-os-kb:*</td>
+          <td><span class="file-ref">storage.ts:9,77,102,183</span></td>
+          <td>Prefix all localStorage keys with user ID: {userId}:distribution-os-*</td>
+        </tr>
+        <tr>
+          <td>2.6</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>AI API config stored in global localStorage key — shared across all users on same browser.</td>
+          <td><span class="file-ref">ai/config.ts:5-38</span></td>
+          <td>Scope to user ID or move to server-side storage.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- DOMAIN 3: Storage Layer -->
+<!-- ============================================ -->
+<div class="domain">
+  <div class="domain-header">
+    <h3>Domain 3: Storage Layer</h3>
+    <div class="domain-badges">
+      <span class="badge critical">6 CRITICAL</span>
+      <span class="badge high">6 HIGH</span>
+      <span class="badge medium">3 MEDIUM</span>
+      <span class="badge low">2 LOW</span>
+    </div>
+  </div>
+  <div class="domain-body">
+    <table class="issue-table">
+      <thead><tr><th>#</th><th>Severity</th><th>Issue</th><th>File</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>3.1</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>localStorage-first loading pattern — state initializes from localStorage synchronously, Supabase loads async after. New device shows empty/stale state.</td>
+          <td><span class="file-ref">useAppState.ts:88-118</span></td>
+          <td>Await Supabase load before rendering. Show loading spinner until cloud data arrives.</td>
+        </tr>
+        <tr>
+          <td>3.2</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>Fire-and-forget Supabase sync — all writes go to localStorage first, Supabase errors silently swallowed with .catch(() => {}).</td>
+          <td><span class="file-ref">useAppState.ts:126-151</span></td>
+          <td>Wait for Supabase confirmation. Track sync state (pending/synced/failed). Retry on failure.</td>
+        </tr>
+        <tr>
+          <td>3.3</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>Preferences don't sync between devices — loads from localStorage on mount, Supabase hydration fires after initial render.</td>
+          <td><span class="file-ref">usePreferences.ts:8-40</span></td>
+          <td>Load preferences from Supabase before rendering. localStorage = cache only.</td>
+        </tr>
+        <tr>
+          <td>3.4</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>Inbox artifacts sync is fire-and-forget — AI-generated content can be silently lost if Supabase write fails.</td>
+          <td><span class="file-ref">storage.ts:118-169</span></td>
+          <td>Track pending state. Revert optimistic update on failure. Show error with retry.</td>
+        </tr>
+        <tr>
+          <td>3.5</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>Scheduler config and run records stored in localStorage only — never reach Supabase. No sync, no audit trail.</td>
+          <td><span class="file-ref">ai/scheduler.ts:65-102</span></td>
+          <td>Create scheduler_configs and scheduler_runs tables. Sync bidirectionally.</td>
+        </tr>
+        <tr>
+          <td>3.6</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>Knowledge Base storage is fire-and-forget — user can lose 30+ minutes of setup work if Supabase write fails.</td>
+          <td><span class="file-ref">storage.ts:185-218</span></td>
+          <td>Block save() until Supabase confirms. Show "Saving..." indicator. Retry on failure.</td>
+        </tr>
+        <tr>
+          <td>3.7</td>
+          <td class="severity high">HIGH</td>
+          <td>Multi-device data loss on product deletion — cleanup only runs if Supabase NOT configured. Orphaned artifacts remain.</td>
+          <td><span class="file-ref">useAppState.ts:40</span></td>
+          <td>Clean up on both localStorage and Supabase. Implement cascading deletes via FK constraints.</td>
+        </tr>
+        <tr>
+          <td>3.8</td>
+          <td class="severity high">HIGH</td>
+          <td>No offline sync queue — changes made during network downtime are stored locally but never retried when connection returns.</td>
+          <td><span class="file-ref">supabase-storage.ts (entire)</span></td>
+          <td>Implement pending mutations queue. Track mutation ID, type, payload, retry count. Replay on reconnect.</td>
+        </tr>
+        <tr>
+          <td>3.9</td>
+          <td class="severity high">HIGH</td>
+          <td>Integration configs (LinkedIn, Google Ads API keys) stored in localStorage only — unencrypted, no cloud backup.</td>
+          <td><span class="file-ref">ai/integrations.ts:38-50</span></td>
+          <td>Create encrypted integration_configs table. Use pgcrypto for at-rest encryption.</td>
+        </tr>
+        <tr>
+          <td>3.10</td>
+          <td class="severity high">HIGH</td>
+          <td>Anthropic API key stored in browser localStorage — accessible via DevTools, not synced across devices.</td>
+          <td><span class="file-ref">ai/config.ts:21-38</span></td>
+          <td>Move to server-side env vars or encrypted Supabase vault. Never store API keys in browser.</td>
+        </tr>
+        <tr>
+          <td>3.11</td>
+          <td class="severity high">HIGH</td>
+          <td>UI collapse state (panels, sort orders) not synced — each device has independent UI state.</td>
+          <td><span class="file-ref">IntelligencePanel.tsx:10-27</span></td>
+          <td>Store UI preferences in Supabase. Fail gracefully if unavailable.</td>
+        </tr>
+        <tr>
+          <td>3.12</td>
+          <td class="severity high">HIGH</td>
+          <td>Onboarding state (first mission, setup sprint) stored in localStorage only — users see onboarding again on new devices.</td>
+          <td><span class="file-ref">useOnboardingState.ts:19-29</span></td>
+          <td>Create onboarding_state table. Sync on auth init.</td>
+        </tr>
+        <tr>
+          <td>3.13</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>Connector CRM never syncs to cloud — all lead/contact data is localStorage-only.</td>
+          <td><span class="file-ref">ai/connector-crm.ts:26-64</span></td>
+          <td>Create connectors table with full CRUD sync.</td>
+        </tr>
+        <tr>
+          <td>3.14</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>No conflict resolution for simultaneous edits — last-write-wins with no version tracking.</td>
+          <td><span class="file-ref">useAppState.ts (entire)</span></td>
+          <td>Add version/updated_at columns. Detect conflicts on sync.</td>
+        </tr>
+        <tr>
+          <td>3.15</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>No compression/delta sync — every state change sends full object to Supabase.</td>
+          <td><span class="file-ref">supabase-storage.ts (entire)</span></td>
+          <td>Implement PATCH instead of PUT. Only send changed fields.</td>
+        </tr>
+        <tr>
+          <td>3.16</td>
+          <td class="severity low">LOW</td>
+          <td>No time-based cache invalidation — Supabase data loaded once on mount, never refreshed.</td>
+          <td><span class="file-ref">useAppState.ts:98-118</span></td>
+          <td>Poll Supabase every 30s or use Realtime subscriptions.</td>
+        </tr>
+        <tr>
+          <td>3.17</td>
+          <td class="severity low">LOW</td>
+          <td>Test suite doesn't cover multi-device scenarios — all tests are single-device localStorage operations.</td>
+          <td><span class="file-ref">__tests__/storage.test.ts</span></td>
+          <td>Add integration tests for sync, conflicts, and retry behavior.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- DOMAIN 4: Subscription Gating -->
+<!-- ============================================ -->
+<div class="domain">
+  <div class="domain-header">
+    <h3>Domain 4: Subscription Tier Gating</h3>
+    <div class="domain-badges">
+      <span class="badge critical">3 CRITICAL</span>
+      <span class="badge high">5 HIGH</span>
+      <span class="badge medium">4 MEDIUM</span>
+      <span class="badge low">2 LOW</span>
+    </div>
+  </div>
+  <div class="domain-body">
+    <table class="issue-table">
+      <thead><tr><th>#</th><th>Severity</th><th>Issue</th><th>File</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>4.1</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>GenerateButton calls runWorker() with zero subscription checks — any user can run unlimited AI workers.</td>
+          <td><span class="file-ref">GenerateButton.tsx:34-69</span></td>
+          <td>Check subscription tier and remaining quota before calling runWorker().</td>
+        </tr>
+        <tr>
+          <td>4.2</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>ADD_PRODUCT dispatches with zero product count validation — no limit on number of projects per tier.</td>
+          <td><span class="file-ref">AddProductModal.tsx:141-153</span></td>
+          <td>Enforce tier-based project limits (Starter: 2, Growth: 5, Scale: unlimited).</td>
+        </tr>
+        <tr>
+          <td>4.3</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>loadUserPreferences() ignores subscription_tier and stripe_customer_id fields — tier never loaded from DB.</td>
+          <td><span class="file-ref">supabase-storage.ts:158-183</span></td>
+          <td>Load and expose subscription_tier in user context. Gate all features against it.</td>
+        </tr>
+        <tr>
+          <td>4.4</td>
+          <td class="severity high">HIGH</td>
+          <td>Dark mode toggle always available — should be gated per pricing page (Pro-only feature).</td>
+          <td><span class="file-ref">GeneralTab.tsx:43-59</span></td>
+          <td>Add tier check wrapper around Pro-only UI features.</td>
+        </tr>
+        <tr>
+          <td>4.5</td>
+          <td class="severity high">HIGH</td>
+          <td>Export button always available — should be Pro-only per pricing page.</td>
+          <td><span class="file-ref">GeneralTab.tsx:88-93</span></td>
+          <td>Gate behind subscription tier check.</td>
+        </tr>
+        <tr>
+          <td>4.6</td>
+          <td class="severity high">HIGH</td>
+          <td>runWorker() has no quota tracking — calls Claude API with no rate limiting or run-count enforcement.</td>
+          <td><span class="file-ref">worker-base.ts:147-170</span></td>
+          <td>Track runs per month. Enforce limits (Starter: 5, Growth: 25, Scale: unlimited).</td>
+        </tr>
+        <tr>
+          <td>4.7</td>
+          <td class="severity high">HIGH</td>
+          <td>FEATURES array defines Pro features but no code enforces gating — purely decorative.</td>
+          <td><span class="file-ref">Pricing.tsx:5-14</span></td>
+          <td>Create useSubscription() hook that checks tier. Wrap gated features.</td>
+        </tr>
+        <tr>
+          <td>4.8</td>
+          <td class="severity high">HIGH</td>
+          <td>SubscriptionTier type defined but never imported or used anywhere in the codebase.</td>
+          <td><span class="file-ref">types/index.ts:22</span></td>
+          <td>Wire SubscriptionTier into auth context, preferences, and feature gates.</td>
+        </tr>
+        <tr>
+          <td>4.9</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>Hardcoded single STRIPE_PRO_PRICE_ID — needs multi-tier support (3 tiers + annual toggle).</td>
+          <td><span class="file-ref">stripe-checkout/index.ts:70</span></td>
+          <td>Accept price_id as parameter. Map to tier lookup table.</td>
+        </tr>
+        <tr>
+          <td>4.10</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>No downgrade handling — excess products not flagged when user downgrades tier.</td>
+          <td><span class="file-ref">stripe-webhook/index.ts:52-67</span></td>
+          <td>On downgrade: flag excess products as read-only, notify user.</td>
+        </tr>
+        <tr>
+          <td>4.11</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>No subscription sync — tier changes in Stripe don't reflect in app without page reload.</td>
+          <td><span class="file-ref">stripe-webhook/index.ts</span></td>
+          <td>Webhook should update user_preferences.subscription_tier. App should poll or subscribe.</td>
+        </tr>
+        <tr>
+          <td>4.12</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>No billing portal UI — users can't manage their subscription from within the app.</td>
+          <td><span class="file-ref">Settings pages</span></td>
+          <td>Add "Manage Subscription" button in Settings linking to Stripe billing portal.</td>
+        </tr>
+        <tr>
+          <td>4.13</td>
+          <td class="severity low">LOW</td>
+          <td>Pricing page shows Free/$0 and Pro/$19 — doesn't match planned $29/$99/$199 tiers.</td>
+          <td><span class="file-ref">Pricing.tsx:85-112</span></td>
+          <td>Update to 3-tier pricing with correct amounts.</td>
+        </tr>
+        <tr>
+          <td>4.14</td>
+          <td class="severity low">LOW</td>
+          <td>No founding member badge or annual toggle on pricing page.</td>
+          <td><span class="file-ref">Pricing.tsx</span></td>
+          <td>Add annual/monthly toggle and founding member pricing (40% off).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- DOMAIN 5: API Key Security -->
+<!-- ============================================ -->
+<div class="domain">
+  <div class="domain-header">
+    <h3>Domain 5: API Key Security</h3>
+    <div class="domain-badges">
+      <span class="badge critical">2 CRITICAL</span>
+      <span class="badge high">2 HIGH</span>
+      <span class="badge medium">3 MEDIUM</span>
+    </div>
+  </div>
+  <div class="domain-body">
+    <table class="issue-table">
+      <thead><tr><th>#</th><th>Severity</th><th>Issue</th><th>File</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>5.1</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>Anthropic API keys stored in browser localStorage as plaintext — accessible via DevTools by any user.</td>
+          <td><span class="file-ref">ai/config.ts:21-33</span></td>
+          <td>Remove client-side key storage. Move all API calls to server-side edge function proxy.</td>
+        </tr>
+        <tr>
+          <td>5.2</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>Direct Anthropic API calls from browser with 'anthropic-dangerous-direct-browser-access: true' header. API key transmitted in request headers.</td>
+          <td><span class="file-ref">worker-base.ts:100-114</span></td>
+          <td>Create Supabase Edge Function /call-ai that proxies requests. Client sends prompts only, never keys.</td>
+        </tr>
+        <tr>
+          <td>5.3</td>
+          <td class="severity high">HIGH</td>
+          <td>No per-user API key support (BYOK) — single shared key per browser, no enterprise key management.</td>
+          <td><span class="file-ref">ai/config.ts:7-12</span></td>
+          <td>Add user_api_keys table with encrypted storage. Support Platform + BYOK modes.</td>
+        </tr>
+        <tr>
+          <td>5.4</td>
+          <td class="severity high">HIGH</td>
+          <td>No usage tracking or quota system — no database tables for API consumption, token counts, or costs.</td>
+          <td><span class="file-ref">Supabase migrations</span></td>
+          <td>Create api_usage_logs and user_quotas tables. Log every call, enforce monthly limits.</td>
+        </tr>
+        <tr>
+          <td>5.5</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>Settings UI exposes raw API key input field — warns "stored locally" but this is inaccurate for SaaS.</td>
+          <td><span class="file-ref">AIConfigTab.tsx:40-58</span></td>
+          <td>Remove API key input from frontend. Show "API Status" badge instead.</td>
+        </tr>
+        <tr>
+          <td>5.6</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>Proxy URL fallback is optional and undocumented — defaults to direct Anthropic API (insecure).</td>
+          <td><span class="file-ref">ai/config.ts:40-43</span></td>
+          <td>Remove proxy option. All calls must go through backend edge function.</td>
+        </tr>
+        <tr>
+          <td>5.7</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>No audit logging for API calls — no record of who called what, when, or with what content.</td>
+          <td><span class="file-ref">worker-base.ts:90-132</span></td>
+          <td>Log every API call to api_usage_logs with user_id, worker_type, tokens, cost.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- DOMAIN 6: Scheduler -->
+<!-- ============================================ -->
+<div class="domain">
+  <div class="domain-header">
+    <h3>Domain 6: Scheduler</h3>
+    <div class="domain-badges">
+      <span class="badge critical">3 CRITICAL</span>
+      <span class="badge high">4 HIGH</span>
+      <span class="badge medium">3 MEDIUM</span>
+      <span class="badge low">3 LOW</span>
+    </div>
+  </div>
+  <div class="domain-body">
+    <table class="issue-table">
+      <thead><tr><th>#</th><th>Severity</th><th>Issue</th><th>File</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>6.1</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>Browser-only scheduler — runs via setInterval with 60s tick. All work stops when tab closes. No background execution.</td>
+          <td><span class="file-ref">useScheduler.ts:73-91</span></td>
+          <td>Deploy server-side cron (pg_cron or external trigger). Browser scheduler becomes secondary fast-path.</td>
+        </tr>
+        <tr>
+          <td>6.2</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>No catch-up logic — if browser was closed for hours, all missed workers run simultaneously on reopen (thundering herd).</td>
+          <td><span class="file-ref">ai/scheduler.ts:150-158</span></td>
+          <td>Track lastRunTime vs nextRunTime. Stagger catch-up runs with 5s delay. Skip if >24h old.</td>
+        </tr>
+        <tr>
+          <td>6.3</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>Scheduler state stored in localStorage only — config and run history never reach Supabase. Lost on cache clear.</td>
+          <td><span class="file-ref">ai/scheduler.ts:65-102</span></td>
+          <td>Create scheduler_configs and scheduler_runs tables. Sync bidirectionally.</td>
+        </tr>
+        <tr>
+          <td>6.4</td>
+          <td class="severity high">HIGH</td>
+          <td>No server-side scheduling infrastructure — only 3 edge functions exist (Stripe), none for scheduled execution.</td>
+          <td><span class="file-ref">supabase/functions/</span></td>
+          <td>Create /scheduler-tick edge function. Trigger via external cron every 60s.</td>
+        </tr>
+        <tr>
+          <td>6.5</td>
+          <td class="severity high">HIGH</td>
+          <td>No timezone awareness — calculations use browser local time. Server would use UTC, causing mismatches.</td>
+          <td><span class="file-ref">ai/scheduler.ts:127-148</span></td>
+          <td>Add timezone column to user_preferences. Convert all schedule times to UTC for server execution.</td>
+        </tr>
+        <tr>
+          <td>6.6</td>
+          <td class="severity high">HIGH</td>
+          <td>No worker deduplication or locking — two browser tabs run independent schedulers, causing duplicate artifacts.</td>
+          <td><span class="file-ref">ai/scheduler.ts:166-191</span></td>
+          <td>Add locked_until column. Acquire lock before execution. Server-side serialization preferred.</td>
+        </tr>
+        <tr>
+          <td>6.7</td>
+          <td class="severity high">HIGH</td>
+          <td>autoApprove and autoApproveThreshold defined in interface but never implemented — UI shows settings that have no effect.</td>
+          <td><span class="file-ref">ai/scheduler.ts:18-27</span></td>
+          <td>Implement confidence-based auto-approval after worker succeeds.</td>
+        </tr>
+        <tr>
+          <td>6.8</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>No error retry logic — if a worker fails (network timeout, rate limit), that execution window is permanently lost.</td>
+          <td><span class="file-ref">ai/scheduler.ts:180-186</span></td>
+          <td>Implement retry queue with exponential backoff. Cap at 3-5 attempts.</td>
+        </tr>
+        <tr>
+          <td>6.9</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>Worker timeout not enforced — workers are awaited without timeout. Hung API call blocks entire tick.</td>
+          <td><span class="file-ref">useScheduler.ts:80-87</span></td>
+          <td>Wrap each worker in Promise.race with 5-minute timeout.</td>
+        </tr>
+        <tr>
+          <td>6.10</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>No rate limiting or API credit management — all 22 workers could run simultaneously, blowing through quota.</td>
+          <td><span class="file-ref">ai/scheduler.ts:181</span></td>
+          <td>Implement token bucket rate limiter. Max 10 API calls/minute/user.</td>
+        </tr>
+        <tr>
+          <td>6.11</td>
+          <td class="severity low">LOW</td>
+          <td>Cadence hardcoded to daily/weekly only — no hourly, monthly, or custom options.</td>
+          <td><span class="file-ref">ai/scheduler.ts:16</span></td>
+          <td>Extend cadence enum with hourly, biweekly, monthly.</td>
+        </tr>
+        <tr>
+          <td>6.12</td>
+          <td class="severity low">LOW</td>
+          <td>No scheduler metrics or observability — no logging of execution counts, failure rates, or duration.</td>
+          <td><span class="file-ref">ai/scheduler.ts</span></td>
+          <td>Add structured logging. Create metrics dashboard.</td>
+        </tr>
+        <tr>
+          <td>6.13</td>
+          <td class="severity low">LOW</td>
+          <td>Last run timestamp only in localStorage — disappears on cache clear, no audit trail.</td>
+          <td><span class="file-ref">SchedulerTab.tsx:87-88</span></td>
+          <td>Display from scheduler_runs Supabase table instead.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- DOMAIN 7: Hardcoded Values -->
+<!-- ============================================ -->
+<div class="domain">
+  <div class="domain-header">
+    <h3>Domain 7: Hardcoded Values</h3>
+    <div class="domain-badges">
+      <span class="badge critical">3 CRITICAL</span>
+      <span class="badge high">1 HIGH</span>
+      <span class="badge medium">2 MEDIUM</span>
+      <span class="badge low">1 LOW</span>
+    </div>
+  </div>
+  <div class="domain-body">
+    <table class="issue-table">
+      <thead><tr><th>#</th><th>Severity</th><th>Issue</th><th>File</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>7.1</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>Landing page footer hardcodes "Distribution OS — Built by Prodiva GmbH".</td>
+          <td><span class="file-ref">Landing.tsx:148</span></td>
+          <td>Extract to env var VITE_COMPANY_NAME or config constant.</td>
+        </tr>
+        <tr>
+          <td>7.2</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>Settings page hardcodes "Distribution OS v1.0.0 — Built by Prodiva GmbH".</td>
+          <td><span class="file-ref">GeneralTab.tsx:114</span></td>
+          <td>Same — use shared config constant.</td>
+        </tr>
+        <tr>
+          <td>7.3</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>Pricing page footer hardcodes "Distribution OS — Built by Prodiva GmbH".</td>
+          <td><span class="file-ref">Pricing.tsx:127</span></td>
+          <td>Same — use shared config constant.</td>
+        </tr>
+        <tr>
+          <td>7.4</td>
+          <td class="severity high">HIGH</td>
+          <td>PasswordGate hash is a hardcoded development access code — same across all deployments.</td>
+          <td><span class="file-ref">PasswordGate.tsx:5-7</span></td>
+          <td>Remove PasswordGate entirely for production. Use Supabase Auth.</td>
+        </tr>
+        <tr>
+          <td>7.5</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>Supabase project ID hardcoded in .env — single project, no staging/production separation.</td>
+          <td><span class="file-ref">app/.env:1-2</span></td>
+          <td>Use .env.local (gitignored). Set per-environment vars in CI/CD.</td>
+        </tr>
+        <tr>
+          <td>7.6</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>Stripe live publishable key hardcoded in .env — single Stripe account for all tenants.</td>
+          <td><span class="file-ref">app/.env:3</span></td>
+          <td>Move to GitHub Actions secrets. Use .env.local for local dev.</td>
+        </tr>
+        <tr>
+          <td>7.7</td>
+          <td class="severity low">LOW</td>
+          <td>All localStorage keys use 'distribution-os-' prefix — collision risk if multiple instances on same browser.</td>
+          <td><span class="file-ref">storage.ts, config.ts, connector-crm.ts</span></td>
+          <td>Parameterize namespace via env var.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top:1rem; color:var(--good); font-size:0.85rem;">
+      <strong>Positive:</strong> No hardcoded email addresses, no personal names, no TODO/FIXME with internal references. API endpoints are configurable.
+    </p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- DOMAIN 8: Landing Page -->
+<!-- ============================================ -->
+<div class="domain">
+  <div class="domain-header">
+    <h3>Domain 8: Landing Page</h3>
+    <div class="domain-badges">
+      <span class="badge critical">2 CRITICAL</span>
+      <span class="badge high">4 HIGH</span>
+      <span class="badge medium">3 MEDIUM</span>
+      <span class="badge low">2 LOW</span>
+    </div>
+  </div>
+  <div class="domain-body">
+    <table class="issue-table">
+      <thead><tr><th>#</th><th>Severity</th><th>Issue</th><th>File</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>8.1</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>PasswordGate wraps entire app including public landing page — blocks ALL public traffic. SEO crawlers cannot index.</td>
+          <td><span class="file-ref">PasswordGate.tsx + App.tsx:78</span></td>
+          <td>Remove PasswordGate from public routes. Only wrap AuthenticatedApp.</td>
+        </tr>
+        <tr>
+          <td>8.2</td>
+          <td class="severity critical">CRITICAL</td>
+          <td>No legal pages — no Privacy Policy, Terms of Service, or Cookie Policy. GDPR violation, Stripe requirement.</td>
+          <td><span class="file-ref">No routes exist</span></td>
+          <td>Create /privacy, /terms, /cookies pages. Link in footer.</td>
+        </tr>
+        <tr>
+          <td>8.3</td>
+          <td class="severity high">HIGH</td>
+          <td>No analytics integration — zero tracking (no GA4, Plausible, or events). Cannot measure conversions.</td>
+          <td><span class="file-ref">index.html, main.tsx</span></td>
+          <td>Add GA4 or Plausible. Track CTA clicks, signups, pricing views.</td>
+        </tr>
+        <tr>
+          <td>8.4</td>
+          <td class="severity high">HIGH</td>
+          <td>No GDPR consent banner — loading Google Fonts without consent. Analytics would violate GDPR.</td>
+          <td><span class="file-ref">index.html:27-31</span></td>
+          <td>Add cookie consent banner. Block analytics until consent given.</td>
+        </tr>
+        <tr>
+          <td>8.5</td>
+          <td class="severity high">HIGH</td>
+          <td>No meta tags on Pricing, Login, SignUp pages — social sharing shows blank/generic previews.</td>
+          <td><span class="file-ref">Pricing.tsx, Login.tsx, SignUp.tsx</span></td>
+          <td>Add PageMeta component with og:title, og:description, og:image.</td>
+        </tr>
+        <tr>
+          <td>8.6</td>
+          <td class="severity high">HIGH</td>
+          <td>No structured pricing data (Schema.org) — search engines can't extract tier pricing for rich snippets.</td>
+          <td><span class="file-ref">Pricing.tsx</span></td>
+          <td>Add @type: Offer schema for each pricing tier.</td>
+        </tr>
+        <tr>
+          <td>8.7</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>Sitemap outdated — all URLs show lastmod 2026-03-27 (32 days stale). Signals inactive site to Google.</td>
+          <td><span class="file-ref">public/sitemap.xml</span></td>
+          <td>Auto-update lastmod on build. Regenerate in CI/CD pipeline.</td>
+        </tr>
+        <tr>
+          <td>8.8</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>CTA buttons lack conversion tracking attributes — can't distinguish hero vs pricing vs footer clicks.</td>
+          <td><span class="file-ref">Landing.tsx:62-66, 136-141</span></td>
+          <td>Add data-conversion-event attributes. Track as separate analytics goals.</td>
+        </tr>
+        <tr>
+          <td>8.9</td>
+          <td class="severity medium">MEDIUM</td>
+          <td>Static sitemap with only 4 URLs — no support for future blog, docs, FAQ pages.</td>
+          <td><span class="file-ref">public/sitemap.xml</span></td>
+          <td>Implement dynamic sitemap generation in build pipeline.</td>
+        </tr>
+        <tr>
+          <td>8.10</td>
+          <td class="severity low">LOW</td>
+          <td>No thank-you page or post-signup flow — users go directly to dashboard after signup.</td>
+          <td><span class="file-ref">SignUp.tsx:61</span></td>
+          <td>Create /thank-you page. Add email verification flow visibility.</td>
+        </tr>
+        <tr>
+          <td>8.11</td>
+          <td class="severity low">LOW</td>
+          <td>Pricing page lacks trust signals — no testimonials, badges, guarantee, or enterprise contact.</td>
+          <td><span class="file-ref">Pricing.tsx:52-121</span></td>
+          <td>Add social proof, trust badges, 30-day guarantee.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- ARCHITECTURAL CHANGES -->
+<!-- ============================================ -->
+<div class="arch-section">
+  <h2>Required Architectural Changes</h2>
+  <div class="arch-grid">
+    <div class="arch-card">
+      <h4>Storage: localStorage-First</h4>
+      <p>localStorage is source of truth. Supabase is optional fire-and-forget sync. Data lost on device switch.</p>
+      <div class="arrow">&#8595; Must become &#8595;</div>
+      <h4 class="good">Storage: Supabase-First</h4>
+      <p>Supabase is source of truth. localStorage is read-through cache for offline access. Sync queue for pending mutations.</p>
+    </div>
+    <div class="arch-card">
+      <h4>Auth: Optional</h4>
+      <p>PasswordGate pre-launch. Supabase Auth optional (skipped if env vars missing). App works without any user identity.</p>
+      <div class="arrow">&#8595; Must become &#8595;</div>
+      <h4 class="good">Auth: Mandatory</h4>
+      <p>Supabase Auth required on all routes. Hard-fail if not configured. PasswordGate removed entirely.</p>
+    </div>
+    <div class="arch-card">
+      <h4>API: Direct Browser Calls</h4>
+      <p>Browser calls Anthropic API directly with key in headers. 'anthropic-dangerous-direct-browser-access' header.</p>
+      <div class="arrow">&#8595; Must become &#8595;</div>
+      <h4 class="good">API: Server-Side Proxy</h4>
+      <p>Supabase Edge Function proxies all AI calls. Client sends prompts only. Server manages keys, quota, and logging.</p>
+    </div>
+    <div class="arch-card">
+      <h4>Scheduler: Browser-Only</h4>
+      <p>setInterval 60s tick. Stops when tab closes. No catch-up, no locking, no timezone awareness.</p>
+      <div class="arrow">&#8595; Must become &#8595;</div>
+      <h4 class="good">Scheduler: Server-Side + Browser</h4>
+      <p>Server-side cron (pg_cron or external) as primary. Browser scheduler as fast-path. Distributed locking. Timezone-aware.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- FIX PRIORITY -->
+<!-- ============================================ -->
+<div class="fix-priority">
+  <h2>Recommended Fix Order</h2>
+  <p style="color:var(--text-muted); margin-bottom:1.5rem;">All 25 CRITICAL + 26 HIGH issues must be fixed before Sprint 1. Medium/low tracked and scheduled into relevant sprints.</p>
+  <ol class="fix-list">
+    <li>
+      <span class="step">1</span>
+      <div>
+        <strong>Make Supabase Auth mandatory</strong> — Remove PasswordGate, require env vars, hard-fail if missing. Fix App.tsx routing to always enforce auth on protected routes. (Domains 1, 7, 8)
+      </div>
+    </li>
+    <li>
+      <span class="step">2</span>
+      <div>
+        <strong>Invert storage model</strong> — Supabase becomes source of truth. Await cloud data before rendering. Add sync status tracking (pending/synced/failed). Implement retry queue. (Domains 2, 3)
+      </div>
+    </li>
+    <li>
+      <span class="step">3</span>
+      <div>
+        <strong>Move API calls server-side</strong> — Create /call-ai Edge Function proxy. Remove client-side API key storage. Remove 'anthropic-dangerous-direct-browser-access' header. Add usage logging. (Domain 5)
+      </div>
+    </li>
+    <li>
+      <span class="step">4</span>
+      <div>
+        <strong>Build subscription gating</strong> — Load tier from DB. Create useSubscription() hook. Gate all features (product limits, worker runs, exports). Wire Stripe webhook to update tier. (Domain 4)
+      </div>
+    </li>
+    <li>
+      <span class="step">5</span>
+      <div>
+        <strong>Add server-side scheduler</strong> — Create scheduler Edge Function. Add scheduler_configs and scheduler_runs tables. Implement locking, timezone support, catch-up logic. (Domain 6)
+      </div>
+    </li>
+    <li>
+      <span class="step">6</span>
+      <div>
+        <strong>Scope all data operations</strong> — Add user_id to all UPDATE/DELETE queries. Prefix localStorage keys with user ID. Validate product ownership. (Domain 2)
+      </div>
+    </li>
+    <li>
+      <span class="step">7</span>
+      <div>
+        <strong>Extract hardcoded values</strong> — Move branding to config constants. Move credentials to .env.local. Add legal pages (Privacy Policy, Terms of Service). (Domains 7, 8)
+      </div>
+    </li>
+    <li>
+      <span class="step">8</span>
+      <div>
+        <strong>Add analytics + GDPR</strong> — Integrate GA4/Plausible. Add cookie consent banner. Add meta tags to all public pages. Update sitemap. (Domain 8)
+      </div>
+    </li>
+  </ol>
+</div>
+
+<!-- New Supabase Tables -->
+<div class="arch-section">
+  <h2>New Supabase Tables Required</h2>
+  <table class="issue-table">
+    <thead><tr><th>Table</th><th>Purpose</th><th>Domain</th></tr></thead>
+    <tbody>
+      <tr><td><span class="file-ref">api_usage_logs</span></td><td>Track every AI API call (user_id, worker_type, input/output tokens, cost, timestamp)</td><td>5</td></tr>
+      <tr><td><span class="file-ref">user_quotas</span></td><td>Monthly token limits, tokens used, reset date, per subscription tier</td><td>4, 5</td></tr>
+      <tr><td><span class="file-ref">user_api_keys</span></td><td>Encrypted BYOK keys for users who bring their own Anthropic key</td><td>5</td></tr>
+      <tr><td><span class="file-ref">scheduler_configs</span></td><td>Per-user worker schedules (enabled, cadence, day, hour, minute)</td><td>6</td></tr>
+      <tr><td><span class="file-ref">scheduler_runs</span></td><td>Execution history + locking (lastRun, nextRun, status, error, locked_until)</td><td>6</td></tr>
+      <tr><td><span class="file-ref">integration_configs</span></td><td>Encrypted third-party API keys (LinkedIn, Google Ads, etc.)</td><td>3</td></tr>
+      <tr><td><span class="file-ref">onboarding_state</span></td><td>Per-user onboarding progress (first_mission_complete, setup_sprint_complete)</td><td>3</td></tr>
+      <tr><td><span class="file-ref">connectors</span></td><td>CRM connector data (leads, contacts, follow-up status)</td><td>3</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- New Edge Functions -->
+<div class="arch-section">
+  <h2>New Edge Functions Required</h2>
+  <table class="issue-table">
+    <thead><tr><th>Function</th><th>Purpose</th><th>Domain</th></tr></thead>
+    <tbody>
+      <tr><td><span class="file-ref">call-ai</span></td><td>Server-side proxy for all Anthropic API calls. Validates auth, checks quota, logs usage.</td><td>5</td></tr>
+      <tr><td><span class="file-ref">scheduler-tick</span></td><td>Server-side scheduler execution. Checks all due schedules, acquires locks, runs workers.</td><td>6</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <p>Sprint 0 SaaS Readiness Report — Distribution-OS / ShipSolo</p>
+  <p>Predivo GmbH — 2026-04-28</p>
+  <p style="margin-top:0.5rem;">Next step: Fix all CRITICAL + HIGH issues, then proceed to Sprint 1 (Idea Validation Pipeline)</p>
+</div>
+
+</div>
+</body>
+</html>

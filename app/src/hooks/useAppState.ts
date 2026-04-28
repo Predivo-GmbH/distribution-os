@@ -130,9 +130,12 @@ export function useAppState() {
 
     // Fire-and-forget Supabase sync
     switch (action.type) {
-      case 'ADD_PRODUCT':
-        sb.addProduct(action.payload).catch(() => {})
+      case 'ADD_PRODUCT': {
+        // Pass the locally-generated ID to prevent ID divergence
+        const localProduct = stateRef.current.products[stateRef.current.products.length - 1]
+        sb.addProduct(action.payload, localProduct?.id).catch(() => {})
         break
+      }
       case 'UPDATE_PRODUCT':
         sb.updateProduct(action.payload.id, action.payload.updates).catch(() => {})
         break

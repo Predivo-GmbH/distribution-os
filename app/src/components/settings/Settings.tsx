@@ -8,6 +8,7 @@ import { MetricsTab } from './MetricsTab'
 import { GeneralTab } from './GeneralTab'
 import { KnowledgeBaseTab } from './KnowledgeBaseTab'
 import { AIConfigTab } from './AIConfigTab'
+import { APP_NAME } from '@/lib/app-config'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { SchedulerTab } from './SchedulerTab'
 import { IntegrationsTab } from './IntegrationsTab'
@@ -38,7 +39,7 @@ export function Settings({ state, dispatch, prefs, onDarkModeChange, onWeekStart
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <PageMeta title="Settings — Distribution OS" noindex />
+      <PageMeta title={`Settings — ${APP_NAME}`} noindex />
       <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">Settings</h1>
 
       {/* Tab bar */}

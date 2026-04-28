@@ -64,7 +64,7 @@ describe('Landing Page', () => {
 
   it('renders footer with company name', () => {
     renderLanding()
-    expect(screen.getByText(/Prodiva GmbH/)).toBeInTheDocument()
+    expect(screen.getByText(/Predivo GmbH/)).toBeInTheDocument()
   })
 
   it('renders the "Ready to distribute?" CTA section', () => {

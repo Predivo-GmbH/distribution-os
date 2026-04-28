@@ -5,9 +5,10 @@
 
 import type { Product, KnowledgeBase, Engine, WorkerType } from '@/types'
 import { ENGINE_META } from '@/types'
-import { loadAIConfig, getAPIEndpoint } from './config'
+import { loadAIConfig, type AIConfig, getAPIEndpoint } from './config'
 import { loadKnowledgeBase } from '@/lib/storage'
 import { addArtifact } from '@/lib/storage'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 
 /* ------------------------------------------------------------
    System Prompt Builder
@@ -90,6 +91,12 @@ export interface AICallResult {
 export async function callAI(options: AICallOptions): Promise<AICallResult> {
   const config = loadAIConfig()
 
+  // When Supabase is configured, route through the call-ai edge function (secure proxy)
+  if (isSupabaseConfigured) {
+    return callAIViaProxy(config, options)
+  }
+
+  // Local dev fallback: direct browser-to-API (only when Supabase is not configured)
   if (!config.apiKey) {
     return { success: false, content: '', error: 'API key not configured. Go to Settings > AI Configuration.' }
   }
@@ -121,6 +128,41 @@ export async function callAI(options: AICallOptions): Promise<AICallResult> {
 
     const data = await response.json() as { content: { type: string; text: string }[] }
     const text = data.content
+      .filter((block: { type: string }) => block.type === 'text')
+      .map((block: { text: string }) => block.text)
+      .join('\n')
+
+    return { success: true, content: text }
+  } catch (err) {
+    return { success: false, content: '', error: `Network error: ${err instanceof Error ? err.message : 'Unknown'}` }
+  }
+}
+
+async function callAIViaProxy(config: AIConfig, options: AICallOptions): Promise<AICallResult> {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      return { success: false, content: '', error: 'Not authenticated. Please log in.' }
+    }
+
+    const { data, error } = await supabase.functions.invoke('call-ai', {
+      body: {
+        model: config.model,
+        max_tokens: options.maxTokens ?? config.maxTokens,
+        system: options.systemPrompt,
+        messages: [{ role: 'user', content: options.userPrompt }],
+      },
+    })
+
+    if (error) {
+      return { success: false, content: '', error: error.message || 'Edge function error' }
+    }
+
+    if (data?.error) {
+      return { success: false, content: '', error: data.error }
+    }
+
+    const text = (data.content as { type: string; text: string }[])
       .filter((block: { type: string }) => block.type === 'text')
       .map((block: { text: string }) => block.text)
       .join('\n')

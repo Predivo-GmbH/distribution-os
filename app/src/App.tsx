@@ -21,7 +21,6 @@ const AuthenticatedApp = lazy(() =>
 function ProtectedRoutes() {
   const { user, loading } = useAuth()
 
-  // If Supabase is not configured, skip auth (local-only mode)
   if (isSupabaseConfigured) {
     if (loading) {
       return <LoadingSpinner fullPage />
@@ -30,7 +29,15 @@ function ProtectedRoutes() {
     if (!user) {
       return <Navigate to="/login" replace />
     }
+  } else if (import.meta.env.PROD) {
+    // In production, Supabase MUST be configured — block the app
+    return (
+      <div className="min-h-dvh flex items-center justify-center p-4 text-center">
+        <p className="text-red-600 font-medium">Configuration error: authentication service unavailable.</p>
+      </div>
+    )
   }
+  // else: local dev without Supabase — allow through
 
   return (
     <Suspense fallback={<LoadingSpinner fullPage />}>

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, Zap, Target, Handshake, Search, Trophy, RefreshCw } from 'lucide-react'
 import { Logo } from '@/components/shared/Logo'
+import { APP_NAME } from '@/lib/app-config'
 
 const ENGINES = [
   { icon: Zap, name: 'Pull Engine', desc: 'SEO, content marketing, and organic growth that compounds over time.', color: 'var(--color-engine-pull)' },
@@ -27,7 +28,7 @@ export function Landing() {
           <div className="flex items-center gap-2.5">
             <Logo />
             <span className="font-semibold text-[var(--color-ink)] text-sm tracking-tight">
-              Distribution OS
+              {APP_NAME}
             </span>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
@@ -56,7 +57,7 @@ export function Landing() {
           Stop building. <br />Start distributing.
         </h1>
         <p className="text-lg text-[var(--color-ink-body)] max-w-2xl mx-auto mb-10">
-          Distribution OS gives solo SaaS founders a weekly execution system across 6 proven distribution engines. Score your progress, build streaks, and compound your reach.
+          {APP_NAME} gives solo SaaS founders a weekly execution system across 6 proven distribution engines. Score your progress, build streaks, and compound your reach.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           <Link
@@ -145,7 +146,7 @@ export function Landing() {
       <footer className="border-t border-[var(--color-edge)] py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-[var(--color-ink-muted)]">
-            Distribution OS — Built by Prodiva GmbH
+            {APP_NAME} — Built by Predivo GmbH
           </p>
           <div className="flex items-center gap-4 text-xs text-[var(--color-ink-muted)]">
             <Link to="/pricing" className="px-2 min-h-[44px] inline-flex items-center hover:text-[var(--color-ink-body)] transition-colors">Pricing</Link>

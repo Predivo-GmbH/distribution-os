@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { APP_NAME } from '@/lib/app-config'
 
 // SHA-256 hex hash of the access code (never store plaintext)
 const PASSWORD_HASH =
@@ -19,8 +20,10 @@ interface Props {
 }
 
 export function PasswordGate({ children }: Props) {
+  const gateDisabled = import.meta.env.VITE_PASSWORD_GATE_DISABLED === 'true'
+
   const [granted, setGranted] = useState(
-    () => sessionStorage.getItem(SESSION_KEY) === 'true'
+    () => gateDisabled || sessionStorage.getItem(SESSION_KEY) === 'true'
   )
   const [input, setInput] = useState('')
   const [error, setError] = useState(false)
@@ -51,7 +54,7 @@ export function PasswordGate({ children }: Props) {
             </div>
           </div>
           <span className="font-semibold text-[var(--color-ink)] text-sm tracking-tight">
-            Distribution OS
+            {APP_NAME}
           </span>
         </div>
 

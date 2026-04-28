@@ -1,4 +1,5 @@
 import { Rocket } from 'lucide-react'
+import { APP_NAME } from '@/lib/app-config'
 
 interface Props {
   onNext: () => void
@@ -12,12 +13,12 @@ export function Welcome({ onNext }: Props) {
       </div>
 
       <h1 className="text-3xl font-bold text-[var(--color-ink)] tracking-tight mb-3">
-        Welcome to Distribution OS
+        Welcome to {APP_NAME}
       </h1>
 
       <p className="text-[var(--color-ink-body)] text-base leading-relaxed mb-6">
         Most SaaS products don't fail because they're bad — they fail because nobody knows they exist.
-        Distribution OS gives you a weekly system to fix that.
+        {APP_NAME} gives you a weekly system to fix that.
       </p>
 
       {/* The purpose */}

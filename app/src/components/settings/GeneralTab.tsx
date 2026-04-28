@@ -2,6 +2,9 @@ import type { AppState } from '@/types'
 import type { Action } from '@/hooks/useAppState'
 import type { UserPreferences } from '@/types'
 import { exportState } from '@/lib/storage'
+import { useAuth } from '@/hooks/useAuth'
+import { isSupabaseConfigured } from '@/lib/supabase-config'
+import { APP_NAME } from '@/lib/app-config'
 
 interface Props {
   state: AppState
@@ -12,6 +15,8 @@ interface Props {
 }
 
 export function GeneralTab({ state, dispatch, prefs, onDarkModeChange, onWeekStartChange }: Props) {
+  const { signOut } = useAuth()
+
   function handleExport() {
     const json = exportState(state)
     const blob = new Blob([json], { type: 'application/json' })
@@ -107,14 +112,33 @@ export function GeneralTab({ state, dispatch, prefs, onDarkModeChange, onWeekSta
         </div>
       </div>
 
+      {/* Account */}
+      {isSupabaseConfigured && (
+        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
+          <h3 className="text-base font-semibold text-[var(--color-ink)] mb-4">Account</h3>
+          <div className="flex items-center justify-between py-2">
+            <div>
+              <p className="text-sm font-medium text-[var(--color-ink)]">Sign Out</p>
+              <p className="text-xs text-[var(--color-ink-muted)]">Sign out of your account on this device</p>
+            </div>
+            <button
+              onClick={async () => { await signOut(); window.location.href = '/login' }}
+              className="px-4 py-2.5 min-h-[44px] rounded-lg border border-[var(--color-error)]/30 text-sm font-medium text-[var(--color-error)] hover:bg-[var(--color-error)]/5 transition-colors"
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* About */}
       <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
         <h3 className="text-base font-semibold text-[var(--color-ink)] mb-2">About</h3>
         <p className="text-sm text-[var(--color-ink-body)]">
-          Distribution OS v1.0.0 — Built by Prodiva GmbH
+          {APP_NAME} v1.0.0 — Built by Predivo GmbH
         </p>
         <p className="text-xs text-[var(--color-ink-muted)] mt-1">
-          Local-first. No account required. Data stays in your browser.
+          Your data is stored securely in the cloud.
         </p>
       </div>
     </div>

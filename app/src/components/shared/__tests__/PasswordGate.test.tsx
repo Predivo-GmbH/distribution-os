@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { PasswordGate } from '../PasswordGate'
+import { APP_NAME } from '@/lib/app-config'
 
 describe('PasswordGate', () => {
   it('shows password form when not authenticated', () => {
@@ -60,12 +61,12 @@ describe('PasswordGate', () => {
     expect(input).toHaveAttribute('type', 'password')
   })
 
-  it('shows Distribution OS branding', () => {
+  it('shows app branding', () => {
     render(
       <PasswordGate>
         <div>Content</div>
       </PasswordGate>
     )
-    expect(screen.getByText('Distribution OS')).toBeInTheDocument()
+    expect(screen.getByText(APP_NAME)).toBeInTheDocument()
   })
 })
