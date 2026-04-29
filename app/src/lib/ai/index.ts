@@ -32,6 +32,27 @@ export { runPartnerResearch, runPitchPackage, runImprovementPrioritizer } from '
 // Persistence engine workers
 export { runWeeklyDiagnostician, runMessagingClarity, runStageTransitionAdvisor } from './persistence-workers'
 
+// Validation pipeline workers
+export { runMarketResearcher, runCompetitorAnalyst, runDistributionSpecialist } from './validate-workers'
+
+// Offer builder workers
+export { runProductDefiner, runOfferDesigner } from './offer-workers'
+
+// Design pipeline workers
+export { runBrandAnalyzer, runTokenExtractor, runBrandBookGenerator, runConsistencyChecker } from './design-workers'
+
+// Proposal & content engine workers
+export { runProposalWriter, runContentWriter, runVideoScriptWriter, runOutreachDMWriter } from './proposal-workers'
+
+// Engine advisor & playbook workers
+export { runEngineAdvisor, runEnginePlaybook } from './engine-advisor'
+
+// 8-Domain audit workers
+export { runSecurityAudit, runSEOAudit, runPerformanceAudit, runCodeQualityAudit, runAccessibilityAudit, runUIConsistencyAudit, runResponsiveAudit, runMobileVisualAudit } from './audit-workers'
+
+// Site analysis workers
+export { runSiteAnalyzer, runWebsiteAudit } from './site-analysis-workers'
+
 // Connector CRM
 export { loadConnectorCRM, saveConnectorCRM, addConnector, updateConnector, removeConnector } from './connector-crm'
 export type { Connector, ConnectorStatus } from './connector-crm'

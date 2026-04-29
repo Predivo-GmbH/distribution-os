@@ -15,6 +15,15 @@ const BriefingRoom = lazy(() => import('@/components/briefing/BriefingRoom').the
 const Inbox = lazy(() => import('@/components/inbox/Inbox').then(m => ({ default: m.Inbox })))
 const FirstMission = lazy(() => import('@/components/onboarding/FirstMission').then(m => ({ default: m.FirstMission })))
 const SetupSprint = lazy(() => import('@/components/onboarding/SetupSprint').then(m => ({ default: m.SetupSprint })))
+const ValidationPipeline = lazy(() => import('@/components/validate/ValidationPipeline').then(m => ({ default: m.ValidationPipeline })))
+const OfferBuilder = lazy(() => import('@/components/offer/OfferBuilder').then(m => ({ default: m.OfferBuilder })))
+const LaunchChecklist = lazy(() => import('@/components/setup/LaunchChecklist').then(m => ({ default: m.LaunchChecklist })))
+const BuildKit = lazy(() => import('@/components/design/BuildKit').then(m => ({ default: m.BuildKit })))
+const Proposals = lazy(() => import('@/components/proposals/Proposals').then(m => ({ default: m.Proposals })))
+const Playbooks = lazy(() => import('@/components/playbooks/Playbooks').then(m => ({ default: m.Playbooks })))
+const AuditPage = lazy(() => import('@/components/audit/AuditPage').then(m => ({ default: m.AuditPage })))
+const SchedulePage = lazy(() => import('@/components/schedule/SchedulePage').then(m => ({ default: m.SchedulePage })))
+const AnalyzePage = lazy(() => import('@/components/analyze/AnalyzePage').then(m => ({ default: m.AnalyzePage })))
 
 /**
  * Authenticated app shell — lazy-loaded from App.tsx so that useAppState,
@@ -64,6 +73,15 @@ export function AuthenticatedApp() {
               onWeekStartChange={setWeekStartDay}
             />
           } />
+          <Route path="/validate" element={<ValidationPipeline state={state} dispatch={dispatch} />} />
+          <Route path="/brief" element={<OfferBuilder state={state} />} />
+          <Route path="/setup" element={<LaunchChecklist />} />
+          <Route path="/build-kit" element={<BuildKit state={state} />} />
+          <Route path="/proposals" element={<Proposals state={state} />} />
+          <Route path="/playbooks" element={<Playbooks state={state} />} />
+          <Route path="/audit" element={<AuditPage state={state} />} />
+          <Route path="/schedule" element={<SchedulePage state={state} />} />
+          <Route path="/analyze" element={<AnalyzePage state={state} />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Suspense>

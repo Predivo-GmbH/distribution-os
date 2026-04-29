@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { LayoutDashboard, Package, Settings, BookOpen, Inbox, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Package, Settings, BookOpen, Inbox, Menu, X, Lightbulb, FileText, Rocket, Palette, FileEdit, Map, ClipboardCheck, Clock, Globe } from 'lucide-react'
 import type { Product } from '@/types'
 import { ENGINE_META } from '@/types'
 import { cn } from '@/lib/utils'
@@ -15,6 +15,15 @@ interface Props {
 }
 
 const NAV_ITEMS = [
+  { to: '/validate', icon: Lightbulb, label: 'Validate' },
+  { to: '/brief', icon: FileText, label: 'Brief' },
+  { to: '/setup', icon: Rocket, label: 'Setup' },
+  { to: '/build-kit', icon: Palette, label: 'Build Kit' },
+  { to: '/proposals', icon: FileEdit, label: 'Proposals' },
+  { to: '/playbooks', icon: Map, label: 'Playbooks' },
+  { to: '/audit', icon: ClipboardCheck, label: 'Audit' },
+  { to: '/schedule', icon: Clock, label: 'Schedule' },
+  { to: '/analyze', icon: Globe, label: 'Analyze' },
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/inbox', icon: Inbox, label: 'Inbox' },
   { to: '/products', icon: Package, label: 'Products' },

@@ -36,10 +36,10 @@ describe('Landing Page', () => {
   it('renders How It Works section with 4 steps', () => {
     renderLanding()
     expect(screen.getByText('How It Works')).toBeInTheDocument()
-    expect(screen.getByText('Add Your Product')).toBeInTheDocument()
-    expect(screen.getByText('Activate Engines')).toBeInTheDocument()
-    expect(screen.getByText('Execute Weekly Tasks')).toBeInTheDocument()
-    expect(screen.getByText('Track & Compound')).toBeInTheDocument()
+    expect(screen.getByText('Validate Your Idea')).toBeInTheDocument()
+    expect(screen.getByText('Build Your Brand')).toBeInTheDocument()
+    expect(screen.getByText('Activate Distribution')).toBeInTheDocument()
+    expect(screen.getByText('Scale With AI')).toBeInTheDocument()
   })
 
   it('has CTA links to signup', () => {
@@ -67,9 +67,9 @@ describe('Landing Page', () => {
     expect(screen.getByText(/Predivo GmbH/)).toBeInTheDocument()
   })
 
-  it('renders the "Ready to distribute?" CTA section', () => {
+  it('renders the final CTA section', () => {
     renderLanding()
-    expect(screen.getByText('Ready to distribute?')).toBeInTheDocument()
+    expect(screen.getByText(/Ready to stop guessing/)).toBeInTheDocument()
     expect(screen.getByText(/No credit card required/)).toBeInTheDocument()
   })
 })

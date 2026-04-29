@@ -66,6 +66,14 @@ export type WorkerType =
   | 'keyword-strategy' | 'ad-copy-generator' | 'landing-page-copy' | 'roas-analyst'
   | 'partner-research' | 'pitch-package' | 'improvement-prioritizer'
   | 'weekly-diagnostician' | 'messaging-clarity' | 'stage-transition-advisor'
+  | 'market-researcher' | 'competitor-analyst' | 'distribution-specialist'
+  | 'product-definer' | 'offer-designer'
+  | 'brand-analyzer' | 'token-extractor' | 'brand-book-generator' | 'consistency-checker'
+  | 'proposal-writer' | 'content-writer' | 'video-script-writer' | 'outreach-dm-writer'
+  | 'engine-advisor' | 'engine-playbook'
+  | 'audit-security' | 'audit-seo' | 'audit-performance' | 'audit-code-quality'
+  | 'audit-accessibility' | 'audit-ui-consistency' | 'audit-responsive' | 'audit-mobile-visual'
+  | 'site-analyzer' | 'website-audit'
 
 export const WORKER_ENGINE_MAP: Record<WorkerType, Engine> = {
   'seo-content-writer': 'pull', 'keyword-research': 'pull', 'search-console-optimizer': 'pull', 'backlink-outreach': 'pull',
@@ -74,6 +82,14 @@ export const WORKER_ENGINE_MAP: Record<WorkerType, Engine> = {
   'keyword-strategy': 'search', 'ad-copy-generator': 'search', 'landing-page-copy': 'search', 'roas-analyst': 'search',
   'partner-research': 'equity', 'pitch-package': 'equity', 'improvement-prioritizer': 'equity',
   'weekly-diagnostician': 'persistence', 'messaging-clarity': 'persistence', 'stage-transition-advisor': 'persistence',
+  'market-researcher': 'search', 'competitor-analyst': 'search', 'distribution-specialist': 'search',
+  'product-definer': 'push', 'offer-designer': 'push',
+  'brand-analyzer': 'push', 'token-extractor': 'push', 'brand-book-generator': 'push', 'consistency-checker': 'push',
+  'proposal-writer': 'bridge', 'content-writer': 'push', 'video-script-writer': 'push', 'outreach-dm-writer': 'bridge',
+  'engine-advisor': 'persistence', 'engine-playbook': 'persistence',
+  'audit-security': 'persistence', 'audit-seo': 'pull', 'audit-performance': 'persistence', 'audit-code-quality': 'persistence',
+  'audit-accessibility': 'persistence', 'audit-ui-consistency': 'persistence', 'audit-responsive': 'persistence', 'audit-mobile-visual': 'persistence',
+  'site-analyzer': 'pull', 'website-audit': 'pull',
 }
 
 export const WORKER_LABELS: Record<WorkerType, string> = {
@@ -83,6 +99,14 @@ export const WORKER_LABELS: Record<WorkerType, string> = {
   'keyword-strategy': 'Keyword Strategy', 'ad-copy-generator': 'Ad Copy Generator', 'landing-page-copy': 'Landing Page Copy', 'roas-analyst': 'ROAS Analyst',
   'partner-research': 'Partner Research', 'pitch-package': 'Pitch Package', 'improvement-prioritizer': 'Improvement Prioritizer',
   'weekly-diagnostician': 'Weekly Diagnostician', 'messaging-clarity': 'Messaging Clarity', 'stage-transition-advisor': 'Stage Transition Advisor',
+  'market-researcher': 'Market Researcher', 'competitor-analyst': 'Competitor Analyst', 'distribution-specialist': 'Distribution Specialist',
+  'product-definer': 'Product Definer', 'offer-designer': 'Offer Designer',
+  'brand-analyzer': 'Brand Analyzer', 'token-extractor': 'Token Extractor', 'brand-book-generator': 'Brand Book Generator', 'consistency-checker': 'Consistency Checker',
+  'proposal-writer': 'Proposal Writer', 'content-writer': 'Content Writer', 'video-script-writer': 'Video Script Writer', 'outreach-dm-writer': 'Outreach DM Writer',
+  'engine-advisor': 'Engine Advisor', 'engine-playbook': 'Engine Playbook',
+  'audit-security': 'Security Audit', 'audit-seo': 'SEO Audit', 'audit-performance': 'Performance Audit', 'audit-code-quality': 'Code Quality Audit',
+  'audit-accessibility': 'Accessibility Audit', 'audit-ui-consistency': 'UI Consistency Audit', 'audit-responsive': 'Responsive Audit', 'audit-mobile-visual': 'Mobile Visual Audit',
+  'site-analyzer': 'Site Analyzer', 'website-audit': 'Website Audit',
 }
 
 export interface InboxArtifact {
