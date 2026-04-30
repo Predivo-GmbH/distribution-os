@@ -12,9 +12,9 @@ test.describe('Smoke Tests — All Routes Load', () => {
   test('Pricing page loads', async ({ page }) => {
     await unlockGate(page)
     await page.goto('/pricing')
-    await expect(page.locator('text=Simple, transparent pricing')).toBeVisible()
+    await expect(page.locator('text=Simple pricing.')).toBeVisible()
     await expect(page.locator('text=$0')).toBeVisible()
-    await expect(page.locator('text=$19')).toBeVisible()
+    await expect(page.locator('text=$49')).toBeVisible()
   })
 
   test('Login page loads', async ({ page }) => {

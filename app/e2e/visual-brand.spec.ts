@@ -17,7 +17,7 @@ test.describe('Visual & Brand Consistency', () => {
   test('sidebar has correct structure', async ({ page }) => {
     await page.goto('/dashboard')
     const aside = page.locator('aside').first()
-    await expect(aside.getByText('Distribution OS')).toBeVisible()
+    await expect(aside.getByText('ShipSolo')).toBeVisible()
     await expect(aside.getByText('Dashboard')).toBeVisible()
     await expect(aside.getByText('Inbox')).toBeVisible()
     await expect(aside.getByText('Products')).toBeVisible()

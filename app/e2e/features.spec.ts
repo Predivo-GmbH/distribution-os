@@ -152,11 +152,12 @@ test.describe('Feature Tests — Key User Journeys', () => {
     await expect(page.locator('text=SEO Content Writer')).toBeVisible()
   })
 
-  test('Pricing page has free and pro plans', async ({ page }) => {
+  test('Pricing page has all tier plans', async ({ page }) => {
     await unlockGate(page)
     await page.goto('/pricing')
     await expect(page.locator('text=Free')).toBeVisible()
-    await expect(page.locator('text=Pro')).toBeVisible()
-    await expect(page.locator('text=Recommended')).toBeVisible()
+    await expect(page.locator('text=Starter')).toBeVisible()
+    await expect(page.locator('text=Growth')).toBeVisible()
+    await expect(page.locator('text=Most Popular')).toBeVisible()
   })
 })
