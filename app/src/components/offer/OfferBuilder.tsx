@@ -1,11 +1,18 @@
-import { useState } from 'react'
-import type { AppState } from '@/types'
+import { useState, useEffect } from 'react'
+import type { AppState, WorkerType } from '@/types'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { APP_NAME } from '@/lib/app-config'
-import { Loader2, Sparkles, FileText, DollarSign } from 'lucide-react'
+import { useSubscription } from '@/hooks/useSubscription'
+import { loadInbox } from '@/lib/storage'
+import { Loader2, Sparkles, FileText, DollarSign, Lock } from 'lucide-react'
 import { runProductDefiner, runOfferDesigner } from '@/lib/ai'
 
 type Section = 'product' | 'offer'
+
+const SECTION_WORKER_MAP: Record<Section, WorkerType> = {
+  product: 'product-definer',
+  offer: 'offer-designer',
+}
 
 const SECTIONS = [
   { key: 'product' as Section, label: 'Product Brief', icon: FileText, run: runProductDefiner, desc: 'Define your product: name, persona, MVP features, and positioning.' },
@@ -13,6 +20,7 @@ const SECTIONS = [
 ] as const
 
 export function OfferBuilder({ state }: { state: AppState }) {
+  const { limits } = useSubscription()
   const [productId, setProductId] = useState(state.products[0]?.id ?? '')
   const [results, setResults] = useState<Record<Section, string>>({ product: '', offer: '' })
   const [loading, setLoading] = useState<Record<Section, boolean>>({ product: false, offer: false })
@@ -20,8 +28,25 @@ export function OfferBuilder({ state }: { state: AppState }) {
 
   const product = state.products.find(p => p.id === productId)
 
+  // Load existing artifacts on mount / product change
+  useEffect(() => {
+    if (!productId) return
+    const inbox = loadInbox()
+    const loaded: Partial<Record<Section, string>> = {}
+    for (const section of ['product', 'offer'] as Section[]) {
+      const workerType = SECTION_WORKER_MAP[section]
+      const artifact = inbox.find(a => a.productId === productId && a.workerType === workerType)
+      if (artifact) loaded[section] = artifact.editedContent || artifact.content
+    }
+    setResults(prev => ({ ...prev, ...loaded }))
+  }, [productId])
+
   async function generate(section: Section) {
     if (!product) return
+    if (limits.aiRunsPerMonth === 0) {
+      setErrors(prev => ({ ...prev, [section]: 'AI generation requires a paid plan. Upgrade to get started.' }))
+      return
+    }
     setLoading(prev => ({ ...prev, [section]: true }))
     setErrors(prev => ({ ...prev, [section]: '' }))
     try {
@@ -66,6 +91,13 @@ export function OfferBuilder({ state }: { state: AppState }) {
         )}
       </div>
 
+      {limits.aiRunsPerMonth === 0 && (
+        <div className="p-3 rounded-lg bg-[var(--color-accent-light)] border border-[var(--color-accent)]/20 text-sm text-[var(--color-accent-text)]">
+          <Lock size={14} className="inline mr-1.5 -mt-0.5" />
+          AI generation requires a paid plan. Upgrade to Starter or above to use the Offer Builder.
+        </div>
+      )}
+
       {SECTIONS.map(({ key, label, icon: Icon, desc }) => (
         <div key={key} className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
           <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-[var(--color-edge)]">
@@ -75,10 +107,10 @@ export function OfferBuilder({ state }: { state: AppState }) {
             </div>
             <button
               onClick={() => generate(key)}
-              disabled={loading[key] || !product}
-              className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
+              disabled={loading[key] || !product || limits.aiRunsPerMonth === 0}
+              className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading[key] ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+              {loading[key] ? <Loader2 size={12} className="animate-spin" /> : limits.aiRunsPerMonth === 0 ? <Lock size={12} /> : <Sparkles size={12} />}
               {loading[key] ? 'Generating...' : results[key] ? 'Regenerate' : 'Generate'}
             </button>
           </div>

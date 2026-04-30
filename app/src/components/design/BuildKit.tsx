@@ -2,7 +2,8 @@ import { useState } from 'react'
 import type { AppState } from '@/types'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { APP_NAME } from '@/lib/app-config'
-import { Loader2, Sparkles, Globe, Palette, BookOpen, ShieldCheck, Plus, X, ChevronRight, Download, Copy } from 'lucide-react'
+import { useSubscription } from '@/hooks/useSubscription'
+import { Loader2, Sparkles, Globe, Palette, BookOpen, ShieldCheck, Plus, X, ChevronRight, Download, Copy, Lock } from 'lucide-react'
 import { runBrandAnalyzer, runTokenExtractor, runBrandBookGenerator, runConsistencyChecker } from '@/lib/ai'
 import type { Product } from '@/types'
 
@@ -17,6 +18,7 @@ const STEPS: { key: Step; label: string; icon: React.ElementType }[] = [
 ]
 
 export function BuildKit({ state }: { state: AppState }) {
+  const { limits } = useSubscription()
   const [productId, setProductId] = useState(state.products[0]?.id ?? '')
   const [urls, setUrls] = useState<string[]>([''])
   const [currentStep, setCurrentStep] = useState<Step>('urls')
@@ -46,6 +48,10 @@ export function BuildKit({ state }: { state: AppState }) {
 
   async function runStep(step: Step) {
     if (!product) return
+    if (limits.aiRunsPerMonth === 0) {
+      setError('AI generation requires a paid plan. Upgrade to get started.')
+      return
+    }
     setLoading(true)
     setError('')
 
@@ -148,6 +154,13 @@ export function BuildKit({ state }: { state: AppState }) {
         )}
       </div>
 
+      {limits.aiRunsPerMonth === 0 && (
+        <div className="p-3 rounded-lg bg-[var(--color-accent-light)] border border-[var(--color-accent)]/20 text-sm text-[var(--color-accent-text)]">
+          <Lock size={14} className="inline mr-1.5 -mt-0.5" />
+          AI generation requires a paid plan. Upgrade to Starter or above to use the Design Build Kit.
+        </div>
+      )}
+
       {/* Step indicator */}
       <div className="flex items-center gap-1 overflow-x-auto pb-1">
         {STEPS.map(({ key, label, icon: Icon }, i) => {
@@ -220,7 +233,7 @@ export function BuildKit({ state }: { state: AppState }) {
             )}
             <button
               onClick={() => runStep('analyze')}
-              disabled={loading || !product || urls.every(u => !u.trim())}
+              disabled={loading || !product || urls.every(u => !u.trim()) || limits.aiRunsPerMonth === 0}
               className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50 ml-auto"
             >
               {loading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}

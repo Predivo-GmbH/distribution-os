@@ -226,18 +226,21 @@ export function KnowledgeBaseTab({ state }: Props) {
             <p className="text-xs text-[var(--color-ink-muted)] mb-2">Not features — outcomes the customer gets.</p>
             <div className="space-y-2">
               {[0, 1, 2].map(i => (
-                <input
-                  key={i}
-                  type="text"
-                  value={kb.positioning.benefits[i] ?? ''}
-                  onChange={e => {
-                    const benefits = [...kb.positioning.benefits] as [string, string, string]
-                    benefits[i] = e.target.value
-                    setKb(prev => ({ ...prev, positioning: { ...prev.positioning, benefits } }))
-                  }}
-                  placeholder={`Benefit ${i + 1}`}
-                  className="w-full px-3 py-2.5 min-h-[44px] rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)]"
-                />
+                <div key={i}>
+                  <label htmlFor={`benefit-${i}`} className="sr-only">Benefit {i + 1}</label>
+                  <input
+                    id={`benefit-${i}`}
+                    type="text"
+                    value={kb.positioning.benefits[i] ?? ''}
+                    onChange={e => {
+                      const benefits = [...kb.positioning.benefits] as [string, string, string]
+                      benefits[i] = e.target.value
+                      setKb(prev => ({ ...prev, positioning: { ...prev.positioning, benefits } }))
+                    }}
+                    placeholder={`Benefit ${i + 1}`}
+                    className="w-full px-3 py-2.5 min-h-[44px] rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:border-[var(--color-edge-focus)]"
+                  />
+                </div>
               ))}
             </div>
           </div>

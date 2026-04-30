@@ -134,7 +134,7 @@ export function SchedulePage({ state }: { state: AppState }) {
                   <div>
                     <span className="text-sm text-[var(--color-ink)]">{sched.workerType}</span>
                     <p className="text-xs text-[var(--color-ink-muted)]">
-                      {sched.cadence} · {sched.days?.map(d => DAY_LABELS[d]).join(', ') || 'All days'}
+                      {sched.cadence} · {sched.cadence === 'weekly' ? DAY_LABELS[sched.dayOfWeek] : 'Every day'}
                     </p>
                   </div>
                   <span className={`text-xs font-medium ${sched.enabled ? 'text-[var(--color-success)]' : 'text-[var(--color-ink-muted)]'}`}>

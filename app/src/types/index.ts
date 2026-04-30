@@ -19,7 +19,7 @@ export interface Product {
   updatedAt: string
 }
 
-export type SubscriptionTier = 'free' | 'pro'
+export type SubscriptionTier = 'free' | 'starter' | 'growth' | 'scale' | 'pro'
 
 export interface UserPreferences {
   darkMode: boolean

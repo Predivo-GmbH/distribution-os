@@ -3,12 +3,14 @@ import type { AppState, Engine } from '@/types'
 import { ENGINE_META } from '@/types'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { APP_NAME } from '@/lib/app-config'
-import { Loader2, Sparkles, Compass, Copy } from 'lucide-react'
+import { useSubscription } from '@/hooks/useSubscription'
+import { Loader2, Sparkles, Compass, Copy, Lock } from 'lucide-react'
 import { runEngineAdvisor, runEnginePlaybook } from '@/lib/ai'
 
 const ENGINES: Engine[] = ['pull', 'push', 'bridge', 'search', 'equity', 'persistence']
 
 export function Playbooks({ state }: { state: AppState }) {
+  const { limits } = useSubscription()
   const [productId, setProductId] = useState(state.products[0]?.id ?? '')
   const [advisorResult, setAdvisorResult] = useState('')
   const [advisorLoading, setAdvisorLoading] = useState(false)
@@ -28,6 +30,10 @@ export function Playbooks({ state }: { state: AppState }) {
 
   async function getAdvice() {
     if (!product) return
+    if (limits.aiRunsPerMonth === 0) {
+      setAdvisorError('AI generation requires a paid plan. Upgrade to get started.')
+      return
+    }
     setAdvisorLoading(true)
     setAdvisorError('')
     try {
@@ -43,6 +49,10 @@ export function Playbooks({ state }: { state: AppState }) {
 
   async function generatePlaybook(engine: Engine) {
     if (!product) return
+    if (limits.aiRunsPerMonth === 0) {
+      setPlaybookErrors(prev => ({ ...prev, [engine]: 'AI generation requires a paid plan. Upgrade to get started.' }))
+      return
+    }
     setPlaybookLoading(prev => ({ ...prev, [engine]: true }))
     setPlaybookErrors(prev => ({ ...prev, [engine]: '' }))
     try {
@@ -87,6 +97,13 @@ export function Playbooks({ state }: { state: AppState }) {
         )}
       </div>
 
+      {limits.aiRunsPerMonth === 0 && (
+        <div className="p-3 rounded-lg bg-[var(--color-accent-light)] border border-[var(--color-accent)]/20 text-sm text-[var(--color-accent-text)]">
+          <Lock size={14} className="inline mr-1.5 -mt-0.5" />
+          AI generation requires a paid plan. Upgrade to Starter or above to use Engine Playbooks.
+        </div>
+      )}
+
       {/* Engine Advisor */}
       <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
         <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-[var(--color-edge)]">
@@ -96,10 +113,10 @@ export function Playbooks({ state }: { state: AppState }) {
           </div>
           <button
             onClick={getAdvice}
-            disabled={advisorLoading || !product}
+            disabled={advisorLoading || !product || limits.aiRunsPerMonth === 0}
             className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
           >
-            {advisorLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+            {advisorLoading ? <Loader2 size={12} className="animate-spin" /> : limits.aiRunsPerMonth === 0 ? <Lock size={12} /> : <Sparkles size={12} />}
             {advisorLoading ? 'Analyzing...' : advisorResult ? 'Re-analyze' : 'Get Recommendation'}
           </button>
         </div>
@@ -154,7 +171,7 @@ export function Playbooks({ state }: { state: AppState }) {
                   )}
                   <button
                     onClick={() => generatePlaybook(engine)}
-                    disabled={isLoading || !product}
+                    disabled={isLoading || !product || limits.aiRunsPerMonth === 0}
                     className="inline-flex items-center gap-1 px-3 py-1.5 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
                   >
                     {isLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
