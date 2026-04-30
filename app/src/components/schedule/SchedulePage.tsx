@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import type { AppState } from '@/types'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { APP_NAME } from '@/lib/app-config'
@@ -15,17 +15,11 @@ const DAILY_BLOCKS: { key: Block; label: string; desc: string; time: string }[] 
   { key: 'outreach', label: 'Outreach', desc: 'DMs, emails, partnership calls, networking', time: '15:00 - 17:00' },
 ]
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function SchedulePage({ state: _state }: { state: AppState }) {
-  const [config, setConfig] = useState<SchedulerConfig | null>(null)
-  const [records, setRecords] = useState<WorkerRunRecord[]>([])
+export function SchedulePage(_props: { state: AppState }) {
+  const [config] = useState<SchedulerConfig | null>(() => loadSchedulerConfig())
+  const [records] = useState<WorkerRunRecord[]>(() => loadRunRecords())
   const [expandedBlock, setExpandedBlock] = useState<Block | null>('market-pulse')
   const [activeTab, setActiveTab] = useState<'daily' | 'weekly' | 'activity'>('daily')
-
-  useEffect(() => {
-    setConfig(loadSchedulerConfig())
-    setRecords(loadRunRecords())
-  }, [])
 
   const recentRecords = records.slice(-20).reverse()
 
