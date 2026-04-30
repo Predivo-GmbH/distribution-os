@@ -244,7 +244,7 @@ function SpotlightCard({ children, className = '', spotlightColor = 'rgba(99,102
 function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-[60] md:hidden">
+    <div className="fixed inset-0 z-[60] lg:hidden">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="absolute top-0 right-0 w-[280px] h-full bg-[#0a0a0a]/95 backdrop-blur-xl border-l border-white/[0.06] p-6 pt-20">
         <button onClick={onClose} className="absolute top-5 right-5 w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] min-h-[44px]">
@@ -292,7 +292,7 @@ export function Landing() {
             <Logo />
             <span className="font-bold text-white text-sm tracking-tight">{APP_NAME}</span>
           </Link>
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1">
             {[
               { label: 'Engines', href: '#engines' },
               { label: 'How It Works', href: '#how-it-works' },
@@ -303,9 +303,9 @@ export function Landing() {
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/login" className="hidden sm:inline-flex items-center min-h-[44px] text-sm text-slate-400 hover:text-white transition-colors px-3">Log In</Link>
-            <Link to="/signup" className="hidden sm:inline-flex items-center px-4 py-2 min-h-[44px] rounded-full bg-white text-black font-semibold text-sm hover:bg-slate-200 transition-all duration-200">Get Started</Link>
-            <button onClick={() => setMobileMenuOpen(true)} className="md:hidden w-10 h-10 flex items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-white/[0.06] min-h-[44px]"><Menu size={20} /></button>
+            <Link to="/login" className="hidden lg:inline-flex items-center min-h-[44px] text-sm text-slate-400 hover:text-white transition-colors px-3">Log In</Link>
+            <Link to="/signup" className="hidden lg:inline-flex items-center px-4 py-2 min-h-[44px] rounded-full bg-white text-black font-semibold text-sm hover:bg-slate-200 transition-all duration-200">Get Started</Link>
+            <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-white/[0.06] min-h-[44px]"><Menu size={20} /></button>
           </div>
         </div>
       </nav>
