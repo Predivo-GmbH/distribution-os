@@ -5,7 +5,6 @@ import { APP_NAME } from '@/lib/app-config'
 import { useSubscription } from '@/hooks/useSubscription'
 import { Loader2, Sparkles, Globe, Palette, BookOpen, ShieldCheck, Plus, X, ChevronRight, Download, Copy, Lock } from 'lucide-react'
 import { runBrandAnalyzer, runTokenExtractor, runBrandBookGenerator, runConsistencyChecker } from '@/lib/ai'
-import type { Product } from '@/types'
 
 type Step = 'urls' | 'analyze' | 'tokens' | 'brand-book' | 'consistency'
 

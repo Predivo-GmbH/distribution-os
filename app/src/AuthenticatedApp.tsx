@@ -73,7 +73,7 @@ export function AuthenticatedApp() {
               onWeekStartChange={setWeekStartDay}
             />
           } />
-          <Route path="/validate" element={<ValidationPipeline state={state} dispatch={dispatch} />} />
+          <Route path="/validate" element={<ValidationPipeline state={state} />} />
           <Route path="/brief" element={<OfferBuilder state={state} />} />
           <Route path="/setup" element={<LaunchChecklist />} />
           <Route path="/build-kit" element={<BuildKit state={state} />} />

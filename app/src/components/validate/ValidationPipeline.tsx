@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { AppState, WorkerType } from '@/types'
-import type { Action } from '@/hooks/useAppState'
-import { useSubscription, TIER_LIMITS } from '@/hooks/useSubscription'
+import { useSubscription } from '@/hooks/useSubscription'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { APP_NAME } from '@/lib/app-config'
 import { loadInbox, loadKnowledgeBase, saveKnowledgeBase } from '@/lib/storage'
@@ -23,8 +22,8 @@ const SECTIONS = [
   { key: 'distribution' as Section, label: 'Distribution Strategy', icon: Compass, run: runDistributionSpecialist, desc: 'Rank channels, plan quick wins, and build a 30-day roadmap.' },
 ] as const
 
-export function ValidationPipeline({ state, dispatch }: { state: AppState; dispatch: React.Dispatch<Action> }) {
-  const { tier, limits, loading: tierLoading } = useSubscription()
+export function ValidationPipeline({ state }: { state: AppState }) {
+  const { limits } = useSubscription()
   const [productId, setProductId] = useState(state.products[0]?.id ?? '')
   const [results, setResults] = useState<Record<Section, string>>({ market: '', competitor: '', distribution: '' })
   const [loading, setLoading] = useState<Record<Section, boolean>>({ market: false, competitor: false, distribution: false })
@@ -50,7 +49,6 @@ export function ValidationPipeline({ state, dispatch }: { state: AppState; dispa
     setResults(prev => ({ ...prev, ...loaded }))
   }, [productId])
 
-  const canGenerate = tier !== 'free' || !tierLoading
 
   // Merge extracted KB fields into the existing Knowledge Base (only fills empty fields)
   function mergeKBExtract(extract: KBExtract) {

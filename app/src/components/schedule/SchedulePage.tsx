@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import type { AppState } from '@/types'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { APP_NAME } from '@/lib/app-config'
-import { loadSchedulerConfig, saveSchedulerConfig, loadRunRecords, DAY_LABELS } from '@/lib/ai'
+import { loadSchedulerConfig, loadRunRecords, DAY_LABELS } from '@/lib/ai'
 import type { SchedulerConfig, WorkerRunRecord } from '@/lib/ai'
 import { Clock, Calendar, Activity, CheckCircle2, XCircle, ChevronDown, ChevronRight } from 'lucide-react'
 
@@ -15,7 +15,7 @@ const DAILY_BLOCKS: { key: Block; label: string; desc: string; time: string }[] 
   { key: 'outreach', label: 'Outreach', desc: 'DMs, emails, partnership calls, networking', time: '15:00 - 17:00' },
 ]
 
-export function SchedulePage({ state }: { state: AppState }) {
+export function SchedulePage(_props: { state: AppState }) {
   const [config, setConfig] = useState<SchedulerConfig | null>(null)
   const [records, setRecords] = useState<WorkerRunRecord[]>([])
   const [expandedBlock, setExpandedBlock] = useState<Block | null>('market-pulse')
