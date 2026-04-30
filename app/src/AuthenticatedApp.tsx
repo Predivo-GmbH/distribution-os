@@ -80,7 +80,7 @@ export function AuthenticatedApp() {
           <Route path="/proposals" element={<Proposals state={state} />} />
           <Route path="/playbooks" element={<Playbooks state={state} />} />
           <Route path="/audit" element={<AuditPage state={state} />} />
-          <Route path="/schedule" element={<SchedulePage state={state} />} />
+          <Route path="/schedule" element={<SchedulePage />} />
           <Route path="/analyze" element={<AnalyzePage state={state} />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

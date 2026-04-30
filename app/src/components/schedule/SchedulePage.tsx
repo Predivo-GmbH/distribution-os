@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import type { AppState } from '@/types'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { APP_NAME } from '@/lib/app-config'
 import { loadSchedulerConfig, loadRunRecords, DAY_LABELS } from '@/lib/ai'
@@ -15,7 +14,7 @@ const DAILY_BLOCKS: { key: Block; label: string; desc: string; time: string }[] 
   { key: 'outreach', label: 'Outreach', desc: 'DMs, emails, partnership calls, networking', time: '15:00 - 17:00' },
 ]
 
-export function SchedulePage(_props: { state: AppState }) {
+export function SchedulePage() {
   const [config] = useState<SchedulerConfig | null>(() => loadSchedulerConfig())
   const [records] = useState<WorkerRunRecord[]>(() => loadRunRecords())
   const [expandedBlock, setExpandedBlock] = useState<Block | null>('market-pulse')
