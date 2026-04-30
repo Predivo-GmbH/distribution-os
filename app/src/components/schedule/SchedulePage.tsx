@@ -15,7 +15,8 @@ const DAILY_BLOCKS: { key: Block; label: string; desc: string; time: string }[] 
   { key: 'outreach', label: 'Outreach', desc: 'DMs, emails, partnership calls, networking', time: '15:00 - 17:00' },
 ]
 
-export function SchedulePage(_props: { state: AppState }) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function SchedulePage({ state: _state }: { state: AppState }) {
   const [config, setConfig] = useState<SchedulerConfig | null>(null)
   const [records, setRecords] = useState<WorkerRunRecord[]>([])
   const [expandedBlock, setExpandedBlock] = useState<Block | null>('market-pulse')

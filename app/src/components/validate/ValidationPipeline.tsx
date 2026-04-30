@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import type { AppState, WorkerType } from '@/types'
 import { useSubscription } from '@/hooks/useSubscription'
 import { PageMeta } from '@/components/shared/PageMeta'
@@ -111,12 +111,12 @@ export function ValidationPipeline({ state }: { state: AppState }) {
     }
   }
 
-  const runAll = useCallback(async () => {
+  async function runAll() {
     if (!product) return
     for (const section of SECTIONS) {
       await generate(section.key)
     }
-  }, [product, limits.aiRunsPerMonth])
+  }
 
   const isAnyLoading = Object.values(loading).some(Boolean)
   const hasAllResults = Object.values(results).every(Boolean)
