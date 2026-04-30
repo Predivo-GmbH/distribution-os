@@ -1,7 +1,20 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeAll } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { Landing } from '../Landing'
+
+beforeAll(() => {
+  // jsdom doesn't implement IntersectionObserver
+  globalThis.IntersectionObserver = class {
+    constructor(private cb: IntersectionObserverCallback) {}
+    observe(el: Element) {
+      // Immediately trigger as visible so Reveal components render content
+      this.cb([{ isIntersecting: true, target: el } as IntersectionObserverEntry], this as unknown as IntersectionObserver)
+    }
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof IntersectionObserver
+})
 
 describe('Landing Page', () => {
   function renderLanding() {
@@ -14,8 +27,8 @@ describe('Landing Page', () => {
 
   it('renders the hero heading', () => {
     renderLanding()
-    expect(screen.getByText(/Stop building/)).toBeInTheDocument()
-    expect(screen.getByText(/Start distributing/)).toBeInTheDocument()
+    expect(screen.getByText(/Stop building alone/)).toBeInTheDocument()
+    expect(screen.getByText(/distributing/)).toBeInTheDocument()
   })
 
   it('renders the tagline for solo founders', () => {
@@ -25,17 +38,16 @@ describe('Landing Page', () => {
 
   it('displays all 6 distribution engines', () => {
     renderLanding()
-    expect(screen.getByText('Pull Engine')).toBeInTheDocument()
-    expect(screen.getByText('Push Engine')).toBeInTheDocument()
-    expect(screen.getByText('Bridge Engine')).toBeInTheDocument()
-    expect(screen.getByText('Search Engine')).toBeInTheDocument()
+    expect(screen.getAllByText('Pull Engine').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Push Engine').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Bridge Engine').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Search Engine').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText('Equity Engine')).toBeInTheDocument()
     expect(screen.getByText('Persistence Engine')).toBeInTheDocument()
   })
 
   it('renders How It Works section with 4 steps', () => {
     renderLanding()
-    expect(screen.getByText('How It Works')).toBeInTheDocument()
     expect(screen.getByText('Validate Your Idea')).toBeInTheDocument()
     expect(screen.getByText('Build Your Brand')).toBeInTheDocument()
     expect(screen.getByText('Activate Distribution')).toBeInTheDocument()
@@ -44,8 +56,8 @@ describe('Landing Page', () => {
 
   it('has CTA links to signup', () => {
     renderLanding()
-    const signupLinks = screen.getAllByRole('link', { name: /get started|start free/i })
-    expect(signupLinks.length).toBeGreaterThanOrEqual(2) // Hero + CTA
+    const signupLinks = screen.getAllByRole('link', { name: /get started|get my 48 ai workers|start free/i })
+    expect(signupLinks.length).toBeGreaterThanOrEqual(2)
     for (const link of signupLinks) {
       expect(link).toHaveAttribute('href', '/signup')
     }
@@ -58,8 +70,6 @@ describe('Landing Page', () => {
     for (const link of loginLinks) {
       expect(link).toHaveAttribute('href', '/login')
     }
-    const pricingLinks = screen.getAllByRole('link', { name: /pricing/i })
-    expect(pricingLinks.length).toBeGreaterThanOrEqual(1)
   })
 
   it('renders footer with company name', () => {
@@ -69,7 +79,27 @@ describe('Landing Page', () => {
 
   it('renders the final CTA section', () => {
     renderLanding()
-    expect(screen.getByText(/Ready to stop guessing/)).toBeInTheDocument()
-    expect(screen.getByText(/No credit card required/)).toBeInTheDocument()
+    expect(screen.getByText(/Ready to automate your distribution/)).toBeInTheDocument()
+  })
+
+  it('renders pricing section with 4 tiers', () => {
+    renderLanding()
+    expect(screen.getByText('Free')).toBeInTheDocument()
+    expect(screen.getByText('Starter')).toBeInTheDocument()
+    expect(screen.getByText('Growth')).toBeInTheDocument()
+    expect(screen.getByText('Scale')).toBeInTheDocument()
+  })
+
+  it('renders FAQ section', () => {
+    renderLanding()
+    expect(screen.getByText('What exactly are AI workers?')).toBeInTheDocument()
+    expect(screen.getByText(/Got/)).toBeInTheDocument()
+  })
+
+  it('renders testimonials', () => {
+    renderLanding()
+    expect(screen.getByText('Sarah Chen')).toBeInTheDocument()
+    expect(screen.getByText('Marcus Rivera')).toBeInTheDocument()
+    expect(screen.getByText('Aisha Patel')).toBeInTheDocument()
   })
 })

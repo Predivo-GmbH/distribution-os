@@ -14,51 +14,43 @@ describe('Pricing Page', () => {
 
   it('renders the pricing heading', () => {
     renderPricing()
-    expect(screen.getByText('Simple, transparent pricing')).toBeInTheDocument()
+    expect(screen.getByText(/Simple pricing/)).toBeInTheDocument()
   })
 
-  it('displays Free and Pro plans', () => {
+  it('displays all 4 tier plans', () => {
     renderPricing()
     expect(screen.getByText('Free')).toBeInTheDocument()
-    expect(screen.getByText('Pro')).toBeInTheDocument()
+    expect(screen.getByText('Starter')).toBeInTheDocument()
+    expect(screen.getByText('Growth')).toBeInTheDocument()
+    expect(screen.getByText('Scale')).toBeInTheDocument()
   })
 
-  it('shows $0/month for free plan', () => {
+  it('shows correct prices', () => {
     renderPricing()
     expect(screen.getByText('$0')).toBeInTheDocument()
-  })
-
-  it('shows $19/month for pro plan', () => {
-    renderPricing()
     expect(screen.getByText('$19')).toBeInTheDocument()
+    expect(screen.getByText('$49')).toBeInTheDocument()
+    expect(screen.getByText('$99')).toBeInTheDocument()
   })
 
-  it('displays feature comparison items', () => {
+  it('marks Growth as most popular', () => {
     renderPricing()
-    // Features appear twice (once in each plan column)
-    const engines = screen.getAllByText('All 6 distribution engines')
-    expect(engines.length).toBeGreaterThanOrEqual(2)
-    const scoring = screen.getAllByText('Weekly task scoring')
-    expect(scoring.length).toBeGreaterThanOrEqual(2)
-    const briefing = screen.getAllByText('Briefing Room')
-    expect(briefing.length).toBeGreaterThanOrEqual(2)
-    const darkMode = screen.getAllByText('Dark mode')
-    expect(darkMode.length).toBeGreaterThanOrEqual(2)
-  })
-
-  it('marks Pro as recommended', () => {
-    renderPricing()
-    expect(screen.getByText('Recommended')).toBeInTheDocument()
+    expect(screen.getByText('Most Popular')).toBeInTheDocument()
   })
 
   it('has signup CTA links', () => {
     renderPricing()
-    const signupLinks = screen.getAllByRole('link', { name: /get started|start free|upgrade/i })
-    expect(signupLinks.length).toBeGreaterThanOrEqual(2)
+    const signupLinks = screen.getAllByRole('link', { name: /get started|start free|get starter|get growth|get scale/i })
+    expect(signupLinks.length).toBeGreaterThanOrEqual(4)
   })
 
   it('renders footer with navigation back home', () => {
     renderPricing()
     expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/')
+  })
+
+  it('shows all engines note', () => {
+    renderPricing()
+    expect(screen.getByText(/All plans include all 6 distribution engines/)).toBeInTheDocument()
   })
 })
