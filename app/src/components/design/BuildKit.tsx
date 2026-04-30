@@ -171,7 +171,7 @@ export function BuildKit({ state }: { state: AppState }) {
               <button
                 onClick={() => isCompleted && setCurrentStep(key)}
                 disabled={!isCompleted && !isActive}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-lg text-xs font-medium transition-colors ${
                   isActive
                     ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-text)]'
                     : isCompleted

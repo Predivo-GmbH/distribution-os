@@ -147,12 +147,12 @@ export function Proposals({ state }: { state: AppState }) {
 
       {/* Tab content */}
       <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
-        <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-[var(--color-edge)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-5 py-3 border-b border-[var(--color-edge)] gap-2">
           <div className="flex items-center gap-2">
             <currentTab.icon size={16} className="text-[var(--color-accent-text)]" />
             <h2 className="text-sm font-semibold text-[var(--color-ink)]">{currentTab.label}</h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {results[activeTab] && (
               <>
                 <button
@@ -200,7 +200,7 @@ export function Proposals({ state }: { state: AppState }) {
                 onChange={e => setTranscript(e.target.value)}
                 placeholder="Paste your sales call transcript here..."
                 rows={8}
-                className="w-full px-3 py-2 rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] resize-y"
+                className="w-full px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] resize-y"
               />
             </div>
           )}

@@ -7,17 +7,17 @@ const FOUNDING_TOTAL = 100
 const FOUNDING_CLAIMED = 47
 
 const TIERS = [
-  { name: 'Free', price: '$0', period: '/forever', desc: 'Get started, no card needed', features: ['1 product', 'All 6 engines', 'Basic dashboard', 'Community support'], cta: 'Start Free', highlighted: false },
-  { name: 'Starter', price: '$19', period: '/month', desc: 'For early-stage founders', features: ['2 products', '5 AI runs/month', 'All playbooks', 'Email support'], cta: 'Get Starter', highlighted: false },
-  { name: 'Growth', price: '$49', period: '/month', desc: 'For serious distribution', features: ['5 products', '25 AI runs/month', 'Advanced analytics', 'Priority support', 'All integrations'], cta: 'Get Growth', highlighted: true, badge: 'Most Popular' },
-  { name: 'Scale', price: '$99', period: '/month', desc: 'Unlimited everything', features: ['Unlimited products', 'Unlimited AI runs', 'Custom integrations', 'Dedicated support', 'API access'], cta: 'Get Scale', highlighted: false },
+  { name: 'Free', price: '$0', period: '/forever', desc: 'Get started with zero risk', features: ['1 product', 'All 6 engines', 'Analytics dashboard', 'Community support', '3 AI runs/month', 'Basic playbooks'], cta: 'Start Free', highlighted: false },
+  { name: 'Starter', price: '$19', period: '/month', desc: 'For early-stage founders', features: ['2 products', '15 AI runs/month', 'All playbooks', 'Email support', 'Export reports', 'Competitor tracking'], cta: 'Get Starter', highlighted: false },
+  { name: 'Growth', price: '$49', period: '/month', desc: 'For serious distribution', features: ['5 products', '50 AI runs/month', 'Advanced analytics', 'Priority support (< 4h)', 'All integrations', 'Custom workflows', 'A/B testing', '30-day money-back guarantee'], cta: 'Get Growth', highlighted: true, badge: 'Most Popular' },
+  { name: 'Scale', price: '$99', period: '/month', desc: 'Unlimited everything', features: ['Unlimited products', 'Unlimited AI runs', 'Custom integrations', 'Dedicated support', 'API access', 'White-label reports', 'Team sharing'], cta: 'Get Scale', highlighted: false },
 ]
 
 export function Pricing() {
   return (
-    <div className="min-h-dvh bg-[#0d0d1c] text-white antialiased">
+    <div className="min-h-dvh bg-[#0a0a0a] text-white antialiased">
       {/* Nav */}
-      <header className="border-b border-white/[0.06] bg-[#0d0d1c]/80 backdrop-blur-xl">
+      <header className="border-b border-white/[0.06] bg-[#0a0a0a]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             <Logo />
@@ -86,7 +86,7 @@ export function Pricing() {
                 </div>
               )}
               <h2 className="text-white font-bold text-lg mb-1">{name}</h2>
-              <p className="text-slate-500 text-xs mb-4">{desc}</p>
+              <p className="text-slate-500 text-sm mb-4">{desc}</p>
               <div className="flex items-baseline gap-1 mb-6">
                 <span className="text-4xl font-black text-white">{price}</span>
                 <span className="text-sm text-slate-500">{period}</span>
@@ -122,7 +122,7 @@ export function Pricing() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/[0.04] bg-[#0a0a16]">
+      <footer className="border-t border-white/[0.04] bg-[#050508]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-slate-600">
             {APP_NAME} &mdash; Built by Predivo GmbH

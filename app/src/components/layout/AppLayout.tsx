@@ -40,6 +40,16 @@ export function AppLayout({ children, products, showBriefingBadge }: Props) {
     return () => clearInterval(interval)
   }, [])
 
+  // Close sidebar on Escape key
+  useEffect(() => {
+    if (!sidebarOpen) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSidebarOpen(false)
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [sidebarOpen])
+
   // Collect active engines from all products
   const activeEngines = [...new Set(products.flatMap(p => [p.primaryEngine, ...p.secondaryEngines]))]
 
@@ -156,6 +166,9 @@ export function AppLayout({ children, products, showBriefingBadge }: Props) {
 
   return (
     <div className="flex min-h-dvh">
+      {/* Skip to content */}
+      <a href="#app-main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[var(--color-accent)] focus:text-white focus:rounded-lg focus:font-semibold focus:text-sm">Skip to content</a>
+
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-[var(--sidebar-width)] shrink-0 bg-[var(--color-surface-sidebar)] border-r border-[var(--color-edge)] flex-col">
         {sidebarContent}
@@ -172,6 +185,9 @@ export function AppLayout({ children, products, showBriefingBadge }: Props) {
 
       {/* Mobile sidebar drawer */}
       <aside
+        role="dialog"
+        aria-modal={sidebarOpen}
+        aria-label="Sidebar navigation"
         className={cn(
           'fixed inset-y-0 left-0 z-50 w-[280px] bg-[var(--color-surface-sidebar)] border-r border-[var(--color-edge)] flex flex-col transition-transform duration-200 md:hidden',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -181,7 +197,7 @@ export function AppLayout({ children, products, showBriefingBadge }: Props) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 min-w-0 overflow-y-auto">
+      <main id="app-main-content" className="flex-1 min-w-0 overflow-y-auto">
         {/* Mobile header */}
         <div className="md:hidden flex items-center gap-3 px-4 h-14 border-b border-[var(--color-edge)] bg-[var(--color-surface-sidebar)]">
           <button

@@ -4,7 +4,7 @@ Header set X-Content-Type-Options "nosniff"
 Header set Referrer-Policy "strict-origin-when-cross-origin"
 Header set Permissions-Policy "camera=(), microphone=(), geolocation=()"
 Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://api.linkedin.com"
+Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://js.stripe.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://api.linkedin.com https://api.stripe.com"
 </IfModule>
 
 # Cache hashed static assets (JS, CSS) for 1 year — filenames change on rebuild
@@ -33,6 +33,10 @@ Header set Cache-Control "no-cache, no-store, must-revalidate"
 <IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteBase /
+
+# HTTPS redirect
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
 # Strip trailing slashes (prevents 500 errors on /path/ variants)
 RewriteCond %{REQUEST_FILENAME} !-d

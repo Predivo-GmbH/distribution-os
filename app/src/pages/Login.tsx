@@ -87,14 +87,14 @@ export function Login() {
             <button
               type="button"
               onClick={() => { setTab('password'); setError(''); setOtpStep('email'); setOtp('') }}
-              className={`flex-1 py-2 min-h-[36px] rounded-md text-sm font-medium transition-all ${tab === 'password' ? 'bg-white/[0.1] text-white shadow-sm' : 'text-slate-400 hover:text-slate-300'}`}
+              className={`flex-1 py-2 min-h-[44px] rounded-md text-sm font-medium transition-all ${tab === 'password' ? 'bg-white/[0.1] text-white shadow-sm' : 'text-slate-400 hover:text-slate-300'}`}
             >
               Password
             </button>
             <button
               type="button"
               onClick={() => { setTab('email-code'); setError('') }}
-              className={`flex-1 py-2 min-h-[36px] rounded-md text-sm font-medium transition-all ${tab === 'email-code' ? 'bg-white/[0.1] text-white shadow-sm' : 'text-slate-400 hover:text-slate-300'}`}
+              className={`flex-1 py-2 min-h-[44px] rounded-md text-sm font-medium transition-all ${tab === 'email-code' ? 'bg-white/[0.1] text-white shadow-sm' : 'text-slate-400 hover:text-slate-300'}`}
             >
               Email Code
             </button>

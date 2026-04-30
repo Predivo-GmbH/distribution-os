@@ -242,12 +242,21 @@ function SpotlightCard({ children, className = '', spotlightColor = 'rgba(99,102
 
 /* ── Mobile Nav ── */
 function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+  useEffect(() => {
+    if (!open) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [open, onClose])
+
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-[60] lg:hidden">
+    <div className="fixed inset-0 z-[60] lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation menu">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="absolute top-0 right-0 w-[280px] h-full bg-[#0a0a0a]/95 backdrop-blur-xl border-l border-white/[0.06] p-6 pt-20">
-        <button onClick={onClose} className="absolute top-5 right-5 w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] min-h-[44px]">
+        <button onClick={onClose} className="absolute top-5 right-5 w-11 h-11 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] min-h-[44px] min-w-[44px]">
           <X size={20} />
         </button>
         <nav className="flex flex-col gap-2">
@@ -275,6 +284,9 @@ export function Landing() {
 
   return (
     <div className="min-h-dvh bg-[#0a0a0a] text-white antialiased selection:bg-indigo-500/30 overflow-x-hidden">
+      {/* Skip to content */}
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded-lg focus:font-semibold focus:text-sm">Skip to content</a>
+
       <style>{`
         @keyframes marquee { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
         .animate-marquee { animation: marquee linear infinite; }
@@ -305,12 +317,12 @@ export function Landing() {
           <div className="flex items-center gap-2">
             <Link to="/login" className="hidden lg:inline-flex items-center min-h-[44px] text-sm text-slate-400 hover:text-white transition-colors px-3">Log In</Link>
             <Link to="/signup" className="hidden lg:inline-flex items-center px-4 py-2 min-h-[44px] rounded-full bg-white text-black font-semibold text-sm hover:bg-slate-200 transition-all duration-200">Get Started</Link>
-            <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-white/[0.06] min-h-[44px]"><Menu size={20} /></button>
+            <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden w-11 h-11 flex items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-white/[0.06] min-h-[44px] min-w-[44px]" aria-label="Open menu"><Menu size={20} /></button>
           </div>
         </div>
       </nav>
 
-      <main className="relative z-10">
+      <main id="main-content" className="relative z-10">
         {/* ── HERO — Grid dot background ── */}
         <section className="relative pt-36 sm:pt-44 pb-16 sm:pb-20 overflow-hidden">
           <div className="absolute inset-0" style={{
@@ -340,10 +352,10 @@ export function Landing() {
                   {APP_NAME} gives solo SaaS founders 48 AI workers across 6 proven distribution engines. Validate, build, launch, and scale — all from one command center.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                  <Link to="/signup" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white text-[#0a0a0a] font-bold text-sm hover:bg-slate-100 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                  <Link to="/signup" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 min-h-[44px] rounded-xl bg-white text-[#0a0a0a] font-bold text-sm hover:bg-slate-100 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                     Get My 48 AI Workers — Free <ArrowRight size={16} />
                   </Link>
-                  <a href="#how-it-works" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl border border-white/[0.1] text-slate-300 font-semibold text-sm hover:bg-white/[0.04] transition-all duration-300">See How It Works</a>
+                  <a href="#how-it-works" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 min-h-[44px] rounded-xl border border-white/[0.1] text-slate-300 font-semibold text-sm hover:bg-white/[0.04] transition-all duration-300">See How It Works</a>
                 </div>
                 <div className="flex items-center gap-4 text-xs text-slate-500 font-medium uppercase tracking-widest">
                   <span>Free forever</span><span className="h-1 w-1 rounded-full bg-slate-700" /><span>No credit card</span><span className="h-1 w-1 rounded-full bg-slate-700" /><span>Setup in 2 min</span>
@@ -378,7 +390,7 @@ export function Landing() {
                 ].map(({ v, l, c }) => (
                   <div key={l} className="flex-1 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-center">
                     <div className={`text-2xl font-black bg-gradient-to-r ${c} bg-clip-text text-transparent`}>{v}</div>
-                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">{l}</div>
+                    <div className="text-xs text-slate-500 uppercase tracking-wider">{l}</div>
                   </div>
                 ))}
               </div>
@@ -392,7 +404,7 @@ export function Landing() {
               ].map(({ icon: Ic, val, label, accent }, i) => (
                 <Reveal key={label} delay={i * 80}>
                   <div className={`rounded-2xl border ${i === 0 ? 'border-indigo-500/20 bg-indigo-500/[0.04]' : 'border-white/[0.06] bg-white/[0.02]'} p-5 flex items-center gap-4 hover:border-indigo-500/20 transition-all duration-300`}>
-                    <div className={`w-11 h-11 rounded-xl bg-${accent}-500/10 flex items-center justify-center text-${accent}-400 shrink-0`}><Ic size={18} /></div>
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${accent === 'indigo' ? 'bg-indigo-500/10 text-indigo-400' : accent === 'cyan' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-violet-500/10 text-violet-400'}`}><Ic size={18} /></div>
                     <div>
                       <div className="text-white font-black text-2xl">{val}</div>
                       <div className="text-slate-400 text-xs">{label}</div>
@@ -562,9 +574,9 @@ export function Landing() {
           <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] overflow-hidden">
             {FAQS.map(({ q, a }, i) => (
               <div key={i} className={i > 0 ? 'border-t border-dashed border-white/[0.08]' : ''}>
-                <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between px-6 py-5 min-h-[56px] text-left text-white font-medium text-sm hover:bg-white/[0.02] transition-colors">
+                <button onClick={() => setOpenFaq(openFaq === i ? null : i)} aria-expanded={openFaq === i} className="w-full flex items-center justify-between px-6 py-5 min-h-[56px] text-left text-white font-medium text-sm hover:bg-white/[0.02] transition-colors">
                   {q}
-                  <ChevronDown size={16} className={`text-slate-500 shrink-0 ml-3 transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={16} aria-hidden="true" className={`text-slate-500 shrink-0 ml-3 transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 <div className={`grid transition-all duration-200 ${openFaq === i ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                   <div className="overflow-hidden">
@@ -580,7 +592,7 @@ export function Landing() {
         {/* ── FINAL CTA — Grid background ── */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-20 sm:pb-28">
           <Reveal>
-            <div className="rounded-[2rem] border border-indigo-500/20 bg-gradient-to-b from-indigo-500/[0.06] to-white/[0.02] p-10 sm:p-16 lg:p-24 text-center relative overflow-hidden shadow-[0_0_80px_rgba(99,102,241,0.08)]">
+            <div className="rounded-[2rem] border border-indigo-500/20 bg-gradient-to-b from-indigo-500/[0.06] to-white/[0.02] p-6 sm:p-10 md:p-16 lg:p-24 text-center relative overflow-hidden shadow-[0_0_80px_rgba(99,102,241,0.08)]">
               <div className="absolute inset-0 opacity-40" style={{
                 backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)',
                 backgroundSize: '3rem 3rem',
@@ -590,7 +602,7 @@ export function Landing() {
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-indigo-500/15 blur-[120px] rounded-full pointer-events-none" />
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-6 relative z-10 text-balance">Ready to automate<br className="hidden sm:inline" /> your distribution?</h2>
               <p className="text-lg text-slate-400 max-w-xl mx-auto mb-10 relative z-10">Join solo founders who automated their growth with {APP_NAME}. Cancel anytime. No lock-in.</p>
-              <Link to="/signup" className="inline-flex items-center gap-2 px-10 py-5 rounded-2xl bg-white text-[#0a0a0a] font-black text-lg hover:bg-slate-100 transition-colors shadow-[0_0_40px_rgba(255,255,255,0.1)] relative z-10">
+              <Link to="/signup" className="inline-flex items-center gap-2 px-6 sm:px-10 py-5 min-h-[44px] rounded-2xl bg-white text-[#0a0a0a] font-black text-base sm:text-lg hover:bg-slate-100 transition-colors shadow-[0_0_40px_rgba(255,255,255,0.1)] relative z-10">
                 Claim Your 48 AI Workers <ArrowRight size={18} />
               </Link>
             </div>
@@ -609,25 +621,25 @@ export function Landing() {
             <div>
               <h4 className="text-white font-semibold text-sm mb-4">Product</h4>
               <ul className="space-y-2.5">
-                <li><a href="#engines" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">Engines</a></li>
-                <li><a href="#how-it-works" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">How It Works</a></li>
-                <li><a href="#pricing" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">Pricing</a></li>
-                <li><a href="#faq" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">FAQ</a></li>
+                <li><a href="#engines" className="text-slate-500 text-sm hover:text-slate-300 transition-colors min-h-[44px] inline-flex items-center">Engines</a></li>
+                <li><a href="#how-it-works" className="text-slate-500 text-sm hover:text-slate-300 transition-colors min-h-[44px] inline-flex items-center">How It Works</a></li>
+                <li><a href="#pricing" className="text-slate-500 text-sm hover:text-slate-300 transition-colors min-h-[44px] inline-flex items-center">Pricing</a></li>
+                <li><a href="#faq" className="text-slate-500 text-sm hover:text-slate-300 transition-colors min-h-[44px] inline-flex items-center">FAQ</a></li>
               </ul>
             </div>
             <div>
               <h4 className="text-white font-semibold text-sm mb-4">Account</h4>
               <ul className="space-y-2.5">
-                <li><Link to="/login" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">Log In</Link></li>
-                <li><Link to="/signup" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">Sign Up</Link></li>
+                <li><Link to="/login" className="text-slate-500 text-sm hover:text-slate-300 transition-colors min-h-[44px] inline-flex items-center">Log In</Link></li>
+                <li><Link to="/signup" className="text-slate-500 text-sm hover:text-slate-300 transition-colors min-h-[44px] inline-flex items-center">Sign Up</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="text-white font-semibold text-sm mb-4">Legal</h4>
               <ul className="space-y-2.5">
-                <li><a href="/privacy" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">Privacy Policy</a></li>
-                <li><a href="/terms" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">Terms of Service</a></li>
-                <li><a href="/imprint" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">Imprint</a></li>
+                <li><a href="/privacy" className="text-slate-500 text-sm hover:text-slate-300 transition-colors min-h-[44px] inline-flex items-center">Privacy Policy</a></li>
+                <li><a href="/terms" className="text-slate-500 text-sm hover:text-slate-300 transition-colors min-h-[44px] inline-flex items-center">Terms of Service</a></li>
+                <li><a href="/imprint" className="text-slate-500 text-sm hover:text-slate-300 transition-colors min-h-[44px] inline-flex items-center">Imprint</a></li>
               </ul>
             </div>
           </div>

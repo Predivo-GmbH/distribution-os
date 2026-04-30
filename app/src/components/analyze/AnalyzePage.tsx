@@ -89,7 +89,7 @@ export function AnalyzePage({ state }: { state: AppState }) {
           value={url}
           onChange={e => setUrl(e.target.value)}
           placeholder="https://competitor.com"
-          className="w-full px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)]"
+          className="w-full px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)]"
         />
       </div>
 
@@ -117,11 +117,11 @@ export function AnalyzePage({ state }: { state: AppState }) {
 
       {/* Content */}
       <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
-        <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-[var(--color-edge)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-5 py-3 border-b border-[var(--color-edge)] gap-2">
           <h2 className="text-sm font-semibold text-[var(--color-ink)]">
             {activeTab === 'analyze' ? 'Site Deep Analysis' : 'Conversion Score (17 items)'}
           </h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {results[activeTab] && (
               <>
                 <button
