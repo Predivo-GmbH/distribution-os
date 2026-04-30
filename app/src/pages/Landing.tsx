@@ -139,6 +139,37 @@ function DashboardMockup() {
   )
 }
 
+/* ── Founding Member Badge ── */
+const FOUNDING_TOTAL = 100
+const FOUNDING_CLAIMED = 47 // Update periodically
+
+function FoundingBadge() {
+  const remaining = FOUNDING_TOTAL - FOUNDING_CLAIMED
+  const pct = (FOUNDING_CLAIMED / FOUNDING_TOTAL) * 100
+  return (
+    <Reveal className="max-w-xl mx-auto mb-8">
+      <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.04] p-5 sm:p-6 text-center relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[100px] bg-amber-500/[0.06] blur-[60px] rounded-full pointer-events-none" />
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <Star size={12} className="fill-amber-400 text-amber-400" />
+          Founding Member Pricing
+        </div>
+        <p className="text-white font-semibold text-sm mb-1">Lock in launch prices forever</p>
+        <p className="text-slate-400 text-xs mb-4">First {FOUNDING_TOTAL} members keep their price — even when we raise it.</p>
+        <div className="max-w-xs mx-auto">
+          <div className="flex justify-between text-xs mb-1.5">
+            <span className="text-amber-300 font-medium">{FOUNDING_CLAIMED} claimed</span>
+            <span className="text-slate-500">{remaining} spots left</span>
+          </div>
+          <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
+            <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-1000" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+      </div>
+    </Reveal>
+  )
+}
+
 /* ── Inline CTA ── */
 function InlineCta({ text, trust }: { text: string; trust?: string }) {
   return (
@@ -465,6 +496,7 @@ export function Landing() {
 
         {/* ── PRICING — Inverted featured tier ── */}
         <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20 border-t border-white/[0.04]">
+          <FoundingBadge />
           <Reveal>
             <div className="text-center mb-10">
               <p className="text-indigo-400 text-sm font-semibold uppercase tracking-wider mb-3">Pricing</p>
