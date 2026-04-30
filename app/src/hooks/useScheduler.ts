@@ -63,10 +63,8 @@ export async function executeWorker(workerType: WorkerType, product: Product): P
     case 'messaging-clarity': return extractResult(await runMessagingClarity(product))
     case 'stage-transition-advisor': return extractResult(await runStageTransitionAdvisor(product))
 
-    default: {
-      const _exhaustive: never = workerType
-      return { success: false, error: `Unknown worker type: ${_exhaustive}` }
-    }
+    default:
+      return { success: false, error: `Worker type not yet schedulable: ${workerType}` }
   }
 }
 

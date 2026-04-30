@@ -151,17 +151,17 @@ export function SchedulePage() {
             <div className="space-y-2">
               {recentRecords.map((record, i) => (
                 <div key={i} className="flex items-center gap-3 py-2 border-b border-[var(--color-edge)] last:border-b-0">
-                  {record.success ? (
+                  {record.status === 'success' ? (
                     <CheckCircle2 size={14} className="text-[var(--color-success)] shrink-0" />
                   ) : (
                     <XCircle size={14} className="text-[var(--color-error)] shrink-0" />
                   )}
                   <div className="flex-1 min-w-0">
                     <span className="text-sm text-[var(--color-ink)]">{record.workerType}</span>
-                    <p className="text-xs text-[var(--color-ink-muted)] truncate">{record.productName || record.productId}</p>
+                    <p className="text-xs text-[var(--color-ink-muted)] truncate">{record.productId}</p>
                   </div>
                   <span className="text-xs text-[var(--color-ink-muted)] shrink-0">
-                    {new Date(record.runAt).toLocaleDateString()}
+                    {new Date(record.lastRun).toLocaleDateString()}
                   </span>
                 </div>
               ))}

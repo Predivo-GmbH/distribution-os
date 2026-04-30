@@ -11,7 +11,7 @@ import type {
   KnowledgeBase, Engine, WorkerType,
 } from '@/types'
 import { defaultKnowledgeBase } from '@/types'
-import type { Json, Database } from '@/types/database'
+import type { Json, Database, DbProductStage, DbEngine, DbWorkerType, DbArtifactStatus } from '@/types/database'
 
 let cachedUserId: string | null = null
 
@@ -69,13 +69,13 @@ export async function loadProducts(): Promise<Product[]> {
 
 export async function addProduct(product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>, clientId?: string): Promise<Product> {
   const uid = await getUserId()
-  const insertData: Record<string, unknown> = {
+  const insertData: Database['public']['Tables']['products']['Insert'] = {
     user_id: uid,
     name: product.name,
     description: product.description,
-    stage: product.stage.replace('-', '_') as 'pre_launch' | 'early' | 'active' | 'scaling',
-    primary_engine: product.primaryEngine,
-    secondary_engines: product.secondaryEngines,
+    stage: product.stage.replace('-', '_') as DbProductStage,
+    primary_engine: product.primaryEngine as DbEngine,
+    secondary_engines: product.secondaryEngines as DbEngine[],
     color: product.color,
     revenue: product.revenue ?? null,
   }
@@ -244,13 +244,13 @@ export async function loadInboxArtifacts(): Promise<InboxArtifact[]> {
 
 export async function addInboxArtifact(artifact: Omit<InboxArtifact, 'id' | 'generatedAt'>, clientId?: string): Promise<InboxArtifact> {
   const uid = await getUserId()
-  const insertData: Record<string, unknown> = {
+  const insertData: Database['public']['Tables']['inbox_artifacts']['Insert'] = {
     user_id: uid,
     product_id: artifact.productId,
-    engine: artifact.engine,
-    worker_type: artifact.workerType,
+    engine: artifact.engine as DbEngine,
+    worker_type: artifact.workerType as DbWorkerType,
     task_title: artifact.taskTitle,
-    status: artifact.status,
+    status: artifact.status as DbArtifactStatus,
     content: artifact.content,
     edited_content: artifact.editedContent ?? null,
     direction_note: artifact.directionNote ?? null,
