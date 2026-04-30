@@ -5,6 +5,26 @@
 import type { Product } from '@/types'
 import { runWorker } from './worker-base'
 
+const KB_EXTRACT_INSTRUCTIONS = `
+
+At the very end of your response, include a structured extraction block exactly like this (replace brackets with actual values):
+
+\`\`\`kb-extract
+ICP_WHO: [one-sentence description of the ideal customer]
+ICP_PAIN: [primary pain point in one sentence]
+ICP_TRIED_BEFORE: [what the ICP currently uses]
+ICP_DESIRED_OUTCOME: [what the ICP wants to achieve]
+ICP_HANGOUTS: [where the ICP spends time online]
+POSITIONING_ONELINER: [one-sentence product positioning]
+POSITIONING_BENEFIT_1: [key benefit 1]
+POSITIONING_BENEFIT_2: [key benefit 2]
+POSITIONING_BENEFIT_3: [key benefit 3]
+POSITIONING_COMPETITOR: [primary competitor name]
+POSITIONING_SWITCH_REASON: [why switch from competitor]
+\`\`\`
+
+Only fill in fields you have data for. Leave unknown fields empty (e.g. "ICP_HANGOUTS: ").`
+
 export async function runMarketResearcher(product: Product) {
   return runWorker({
     product,
@@ -22,7 +42,7 @@ export async function runMarketResearcher(product: Product) {
 6. **MRR Potential** — realistic revenue estimate with assumptions
 7. **Go/No-Go Recommendation** — clear verdict with reasoning
 
-Format as structured Markdown. Be specific, data-driven, and brutally honest.`,
+Format as structured Markdown. Be specific, data-driven, and brutally honest.${KB_EXTRACT_INSTRUCTIONS}`,
   })
 }
 
@@ -43,7 +63,7 @@ export async function runCompetitorAnalyst(product: Product) {
 6. **Differentiation Strategy** — 3 concrete ways to differentiate
 7. **Competitive Moat** — what makes this product defensible
 
-Include specific product names, real pricing, and actionable insights.`,
+Include specific product names, real pricing, and actionable insights.${KB_EXTRACT_INSTRUCTIONS}`,
   })
 }
 
@@ -64,6 +84,66 @@ export async function runDistributionSpecialist(product: Product) {
 6. **Paid Strategy** — whether paid acquisition makes sense, estimated CAC
 7. **Partnership Opportunities** — 3 potential integration/co-marketing partners
 
-Be specific to the product's stage and niche.`,
+Be specific to the product's stage and niche.${KB_EXTRACT_INSTRUCTIONS}`,
   })
+}
+
+/* ── KB Extract Parser ── */
+
+export interface KBExtract {
+  icp_who?: string
+  icp_pain?: string
+  icp_tried_before?: string
+  icp_desired_outcome?: string
+  icp_hangouts?: string
+  positioning_oneliner?: string
+  positioning_benefit_1?: string
+  positioning_benefit_2?: string
+  positioning_benefit_3?: string
+  positioning_competitor?: string
+  positioning_switch_reason?: string
+}
+
+/**
+ * Parse the ```kb-extract block from worker output.
+ * Returns the extracted fields and the content with the block stripped.
+ */
+export function parseKBExtract(content: string): { clean: string; extract: KBExtract } {
+  const extract: KBExtract = {}
+
+  // Match the kb-extract code block
+  const blockRegex = /```kb-extract\n([\s\S]*?)```/
+  const match = content.match(blockRegex)
+
+  if (!match) {
+    return { clean: content, extract }
+  }
+
+  const lines = match[1].split('\n')
+  for (const line of lines) {
+    const colonIdx = line.indexOf(':')
+    if (colonIdx === -1) continue
+    const key = line.slice(0, colonIdx).trim().toLowerCase()
+    const value = line.slice(colonIdx + 1).trim()
+    if (!value) continue
+
+    switch (key) {
+      case 'icp_who': extract.icp_who = value; break
+      case 'icp_pain': extract.icp_pain = value; break
+      case 'icp_tried_before': extract.icp_tried_before = value; break
+      case 'icp_desired_outcome': extract.icp_desired_outcome = value; break
+      case 'icp_hangouts': extract.icp_hangouts = value; break
+      case 'positioning_oneliner': extract.positioning_oneliner = value; break
+      case 'positioning_benefit_1': extract.positioning_benefit_1 = value; break
+      case 'positioning_benefit_2': extract.positioning_benefit_2 = value; break
+      case 'positioning_benefit_3': extract.positioning_benefit_3 = value; break
+      case 'positioning_competitor': extract.positioning_competitor = value; break
+      case 'positioning_switch_reason': extract.positioning_switch_reason = value; break
+    }
+  }
+
+  // Strip the kb-extract block from displayed content
+  const clean = content.replace(blockRegex, '').trimEnd()
+
+  return { clean, extract }
 }

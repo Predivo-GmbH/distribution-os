@@ -33,7 +33,8 @@ export { runPartnerResearch, runPitchPackage, runImprovementPrioritizer } from '
 export { runWeeklyDiagnostician, runMessagingClarity, runStageTransitionAdvisor } from './persistence-workers'
 
 // Validation pipeline workers
-export { runMarketResearcher, runCompetitorAnalyst, runDistributionSpecialist } from './validate-workers'
+export { runMarketResearcher, runCompetitorAnalyst, runDistributionSpecialist, parseKBExtract } from './validate-workers'
+export type { KBExtract } from './validate-workers'
 
 // Offer builder workers
 export { runProductDefiner, runOfferDesigner } from './offer-workers'
