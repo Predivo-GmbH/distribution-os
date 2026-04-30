@@ -1,6 +1,6 @@
 {
-  "name": "Distribution OS",
-  "short_name": "Distribution OS",
+  "name": "ShipSolo",
+  "short_name": "ShipSolo",
   "description": "A weekly command center that converts distribution strategy into structured, completable tasks — for solo SaaS founders.",
   "start_url": "/",
   "display": "standalone",
