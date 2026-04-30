@@ -5,16 +5,12 @@ import { Logo } from '@/components/shared/Logo'
 import { APP_NAME } from '@/lib/app-config'
 
 /* ============================================================
-   ShipSolo Landing Page — Final Combined Build
-   Base: V1 Bento Grid (highest differentiation)
-   + V2 scroll-reveal animations, animated counters, vertical timeline
-   + V3 engine hover glow
-   + Baseline trust line, solid CTAs
-   + Fixes: product mockup, mid-page CTAs, footer depth, mobile bento,
-     section variety, richer engines, bridge copy, FAQ before CTA
+   ShipSolo Landing Page
+   Premium dark theme with floating pill nav, spotlight cards,
+   shimmer text, marquee testimonials, FAQ accordion
    ============================================================ */
 
-/* ── Scroll-reveal (from V2) ── */
+/* ── Scroll-reveal ── */
 function useInView(threshold = 0.15): [RefObject<HTMLDivElement | null>, boolean] {
   const ref = useRef<HTMLDivElement | null>(null)
   const [inView, setInView] = useState(false)
@@ -80,6 +76,9 @@ const TESTIMONIALS = [
   { quote: 'ShipSolo replaced my entire marketing team. I went from 0 to 500 users in 6 weeks using just the Push and Pull engines.', name: 'Sarah Chen', role: 'Founder, DataFlow', initials: 'SC' },
   { quote: 'The AI workers write better outreach than I ever could. My reply rates tripled after switching from manual DMs.', name: 'Marcus Rivera', role: 'Founder, DevStack', initials: 'MR' },
   { quote: 'I was spending 20 hours a week on distribution. Now it\'s 2 hours. ShipSolo handles the rest while I sleep.', name: 'Aisha Patel', role: 'Founder, MailBridge', initials: 'AP' },
+  { quote: 'The Search Engine alone got us listed on 40+ directories in a week. Organic traffic doubled the next month.', name: 'James Wu', role: 'Founder, APIStack', initials: 'JW' },
+  { quote: 'Finally, a tool that understands solo founder constraints. Every playbook is actionable, not theoretical.', name: 'Elena Voss', role: 'Founder, FormCraft', initials: 'EV' },
+  { quote: 'The Persistence Engine saved 35% of our churning users with automated win-back sequences. ROI was immediate.', name: 'Raj Mehta', role: 'Founder, CloudSync', initials: 'RM' },
 ]
 
 const TIERS = [
@@ -98,11 +97,10 @@ const FAQS = [
   { q: 'Is my data safe?', a: 'Your data is encrypted at rest and in transit. We use Supabase with row-level security. API keys are proxied through our servers and never stored in your browser.' },
 ]
 
-/* ── Dashboard Mockup (CSS-only product visual) ── */
+/* ── Dashboard Mockup ── */
 function DashboardMockup() {
   return (
     <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm p-3 sm:p-4 shadow-2xl shadow-indigo-500/[0.08]">
-      {/* Title bar */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.06] mb-3">
         <div className="flex gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-400/60" />
@@ -113,7 +111,6 @@ function DashboardMockup() {
           <span className="text-[11px] text-slate-400 font-mono">app.shipsolo.com</span>
         </div>
       </div>
-      {/* Dashboard content */}
       <div className="grid grid-cols-3 gap-2 mb-3">
         {[
           { label: 'Active Workers', value: '48', color: 'from-indigo-500 to-violet-500' },
@@ -126,7 +123,6 @@ function DashboardMockup() {
           </div>
         ))}
       </div>
-      {/* Engine status rows */}
       <div className="space-y-1.5">
         {ENGINES.slice(0, 4).map(({ name, color, workers }) => (
           <div key={name} className="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-white/[0.02]">
@@ -143,14 +139,11 @@ function DashboardMockup() {
   )
 }
 
-/* ── Inline CTA (mid-page conversion nudge with trust signal) ── */
+/* ── Inline CTA ── */
 function InlineCta({ text, trust }: { text: string; trust?: string }) {
   return (
-    <Reveal className="text-center py-10">
-      <Link
-        to="/signup"
-        className="inline-flex items-center gap-2 px-6 py-3 min-h-[44px] rounded-xl border border-indigo-500/40 text-indigo-300 font-semibold text-sm hover:bg-indigo-500/10 hover:border-indigo-500/60 transition-all duration-300"
-      >
+    <Reveal className="text-center pt-8 pb-2">
+      <Link to="/signup" className="inline-flex items-center gap-2 px-6 py-3 min-h-[44px] rounded-xl border border-indigo-500/40 text-indigo-300 font-semibold text-sm hover:bg-indigo-500/10 hover:border-indigo-500/60 transition-all duration-300">
         {text} <ArrowRight size={15} />
       </Link>
       {trust && <p className="text-slate-400 text-xs mt-3">{trust}</p>}
@@ -158,13 +151,71 @@ function InlineCta({ text, trust }: { text: string; trust?: string }) {
   )
 }
 
-/* ── Mobile Nav Menu ── */
+/* ── Marquee column for testimonials (CSS animation) ── */
+function MarqueeColumn({ testimonials, speed = 25, className = '' }: { testimonials: typeof TESTIMONIALS; speed?: number; className?: string }) {
+  const doubled = [...testimonials, ...testimonials]
+  return (
+    <div className={`overflow-hidden ${className}`}>
+      <div className="flex flex-col gap-4 animate-marquee" style={{ animationDuration: `${speed}s` }}>
+        {doubled.map(({ quote, name, role, initials }, i) => (
+          <div key={`${name}-${i}`} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 hover:bg-white/[0.04] transition-colors duration-300">
+            <div className="flex gap-1 mb-3">
+              {[...Array(5)].map((_, j) => <Star key={j} size={12} className="text-amber-400 fill-amber-400" />)}
+            </div>
+            <p className="text-slate-300 text-sm leading-relaxed mb-4">&ldquo;{quote}&rdquo;</p>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white text-xs font-bold">{initials}</div>
+              <div>
+                <p className="text-white text-sm font-semibold">{name}</p>
+                <p className="text-slate-500 text-xs">{role}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ── Spotlight Card — cursor-tracking radial glow ── */
+function SpotlightCard({ children, className = '', spotlightColor = 'rgba(99,102,241,0.15)' }: { children: React.ReactNode; className?: string; spotlightColor?: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState({ x: 0, y: 0 })
+  const [opacity, setOpacity] = useState(0)
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!ref.current) return
+    const rect = ref.current.getBoundingClientRect()
+    setPos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
+  }
+
+  return (
+    <div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setOpacity(1)}
+      onMouseLeave={() => setOpacity(0)}
+      className={`relative overflow-hidden ${className}`}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-500"
+        style={{
+          opacity,
+          background: `radial-gradient(circle 250px at ${pos.x}px ${pos.y}px, ${spotlightColor}, transparent 80%)`,
+        }}
+      />
+      {children}
+    </div>
+  )
+}
+
+/* ── Mobile Nav ── */
 function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   if (!open) return null
   return (
     <div className="fixed inset-0 z-[60] md:hidden">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="absolute top-0 right-0 w-[280px] h-full bg-[#0d0d1c] border-l border-white/[0.06] p-6 pt-20">
+      <div className="absolute top-0 right-0 w-[280px] h-full bg-[#0a0a0a]/95 backdrop-blur-xl border-l border-white/[0.06] p-6 pt-20">
         <button onClick={onClose} className="absolute top-5 right-5 w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] min-h-[44px]">
           <X size={20} />
         </button>
@@ -175,43 +226,38 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
             { label: 'Pricing', href: '#pricing' },
             { label: 'FAQ', href: '#faq' },
           ].map(({ label, href }) => (
-            <a key={label} href={href} onClick={onClose} className="px-4 py-3 rounded-lg text-base text-slate-300 hover:text-white hover:bg-white/[0.04] transition-all min-h-[44px] flex items-center">
-              {label}
-            </a>
+            <a key={label} href={href} onClick={onClose} className="px-4 py-3 rounded-lg text-base text-slate-300 hover:text-white hover:bg-white/[0.04] transition-all min-h-[44px] flex items-center">{label}</a>
           ))}
           <div className="border-t border-white/[0.06] my-3" />
-          <Link to="/login" onClick={onClose} className="px-4 py-3 rounded-lg text-base text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all min-h-[44px] flex items-center">
-            Log In
-          </Link>
-          <Link to="/signup" onClick={onClose} className="mt-2 px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold text-base text-center min-h-[44px] flex items-center justify-center">
-            Get Started
-          </Link>
+          <Link to="/login" onClick={onClose} className="px-4 py-3 rounded-lg text-base text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all min-h-[44px] flex items-center">Log In</Link>
+          <Link to="/signup" onClick={onClose} className="mt-2 px-4 py-3 rounded-xl bg-white text-black font-semibold text-base text-center min-h-[44px] flex items-center justify-center">Get Started</Link>
         </nav>
       </div>
     </div>
   )
 }
 
-/* ── Page ── */
+/* ══════════════════════════════════════════════════════════ */
 export function Landing() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <div className="min-h-dvh bg-[#0d0d1c] text-white antialiased selection:bg-indigo-500/30 overflow-x-hidden">
-      {/* Fixed ambient orbs (V2 layering) */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[5vh] left-[10%] w-[500px] h-[500px] bg-indigo-500/[0.04] blur-[150px] rounded-full" />
-        <div className="absolute top-[60vh] right-[5%] w-[400px] h-[400px] bg-violet-500/[0.03] blur-[130px] rounded-full" />
-      </div>
+    <div className="min-h-dvh bg-[#0a0a0a] text-white antialiased selection:bg-indigo-500/30 overflow-x-hidden">
+      <style>{`
+        @keyframes marquee { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
+        .animate-marquee { animation: marquee linear infinite; }
+        .animate-marquee:hover { animation-play-state: paused; }
+        @keyframes shimmer { 0% { background-position: 200% center; } 100% { background-position: -200% center; } }
+        .animate-shimmer { background-size: 200% auto; animation: shimmer 6s linear infinite; }
+      `}</style>
 
-      {/* Mobile menu */}
       <MobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 
-      {/* ── Nav — pill-style links (V3) + mobile hamburger ── */}
-      <nav className="fixed top-0 w-full z-50 bg-[#0d0d1c]/80 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
+      {/* ── NAV — Floating centered pill ── */}
+      <nav className="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] sm:w-auto">
+        <div className="flex items-center justify-between gap-6 sm:gap-8 px-5 sm:px-6 py-3 rounded-full border border-white/[0.08] bg-white/[0.04] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+          <Link to="/" className="flex items-center gap-2 shrink-0">
             <Logo />
             <span className="font-bold text-white text-sm tracking-tight">{APP_NAME}</span>
           </Link>
@@ -222,35 +268,32 @@ export function Landing() {
               { label: 'Pricing', href: '#pricing' },
               { label: 'FAQ', href: '#faq' },
             ].map(({ label, href }) => (
-              <a key={label} href={href} className="px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all">
-                {label}
-              </a>
+              <a key={label} href={href} className="px-3 py-1.5 rounded-full text-sm text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all">{label}</a>
             ))}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Link to="/login" className="hidden sm:inline-flex items-center min-h-[44px] text-sm text-slate-400 hover:text-white transition-colors px-3">Log In</Link>
-            <Link to="/signup" className="hidden sm:inline-flex items-center gap-1.5 px-5 py-2.5 min-h-[44px] rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold text-sm hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all duration-300">
-              Get Started
-            </Link>
-            <button onClick={() => setMobileMenuOpen(true)} className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] min-h-[44px]">
-              <Menu size={20} />
-            </button>
+            <Link to="/signup" className="hidden sm:inline-flex items-center px-4 py-2 min-h-[44px] rounded-full bg-white text-black font-semibold text-sm hover:bg-slate-200 transition-all duration-200">Get Started</Link>
+            <button onClick={() => setMobileMenuOpen(true)} className="md:hidden w-10 h-10 flex items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-white/[0.06] min-h-[44px]"><Menu size={20} /></button>
           </div>
         </div>
       </nav>
 
       <main className="relative z-10">
-        {/* ── Hero — Bento (V1) with dashboard mockup ── */}
-        <section className="relative pt-32 sm:pt-40 pb-16 sm:pb-20">
+        {/* ── HERO — Grid dot background ── */}
+        <section className="relative pt-36 sm:pt-44 pb-16 sm:pb-20 overflow-hidden">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.25) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.25) 1px, transparent 1px)',
+            backgroundSize: '3rem 3rem',
+            maskImage: 'radial-gradient(ellipse 80% 70% at 50% 40%, black 10%, transparent 70%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 50% 40%, black 10%, transparent 70%)',
+          }} />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-indigo-500/[0.07] blur-[120px] rounded-full pointer-events-none" />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-            {/* Mobile: centered. Desktop: bento grid */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-4">
-              {/* Main headline card — 3 cols on desktop */}
               <Reveal className="lg:col-span-3 rounded-3xl border border-white/[0.06] bg-white/[0.02] p-8 sm:p-10 lg:p-12 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-indigo-500/[0.08] blur-[80px] rounded-full pointer-events-none" />
-
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/20 bg-indigo-500/[0.06] text-indigo-300 text-xs font-medium tracking-wide mb-6">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
@@ -258,204 +301,134 @@ export function Landing() {
                   </span>
                   Built for solo founders
                 </div>
-
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-[-0.04em] leading-[1.05] mb-5">
-                  Stop building alone.
-                  <br />
-                  Start{' '}
-                  <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
-                    distributing.
-                  </span>
+                  Stop building alone.<br />Start{' '}
+                  <span className="bg-clip-text text-transparent animate-shimmer" style={{ backgroundImage: 'linear-gradient(90deg, #818cf8, #a78bfa, #c084fc, #a78bfa, #818cf8)' }}>distributing.</span>
                 </h1>
-
                 <p className="max-w-lg text-base sm:text-lg text-slate-400 leading-relaxed mb-8">
-                  {APP_NAME} gives solo SaaS founders 48 AI workers across 6 proven distribution engines.
-                  Validate, build, launch, and scale — all from one command center.
+                  {APP_NAME} gives solo SaaS founders 48 AI workers across 6 proven distribution engines. Validate, build, launch, and scale — all from one command center.
                 </p>
-
                 <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                  <Link to="/signup" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold text-sm hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] transition-all duration-300">
+                  <Link to="/signup" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white text-[#0a0a0a] font-bold text-sm hover:bg-slate-100 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                     Get My 48 AI Workers — Free <ArrowRight size={16} />
                   </Link>
-                  <a href="#how-it-works" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl border border-slate-700 text-slate-300 font-semibold text-sm hover:bg-white/[0.04] transition-all duration-300">
-                    See How It Works
-                  </a>
+                  <a href="#how-it-works" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl border border-white/[0.1] text-slate-300 font-semibold text-sm hover:bg-white/[0.04] transition-all duration-300">See How It Works</a>
                 </div>
-
-                {/* Trust line (restored from baseline) */}
-                <div className="flex items-center gap-4 text-xs text-slate-400 font-medium uppercase tracking-widest">
-                  <span>Free forever</span>
-                  <span className="h-1 w-1 rounded-full bg-slate-700" />
-                  <span>No credit card</span>
-                  <span className="h-1 w-1 rounded-full bg-slate-700" />
-                  <span>Setup in 2 min</span>
+                <div className="flex items-center gap-4 text-xs text-slate-500 font-medium uppercase tracking-widest">
+                  <span>Free forever</span><span className="h-1 w-1 rounded-full bg-slate-700" /><span>No credit card</span><span className="h-1 w-1 rounded-full bg-slate-700" /><span>Setup in 2 min</span>
                 </div>
               </Reveal>
 
-              {/* Right column: dashboard mockup + stat cards — hidden on mobile to keep CTA above fold */}
               <div className="hidden lg:flex lg:col-span-2 flex-col gap-4">
-                {/* Dashboard mockup (product visual — fixes differentiation gap) */}
-                <Reveal delay={100} className="flex-[2]">
-                  <DashboardMockup />
-                </Reveal>
-
-                {/* Stat cards row */}
+                <Reveal delay={100} className="flex-[2]"><DashboardMockup /></Reveal>
                 <div className="grid grid-cols-2 gap-4">
                   <Reveal delay={200}>
                     <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-5 relative overflow-hidden">
                       <div className="absolute top-0 left-0 w-[100px] h-[100px] bg-violet-500/[0.1] blur-[50px] rounded-full pointer-events-none" />
-                      <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent mb-1">
-                        <AnimatedCounter target={48} />
-                      </div>
+                      <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent mb-1"><AnimatedCounter target={48} /></div>
                       <div className="text-xs text-slate-400">AI Workers</div>
                     </div>
                   </Reveal>
                   <Reveal delay={300}>
                     <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-5 relative overflow-hidden">
                       <div className="absolute bottom-0 right-0 w-[100px] h-[100px] bg-cyan-500/[0.08] blur-[50px] rounded-full pointer-events-none" />
-                      <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent mb-1">
-                        <AnimatedCounter target={6} />
-                      </div>
+                      <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent mb-1"><AnimatedCounter target={6} /></div>
                       <div className="text-xs text-slate-400">Distribution Engines</div>
                     </div>
                   </Reveal>
                 </div>
               </div>
 
-              {/* Mobile-only compact stats — inline row below hero text */}
               <div className="flex lg:hidden gap-3 mt-2">
-                <div className="flex-1 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-center">
-                  <div className="text-2xl font-black bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">48</div>
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">AI Workers</div>
-                </div>
-                <div className="flex-1 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-center">
-                  <div className="text-2xl font-black bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">6</div>
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">Engines</div>
-                </div>
-                <div className="flex-1 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-center">
-                  <div className="text-2xl font-black bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">10+</div>
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">Playbooks</div>
-                </div>
+                {[
+                  { v: '48', l: 'AI Workers', c: 'from-indigo-400 to-violet-400' },
+                  { v: '6', l: 'Engines', c: 'from-cyan-400 to-indigo-400' },
+                  { v: '10+', l: 'Playbooks', c: 'from-amber-400 to-orange-400' },
+                ].map(({ v, l, c }) => (
+                  <div key={l} className="flex-1 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-center">
+                    <div className={`text-2xl font-black bg-gradient-to-r ${c} bg-clip-text text-transparent`}>{v}</div>
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">{l}</div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Bottom bento row: 3 metric cards — hidden on mobile (covered by compact stats above) */}
             <div className="hidden sm:grid sm:grid-cols-3 gap-4">
-              <Reveal>
-                <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/[0.04] p-5 flex items-center gap-4 hover:border-indigo-500/30 transition-all duration-300">
-                  <div className="w-11 h-11 rounded-xl bg-indigo-500/15 flex items-center justify-center text-indigo-400 shrink-0">
-                    <FileText size={18} />
+              {[
+                { icon: FileText, val: '10+', label: 'Ready-to-use playbooks', accent: 'indigo' },
+                { icon: TrendingUp, val: '2 min', label: 'Setup to first run', accent: 'cyan' },
+                { icon: Globe, val: '24/7', label: 'Workers run while you sleep', accent: 'violet' },
+              ].map(({ icon: Ic, val, label, accent }, i) => (
+                <Reveal key={label} delay={i * 80}>
+                  <div className={`rounded-2xl border ${i === 0 ? 'border-indigo-500/20 bg-indigo-500/[0.04]' : 'border-white/[0.06] bg-white/[0.02]'} p-5 flex items-center gap-4 hover:border-indigo-500/20 transition-all duration-300`}>
+                    <div className={`w-11 h-11 rounded-xl bg-${accent}-500/10 flex items-center justify-center text-${accent}-400 shrink-0`}><Ic size={18} /></div>
+                    <div>
+                      <div className="text-white font-black text-2xl">{val}</div>
+                      <div className="text-slate-400 text-xs">{label}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-white font-black text-2xl">10+</div>
-                    <div className="text-slate-400 text-xs">Ready-to-use playbooks</div>
-                  </div>
-                </div>
-              </Reveal>
-              <Reveal delay={80}>
-                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 flex items-center gap-4 hover:border-indigo-500/20 transition-all duration-300">
-                  <div className="w-11 h-11 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 shrink-0">
-                    <TrendingUp size={18} />
-                  </div>
-                  <div>
-                    <div className="text-white font-black text-2xl">2 min</div>
-                    <div className="text-slate-400 text-xs">Setup to first run</div>
-                  </div>
-                </div>
-              </Reveal>
-              <Reveal delay={160}>
-                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 flex items-center gap-4 hover:border-indigo-500/20 transition-all duration-300">
-                  <div className="w-11 h-11 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-400 shrink-0">
-                    <Globe size={18} />
-                  </div>
-                  <div>
-                    <div className="text-white font-black text-2xl">24/7</div>
-                    <div className="text-slate-400 text-xs">Workers run while you sleep</div>
-                  </div>
-                </div>
-              </Reveal>
+                </Reveal>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* ── Problem bridge: Hero → Engines ── */}
         <Reveal className="max-w-3xl mx-auto px-4 sm:px-6 py-8 text-center">
-          <p className="text-slate-400 text-sm leading-relaxed">
-            Most solo founders build great products but struggle with distribution — it&apos;s invisible, time-consuming, and impossible to scale alone. {APP_NAME} changes that.
-          </p>
+          <p className="text-slate-400 text-sm leading-relaxed">Most solo founders build great products but struggle with distribution — it&apos;s invisible, time-consuming, and impossible to scale alone. {APP_NAME} changes that.</p>
         </Reveal>
 
-        {/* ── 6 Engines — Asymmetric bento (V1) + hover glow (V3) ── */}
-        <section id="engines" className="max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28 border-t border-white/[0.04]">
+        {/* ── ENGINES — Dark Grid cards with corner squares ── */}
+        <section id="engines" className="max-w-6xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
           <Reveal>
-            <div className="text-center mb-14">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
-                Six Engines.{' '}
-                <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">One Mission.</span>
-              </h2>
-              <p className="text-slate-400 text-base sm:text-lg max-w-xl mx-auto">
-                Each engine targets a different growth channel. Activate the ones that fit your product.
-              </p>
-            </div>
+            <p className="text-xs tracking-widest text-slate-500 uppercase mb-3">[ CAPABILITIES ]</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
+              Six Engines.{' '}<span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">One Mission.</span>
+            </h2>
+            <p className="text-slate-400 text-base sm:text-lg max-w-xl mb-12">Each engine targets a different growth channel. Activate the ones that fit your product.</p>
           </Reveal>
 
-          {/* Row 1: 1 large (2-col) + 1 small */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-            <Reveal className="lg:col-span-2">
-              <EngineCardLarge engine={ENGINES[0]} />
-            </Reveal>
-            <Reveal delay={100}>
-              <EngineCard engine={ENGINES[1]} />
-            </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {ENGINES.map(({ name, color, icon: Icon, workers, desc, tags, metric }, i) => (
+              <Reveal key={name} delay={i * 60}>
+                <SpotlightCard spotlightColor={`${color}25`} className="rounded-xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-white/[0.01] p-6 transition-all duration-300 hover:border-white/[0.12] h-full">
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-xl border border-white/[0.08] bg-white/[0.04] flex items-center justify-center" style={{ color }}><Icon size={18} /></div>
+                      <div>
+                        <h3 className="text-white font-semibold text-base">{name}</h3>
+                        <span className="text-[11px] text-slate-500">{workers} workers</span>
+                      </div>
+                    </div>
+                    <p className="text-slate-400 text-sm leading-relaxed mb-3">{desc}</p>
+                    {metric && <p className="text-sm font-bold mb-3" style={{ color }}>{metric}</p>}
+                    <div className="flex gap-1.5 flex-wrap">
+                      {tags.map(tag => <span key={tag} className="px-2.5 py-0.5 rounded-full text-[11px] border border-white/[0.06] bg-white/[0.02] text-slate-500">{tag}</span>)}
+                    </div>
+                  </div>
+                </SpotlightCard>
+              </Reveal>
+            ))}
           </div>
-
-          {/* Row 2: 1 small + 1 large (2-col) */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-            <Reveal>
-              <EngineCard engine={ENGINES[2]} />
-            </Reveal>
-            <Reveal delay={100} className="lg:col-span-2">
-              <EngineCardLarge engine={ENGINES[3]} />
-            </Reveal>
-          </div>
-
-          {/* Row 3: 2 equal */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Reveal>
-              <EngineCard engine={ENGINES[4]} />
-            </Reveal>
-            <Reveal delay={100}>
-              <EngineCard engine={ENGINES[5]} />
-            </Reveal>
-          </div>
-
-          {/* Mid-page CTA */}
           <InlineCta text="Start Free — All 6 Engines Included" trust="No credit card required" />
         </section>
 
-        {/* ── How It Works — Vertical timeline (V2) ── */}
-        <section id="how-it-works" className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-28 border-t border-white/[0.04]">
+        {/* ── HOW IT WORKS ── */}
+        <section id="how-it-works" className="max-w-4xl mx-auto px-4 sm:px-6 py-16 sm:py-20 border-t border-white/[0.04]">
           <Reveal>
-            <div className="text-center mb-14">
+            <div className="text-center mb-10">
               <p className="text-indigo-400 text-sm font-semibold uppercase tracking-wider mb-3">How it works</p>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
-                From Zero to Distribution in{' '}
-                <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">4 Steps</span>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
+                From Zero to Distribution in{' '}<span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">4 Steps</span>
               </h2>
             </div>
           </Reveal>
-
           <div className="relative">
-            {/* Vertical line */}
             <div className="absolute left-6 sm:left-8 top-0 bottom-0 w-px bg-gradient-to-b from-indigo-500/40 via-violet-500/30 to-transparent" />
-
-            <div className="space-y-10">
+            <div className="space-y-6">
               {STEPS.map(({ num, title, desc, output, icon: Icon }, i) => (
-                <Reveal key={num} delay={i * 150} className="relative pl-16 sm:pl-20">
+                <Reveal key={num} delay={i * 100} className="relative pl-16 sm:pl-20">
                   <div className="absolute left-0 top-0 w-12 sm:w-16 flex justify-center">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-                      <Icon size={20} />
-                    </div>
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20"><Icon size={20} /></div>
                   </div>
                   <div className="pt-1">
                     <span className="text-xs font-mono text-indigo-400/70 tracking-wider">{num}</span>
@@ -469,88 +442,36 @@ export function Landing() {
           </div>
         </section>
 
-        {/* ── Bridge: How It Works → Testimonials ── */}
-        <Reveal className="max-w-4xl mx-auto px-4 sm:px-6 pb-6 text-center">
-          <p className="text-slate-500 text-sm">That&apos;s it. Four steps to automated distribution. Here&apos;s what founders say about the results.</p>
-        </Reveal>
-
-        {/* ── Testimonials — Bento 1-large + 2-stacked (V1) ── */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28 border-t border-white/[0.04]">
+        {/* ── TESTIMONIALS — Scrolling marquee columns ── */}
+        <section className="py-16 sm:py-20 border-t border-white/[0.04] overflow-hidden">
           <Reveal>
-            <div className="text-center mb-14">
-              <p className="text-amber-400 text-sm font-semibold uppercase tracking-wider mb-3">From the community</p>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
-                Trusted by Solo Founders{' '}
-                <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Worldwide</span>
+            <div className="text-center mb-10 px-4">
+              <p className="text-amber-400 text-sm font-semibold uppercase tracking-wider mb-3">Testimonials</p>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
+                Trusted by Solo Founders{' '}<span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Worldwide</span>
               </h2>
             </div>
           </Reveal>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Featured testimonial */}
-            <Reveal>
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8 sm:p-10 flex flex-col justify-between h-full">
-                <div>
-                  <div className="flex gap-1 mb-6">
-                    {[...Array(5)].map((_, i) => <Star key={i} size={16} className="text-amber-400 fill-amber-400" />)}
-                  </div>
-                  <p className="text-slate-200 text-lg sm:text-xl leading-relaxed mb-8">&ldquo;{TESTIMONIALS[0].quote}&rdquo;</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white text-sm font-bold">{TESTIMONIALS[0].initials}</div>
-                  <div>
-                    <p className="text-white font-semibold">{TESTIMONIALS[0].name}</p>
-                    <p className="text-slate-500 text-sm">{TESTIMONIALS[0].role}</p>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
-            {/* Stacked smaller testimonials */}
-            <div className="flex flex-col gap-4">
-              {TESTIMONIALS.slice(1).map(({ quote, name, role, initials }, i) => (
-                <Reveal key={name} delay={(i + 1) * 100}>
-                  <div className="flex-1 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 sm:p-7 flex flex-col justify-between">
-                    <div>
-                      <div className="flex gap-1 mb-4">
-                        {[...Array(5)].map((_, j) => <Star key={j} size={13} className="text-amber-400 fill-amber-400" />)}
-                      </div>
-                      <p className="text-slate-300 text-sm leading-relaxed mb-5">&ldquo;{quote}&rdquo;</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white text-xs font-bold">{initials}</div>
-                      <div>
-                        <p className="text-white text-sm font-semibold">{name}</p>
-                        <p className="text-slate-500 text-xs">{role}</p>
-                      </div>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
+          <div className="flex justify-center gap-4 max-w-5xl mx-auto px-4 max-h-[500px]" style={{
+            maskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)',
+            WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)',
+          }}>
+            <MarqueeColumn testimonials={TESTIMONIALS.slice(0, 3)} speed={20} className="w-80" />
+            <MarqueeColumn testimonials={TESTIMONIALS.slice(3, 6)} speed={28} className="w-80 hidden md:block" />
+            <MarqueeColumn testimonials={[...TESTIMONIALS.slice(2, 5)]} speed={24} className="w-80 hidden lg:block" />
           </div>
-
-          {/* Mid-page CTA */}
           <InlineCta text="Join Them — Start Free" trust="Free forever, cancel anytime" />
         </section>
 
-        {/* ── Bridge: Testimonials → Pricing ── */}
-        <Reveal className="max-w-3xl mx-auto px-4 sm:px-6 pb-6 text-center">
-          <p className="text-slate-500 text-sm">Ready to join them? Pick a plan that fits your stage.</p>
-        </Reveal>
-
-        {/* ── Pricing ── */}
-        <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28 border-t border-white/[0.04]">
+        {/* ── PRICING — Inverted featured tier ── */}
+        <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20 border-t border-white/[0.04]">
           <Reveal>
-            <div className="text-center mb-14">
+            <div className="text-center mb-10">
               <p className="text-indigo-400 text-sm font-semibold uppercase tracking-wider mb-3">Pricing</p>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
-                Simple pricing.{' '}
-                <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">Scale when ready.</span>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
+                Simple pricing.{' '}<span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">Scale when ready.</span>
               </h2>
-              <p className="text-slate-400 text-base sm:text-lg max-w-lg mx-auto">
-                Start free. Upgrade when you need more products, AI runs, and advanced features.
-              </p>
+              <p className="text-slate-400 text-base sm:text-lg max-w-lg mx-auto">Start free. Upgrade when you need more products, AI runs, and advanced features.</p>
             </div>
           </Reveal>
 
@@ -571,16 +492,11 @@ export function Landing() {
                     <span className="text-4xl font-black text-white">{price}</span>
                     <span className="text-sm text-slate-500">{period}</span>
                   </div>
-                  <Link
-                    to="/signup"
-                    className={`w-full py-3 min-h-[44px] rounded-xl text-center text-sm font-semibold transition-all duration-300 mb-6 block ${
-                      highlighted
-                        ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]'
-                        : 'border border-slate-700 text-slate-300 hover:bg-white/[0.04] hover:border-slate-600'
-                    }`}
-                  >
-                    {cta}
-                  </Link>
+                  <Link to="/signup" className={`w-full py-3 min-h-[44px] rounded-xl text-center text-sm font-semibold transition-all duration-300 mb-6 block ${
+                    highlighted
+                      ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]'
+                      : 'border border-slate-700 text-slate-300 hover:bg-white/[0.04] hover:border-slate-600'
+                  }`}>{cta}</Link>
                   <ul className="space-y-3 flex-1">
                     {features.map(f => (
                       <li key={f} className="flex items-center gap-2.5 text-sm text-slate-400">
@@ -594,60 +510,55 @@ export function Landing() {
             ))}
           </div>
 
-          {/* AI run explanation + CTA */}
           <Reveal className="mt-8 text-center">
             <p className="text-slate-500 text-xs max-w-md mx-auto mb-2">
-              An <span className="text-slate-400 font-medium">AI run</span> is one execution of an AI worker — writing a blog post, auditing your SEO, crafting outreach emails, or analyzing competitors. Each run produces a concrete deliverable.
+              An <span className="text-slate-400 font-medium">AI run</span> is one execution of an AI worker — writing a blog post, auditing your SEO, crafting outreach emails, or analyzing competitors.
             </p>
           </Reveal>
           <InlineCta text="Start Free — Upgrade Anytime" trust="No credit card required. Cancel in one click." />
         </section>
 
-        {/* ── FAQ (moved before Final CTA for better flow) ── */}
-        <section id="faq" className="max-w-3xl mx-auto px-4 sm:px-6 py-20 sm:py-28 border-t border-white/[0.04]">
+        {/* ── FAQ — Single card with dashed dividers ── */}
+        <section id="faq" className="max-w-2xl mx-auto px-4 sm:px-6 py-16 sm:py-20 border-t border-white/[0.04]">
           <Reveal>
-            <div className="text-center mb-14">
-              <p className="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-3">FAQ</p>
-              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-                Got{' '}
-                <span className="bg-gradient-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent">Questions?</span>
-              </h2>
+            <div className="text-center mb-10">
+              <p className="text-indigo-400 text-sm font-semibold uppercase tracking-wider mb-3">FAQ</p>
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Got{' '}<span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">Questions?</span></h2>
             </div>
           </Reveal>
 
-          <div className="space-y-3">
+          <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] overflow-hidden">
             {FAQS.map(({ q, a }, i) => (
-              <Reveal key={i} delay={i * 50}>
-                <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
-                  <button
-                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full flex items-center justify-between px-5 py-4 min-h-[56px] text-left text-white font-medium text-sm hover:bg-white/[0.02] transition-colors"
-                  >
-                    {q}
-                    <ChevronDown size={16} className={`text-slate-500 shrink-0 ml-3 transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`} />
-                  </button>
-                  {openFaq === i && <div className="px-5 pb-4 text-sm text-slate-400 leading-relaxed">{a}</div>}
+              <div key={i} className={i > 0 ? 'border-t border-dashed border-white/[0.08]' : ''}>
+                <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between px-6 py-5 min-h-[56px] text-left text-white font-medium text-sm hover:bg-white/[0.02] transition-colors">
+                  {q}
+                  <ChevronDown size={16} className={`text-slate-500 shrink-0 ml-3 transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`} />
+                </button>
+                <div className={`grid transition-all duration-200 ${openFaq === i ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                  <div className="overflow-hidden">
+                    <div className="px-6 pb-5 text-sm text-slate-400 leading-relaxed">{a}</div>
+                  </div>
                 </div>
-              </Reveal>
+              </div>
             ))}
           </div>
-
-          {/* CTA after FAQ (high-intent capture) */}
           <InlineCta text="Start Building for Free" trust="Setup takes 2 minutes, no credit card" />
         </section>
 
-        {/* ── Final CTA ── */}
+        {/* ── FINAL CTA — Grid background ── */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-20 sm:pb-28">
           <Reveal>
-            <div className="rounded-[2rem] bg-gradient-to-br from-indigo-600/20 via-violet-600/20 to-purple-600/20 border border-indigo-500/20 p-10 sm:p-16 lg:p-24 text-center relative overflow-hidden">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none" />
-              <div className="absolute bottom-0 right-1/4 w-[300px] h-[200px] bg-violet-500/[0.08] blur-[80px] rounded-full pointer-events-none" />
-
+            <div className="rounded-[2rem] border border-indigo-500/20 bg-gradient-to-b from-indigo-500/[0.06] to-white/[0.02] p-10 sm:p-16 lg:p-24 text-center relative overflow-hidden shadow-[0_0_80px_rgba(99,102,241,0.08)]">
+              <div className="absolute inset-0 opacity-40" style={{
+                backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)',
+                backgroundSize: '3rem 3rem',
+                maskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%)',
+                WebkitMaskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%)',
+              }} />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-indigo-500/15 blur-[120px] rounded-full pointer-events-none" />
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6 relative z-10">Ready to automate your distribution?</h2>
-              <p className="text-lg text-slate-400 max-w-xl mx-auto mb-10 relative z-10">
-                Join solo founders who automated their growth with {APP_NAME}. Cancel anytime. No lock-in. Your data stays 30 days.
-              </p>
-              <Link to="/signup" className="inline-flex items-center gap-2 px-10 py-5 rounded-2xl bg-white text-[#0d0d1c] font-black text-lg hover:bg-slate-100 transition-colors shadow-2xl shadow-white/10 relative z-10">
+              <p className="text-lg text-slate-400 max-w-xl mx-auto mb-10 relative z-10">Join solo founders who automated their growth with {APP_NAME}. Cancel anytime. No lock-in.</p>
+              <Link to="/signup" className="inline-flex items-center gap-2 px-10 py-5 rounded-2xl bg-white text-[#0a0a0a] font-black text-lg hover:bg-slate-100 transition-colors shadow-[0_0_40px_rgba(255,255,255,0.1)] relative z-10">
                 Claim Your 48 AI Workers <ArrowRight size={18} />
               </Link>
             </div>
@@ -655,22 +566,14 @@ export function Landing() {
         </section>
       </main>
 
-      {/* ── Footer — expanded with legal links ── */}
-      <footer className="border-t border-white/[0.04] bg-[#0a0a16] relative z-10">
+      {/* ── Footer ── */}
+      <footer className="border-t border-white/[0.04] bg-[#050508] relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
-            {/* Brand */}
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Logo />
-                <span className="font-black text-white text-lg">{APP_NAME}</span>
-              </div>
-              <p className="text-slate-500 text-sm leading-relaxed">
-                The AI-powered distribution OS for solo SaaS founders. 48 workers, 6 engines, one mission.
-              </p>
+              <div className="flex items-center gap-2 mb-3"><Logo /><span className="font-black text-white text-lg">{APP_NAME}</span></div>
+              <p className="text-slate-500 text-sm leading-relaxed">The AI-powered distribution OS for solo SaaS founders. 48 workers, 6 engines, one mission.</p>
             </div>
-
-            {/* Product */}
             <div>
               <h4 className="text-white font-semibold text-sm mb-4">Product</h4>
               <ul className="space-y-2.5">
@@ -680,8 +583,6 @@ export function Landing() {
                 <li><a href="#faq" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">FAQ</a></li>
               </ul>
             </div>
-
-            {/* Account */}
             <div>
               <h4 className="text-white font-semibold text-sm mb-4">Account</h4>
               <ul className="space-y-2.5">
@@ -689,8 +590,6 @@ export function Landing() {
                 <li><Link to="/signup" className="text-slate-500 text-sm hover:text-slate-300 transition-colors">Sign Up</Link></li>
               </ul>
             </div>
-
-            {/* Legal */}
             <div>
               <h4 className="text-white font-semibold text-sm mb-4">Legal</h4>
               <ul className="space-y-2.5">
@@ -700,84 +599,12 @@ export function Landing() {
               </ul>
             </div>
           </div>
-
-          {/* Bottom bar */}
           <div className="pt-8 border-t border-white/[0.04] flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-slate-500 text-xs">&copy; {new Date().getFullYear()} Predivo GmbH. All rights reserved.</p>
             <p className="text-slate-500 text-xs">Made in Switzerland</p>
           </div>
         </div>
       </footer>
-    </div>
-  )
-}
-
-/* ── Engine Card Components ── */
-function EngineCard({ engine }: { engine: typeof ENGINES[0] }) {
-  const { name, color, icon: Icon, workers, desc, tags, metric } = engine
-  return (
-    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 hover:border-white/[0.12] transition-all duration-500 group relative overflow-hidden h-full">
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: `radial-gradient(circle at 30% 30%, ${color}10, transparent 70%)` }} />
-      <div className="relative z-10">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-500 group-hover:shadow-[0_0_16px_var(--glow)]" style={{ backgroundColor: `${color}15`, color, '--glow': `${color}40` } as React.CSSProperties}>
-            <Icon size={16} />
-          </div>
-          <div>
-            <h3 className="text-white font-bold text-base">{name}</h3>
-            <span className="text-[11px] text-slate-500">{workers} workers</span>
-          </div>
-        </div>
-        <p className="text-slate-400 text-sm leading-relaxed mb-2">{desc}</p>
-        {metric && (
-          <p className="text-sm font-bold mb-3" style={{ color }}>{metric}</p>
-        )}
-        <div className="flex gap-1.5 flex-wrap">
-          {tags.map(tag => (
-            <span key={tag} className="px-2.5 py-0.5 rounded-full text-[11px] border border-white/[0.06] bg-white/[0.02] text-slate-500">{tag}</span>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function EngineCardLarge({ engine }: { engine: typeof ENGINES[0] }) {
-  const { name, color, icon: Icon, workers, desc, tags, example, metric } = engine
-  return (
-    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-7 sm:p-8 hover:border-white/[0.12] transition-all duration-500 group relative overflow-hidden h-full">
-      <div className="absolute top-0 right-0 w-[200px] h-[200px] blur-[80px] rounded-full pointer-events-none" style={{ backgroundColor: `${color}10` }} />
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: `radial-gradient(circle at 30% 30%, ${color}10, transparent 70%)` }} />
-      <div className="relative z-10">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:shadow-[0_0_20px_var(--glow)]" style={{ backgroundColor: `${color}15`, color, '--glow': `${color}40` } as React.CSSProperties}>
-              <Icon size={18} />
-            </div>
-            <div>
-              <h3 className="text-white font-bold text-xl">{name}</h3>
-              <span className="text-xs text-slate-500">{workers} workers</span>
-            </div>
-          </div>
-          {metric && (
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold" style={{ borderColor: `${color}30`, color }}>
-              <TrendingUp size={12} />
-              {metric}
-            </div>
-          )}
-        </div>
-        <p className="text-slate-400 text-sm leading-relaxed max-w-md mb-3">{desc}</p>
-        {example && (
-          <p className="text-slate-500 text-xs leading-relaxed mb-4 pl-3 border-l-2" style={{ borderColor: `${color}40` }}>
-            {example}
-          </p>
-        )}
-        <div className="flex gap-2 flex-wrap">
-          {tags.map(tag => (
-            <span key={tag} className="px-3 py-1 rounded-full text-xs border border-white/[0.06] bg-white/[0.02] text-slate-400">{tag}</span>
-          ))}
-        </div>
-      </div>
     </div>
   )
 }

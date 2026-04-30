@@ -98,8 +98,8 @@ describe('Landing Page', () => {
 
   it('renders testimonials', () => {
     renderLanding()
-    expect(screen.getByText('Sarah Chen')).toBeInTheDocument()
-    expect(screen.getByText('Marcus Rivera')).toBeInTheDocument()
-    expect(screen.getByText('Aisha Patel')).toBeInTheDocument()
+    expect(screen.getAllByText('Sarah Chen').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Marcus Rivera').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Aisha Patel').length).toBeGreaterThanOrEqual(1)
   })
 })
