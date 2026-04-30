@@ -588,7 +588,7 @@ export function Landing() {
                 WebkitMaskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%)',
               }} />
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-indigo-500/15 blur-[120px] rounded-full pointer-events-none" />
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6 relative z-10">Ready to automate your distribution?</h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-6 relative z-10 text-balance">Ready to automate<br className="hidden sm:inline" /> your distribution?</h2>
               <p className="text-lg text-slate-400 max-w-xl mx-auto mb-10 relative z-10">Join solo founders who automated their growth with {APP_NAME}. Cancel anytime. No lock-in.</p>
               <Link to="/signup" className="inline-flex items-center gap-2 px-10 py-5 rounded-2xl bg-white text-[#0a0a0a] font-black text-lg hover:bg-slate-100 transition-colors shadow-[0_0_40px_rgba(255,255,255,0.1)] relative z-10">
                 Claim Your 48 AI Workers <ArrowRight size={18} />
