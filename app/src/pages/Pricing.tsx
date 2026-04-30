@@ -85,7 +85,7 @@ export function Pricing() {
                   {badge}
                 </div>
               )}
-              <h2 className="text-white font-bold text-lg mb-1">{name}</h2>
+              <h3 className="text-white font-bold text-lg mb-1">{name}</h3>
               <p className="text-slate-500 text-sm mb-4">{desc}</p>
               <div className="flex items-baseline gap-1 mb-6">
                 <span className="text-4xl font-black text-white">{price}</span>

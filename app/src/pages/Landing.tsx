@@ -423,7 +423,7 @@ export function Landing() {
         {/* ── ENGINES — Dark Grid cards with corner squares ── */}
         <section id="engines" className="max-w-6xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
           <Reveal>
-            <p className="text-xs tracking-widest text-slate-500 uppercase mb-3">[ CAPABILITIES ]</p>
+            <p className="text-indigo-400 text-sm font-semibold uppercase tracking-wider mb-3">Capabilities</p>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
               Six Engines.{' '}<span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">One Mission.</span>
             </h2>
@@ -567,7 +567,7 @@ export function Landing() {
           <Reveal>
             <div className="text-center mb-10">
               <p className="text-indigo-400 text-sm font-semibold uppercase tracking-wider mb-3">FAQ</p>
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Got{' '}<span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">Questions?</span></h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">Got{' '}<span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">Questions?</span></h2>
             </div>
           </Reveal>
 
