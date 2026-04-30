@@ -47,6 +47,14 @@ export function useAuth() {
     if (error) throw error
   }, [])
 
+  const sendLoginOtp = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false },
+    })
+    if (error) throw error
+  }, [])
+
   const verifyOtp = useCallback(async (email: string, token: string) => {
     const { data, error } = await supabase.auth.verifyOtp({
       email,
@@ -80,6 +88,7 @@ export function useAuth() {
     signIn,
     signUp,
     sendOtp,
+    sendLoginOtp,
     verifyOtp,
     resetPassword,
     updatePassword,

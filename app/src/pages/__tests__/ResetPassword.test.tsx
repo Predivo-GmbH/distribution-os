@@ -16,6 +16,7 @@ vi.mock('@/hooks/useAuth', () => ({
     signIn: vi.fn(),
     signUp: vi.fn(),
     sendOtp: vi.fn(),
+    sendLoginOtp: vi.fn(),
     verifyOtp: vi.fn(),
     signOut: vi.fn(),
   }),
@@ -50,7 +51,7 @@ describe('ResetPassword Page', () => {
 
   it('has back to login link', () => {
     renderResetPassword()
-    expect(screen.getByRole('link', { name: 'Back to Login' })).toHaveAttribute('href', '/login')
+    expect(screen.getByRole('link', { name: /Back to Login/ })).toHaveAttribute('href', '/login')
   })
 
   it('shows app branding', () => {

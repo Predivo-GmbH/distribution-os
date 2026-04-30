@@ -9,12 +9,13 @@ import { APP_NAME } from '@/lib/app-config'
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({
     signIn: vi.fn().mockResolvedValue(undefined),
+    sendLoginOtp: vi.fn().mockResolvedValue(undefined),
+    verifyOtp: vi.fn().mockResolvedValue({ isNewUser: false }),
     user: null,
     loading: false,
     session: null,
     signUp: vi.fn(),
     sendOtp: vi.fn(),
-    verifyOtp: vi.fn(),
     resetPassword: vi.fn(),
     updatePassword: vi.fn(),
     signOut: vi.fn(),
@@ -37,7 +38,13 @@ describe('Login Page', () => {
     expect(screen.getByText('Welcome back')).toBeInTheDocument()
   })
 
-  it('renders email and password inputs', () => {
+  it('renders password and email code tabs', () => {
+    renderLogin()
+    expect(screen.getByRole('button', { name: 'Password' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Email Code' })).toBeInTheDocument()
+  })
+
+  it('renders email and password inputs on password tab', () => {
     renderLogin()
     expect(screen.getByPlaceholderText('you@example.com')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Enter your password')).toBeInTheDocument()

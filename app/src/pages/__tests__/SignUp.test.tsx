@@ -15,6 +15,7 @@ vi.mock('@/hooks/useAuth', () => ({
     loading: false,
     session: null,
     signIn: vi.fn(),
+    sendLoginOtp: vi.fn(),
     resetPassword: vi.fn(),
     updatePassword: vi.fn(),
     signOut: vi.fn(),
@@ -61,5 +62,12 @@ describe('SignUp Page', () => {
   it('email input is required', () => {
     renderSignUp()
     expect(screen.getByPlaceholderText('you@example.com')).toBeRequired()
+  })
+
+  it('renders step indicator dots', () => {
+    renderSignUp()
+    // 3 step dots should be present
+    const dots = document.querySelectorAll('.rounded-full')
+    expect(dots.length).toBeGreaterThanOrEqual(3)
   })
 })
