@@ -298,11 +298,11 @@ export function Landing() {
       <MobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 
       {/* ── NAV — Floating centered pill ── */}
-      <nav className="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] sm:w-auto">
-        <div className="flex items-center justify-between gap-6 sm:gap-8 px-5 sm:px-6 py-3 rounded-full border border-white/[0.08] bg-white/[0.04] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+      <nav className="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] lg:w-auto">
+        <div className="flex items-center justify-between lg:justify-start gap-4 lg:gap-6 px-5 lg:px-6 py-3 rounded-full border border-white/[0.08] bg-white/[0.04] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <Logo />
-            <span className="font-bold text-white text-sm tracking-tight">{APP_NAME}</span>
+            <span className="font-bold text-white text-sm tracking-tight whitespace-nowrap">{APP_NAME}</span>
           </Link>
           <div className="hidden lg:flex items-center gap-1">
             {[
@@ -311,12 +311,12 @@ export function Landing() {
               { label: 'Pricing', href: '#pricing' },
               { label: 'FAQ', href: '#faq' },
             ].map(({ label, href }) => (
-              <a key={label} href={href} className="px-3 py-1.5 min-h-[44px] inline-flex items-center rounded-full text-sm text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all">{label}</a>
+              <a key={label} href={href} className="px-3 py-1.5 min-h-[44px] inline-flex items-center whitespace-nowrap rounded-full text-sm text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all">{label}</a>
             ))}
           </div>
-          <div className="flex items-center gap-2">
-            <Link to="/login" className="hidden lg:inline-flex items-center min-h-[44px] text-sm text-slate-400 hover:text-white transition-colors px-3">Log In</Link>
-            <Link to="/signup" className="hidden lg:inline-flex items-center px-4 py-2 min-h-[44px] rounded-full bg-white text-black font-semibold text-sm hover:bg-slate-200 transition-all duration-200">Get Started</Link>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link to="/login" className="hidden lg:inline-flex items-center min-h-[44px] text-sm text-slate-400 hover:text-white transition-colors px-3 whitespace-nowrap">Log In</Link>
+            <Link to="/signup" className="hidden lg:inline-flex items-center px-4 py-2 min-h-[44px] rounded-full bg-white text-black font-semibold text-sm hover:bg-slate-200 transition-all duration-200 whitespace-nowrap">Get Started</Link>
             <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden w-11 h-11 flex items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-white/[0.06] min-h-[44px] min-w-[44px]" aria-label="Open menu"><Menu size={20} /></button>
           </div>
         </div>

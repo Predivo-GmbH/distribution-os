@@ -140,12 +140,16 @@ CREATE TRIGGER user_preferences_updated_at
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
-  INSERT INTO user_preferences (user_id) VALUES (NEW.id);
+  INSERT INTO public.user_preferences (user_id) VALUES (NEW.id);
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
