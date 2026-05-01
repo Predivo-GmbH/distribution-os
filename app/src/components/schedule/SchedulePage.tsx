@@ -32,6 +32,11 @@ export function SchedulePage() {
         </div>
       </div>
 
+      {/* Browser-only notice */}
+      <div className="p-3 rounded-lg bg-[var(--color-info-bg)] border border-[var(--color-info)]/20 text-sm text-[var(--color-info)]">
+        Automations currently run in your browser while the app is open. Server-side scheduling is coming soon.
+      </div>
+
       {/* Tabs */}
       <div className="flex gap-1 overflow-x-auto pb-1">
         {[

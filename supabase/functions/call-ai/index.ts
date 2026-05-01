@@ -1,5 +1,6 @@
 import { handleCors, createJsonResponse } from '../_shared/cors.ts'
 import { getSupabaseAdmin } from '../_shared/supabaseAdmin.ts'
+import { TIER_LIMITS, type SubscriptionTier } from '../_shared/tier-map.ts'
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')
 
@@ -30,6 +31,38 @@ Deno.serve(async (req: Request) => {
 
     if (!model || !messages) {
       return createJsonResponse(req, { error: 'Missing required fields: model, messages' }, 400)
+    }
+
+    // --- Tier-based AI run limit enforcement ---
+    const { data: prefs } = await admin
+      .from('user_preferences')
+      .select('subscription_tier')
+      .eq('user_id', user.id)
+      .single()
+
+    const tier: SubscriptionTier = (prefs?.subscription_tier as SubscriptionTier) ?? 'free'
+    const limit = TIER_LIMITS[tier]?.aiRunsPerMonth ?? TIER_LIMITS.free.aiRunsPerMonth
+
+    if (limit !== Infinity) {
+      const now = new Date()
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+      const { count, error: countError } = await admin
+        .from('ai_usage')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .gte('created_at', monthStart)
+
+      if (countError) {
+        return createJsonResponse(req, { error: 'Failed to check usage quota' }, 500)
+      }
+
+      if ((count ?? 0) >= limit) {
+        return createJsonResponse(req, {
+          error: `Monthly AI run limit reached (${count}/${limit}). Upgrade your plan for more runs.`,
+          code: 'QUOTA_EXCEEDED',
+          usage: { used: count, limit },
+        }, 429)
+      }
     }
 
     // Check for user's own API key (BYOK)

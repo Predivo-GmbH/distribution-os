@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react'
 import type { AppState, WorkerType } from '@/types'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { APP_NAME } from '@/lib/app-config'
-import { useSubscription } from '@/hooks/useSubscription'
 import { loadInbox } from '@/lib/storage'
-import { Loader2, Sparkles, FileText, PenTool, Video, Send, Copy, Download, Lock } from 'lucide-react'
+import { Loader2, Sparkles, FileText, PenTool, Video, Send, Copy, Download } from 'lucide-react'
 import { runProposalWriter, runContentWriter, runVideoScriptWriter, runOutreachDMWriter } from '@/lib/ai'
 
 type Tab = 'proposal' | 'content' | 'video' | 'outreach'
@@ -24,7 +23,6 @@ const TAB_WORKER_MAP: Record<Tab, WorkerType> = {
 }
 
 export function Proposals({ state }: { state: AppState }) {
-  const { limits } = useSubscription()
   const [productId, setProductId] = useState(state.products[0]?.id ?? '')
   const [activeTab, setActiveTab] = useState<Tab>('proposal')
   const [transcript, setTranscript] = useState('')
@@ -49,10 +47,6 @@ export function Proposals({ state }: { state: AppState }) {
 
   async function generate(tab: Tab) {
     if (!product) return
-    if (limits.aiRunsPerMonth === 0) {
-      setErrors(prev => ({ ...prev, [tab]: 'AI generation requires a paid plan. Upgrade to get started.' }))
-      return
-    }
     setLoading(prev => ({ ...prev, [tab]: true }))
     setErrors(prev => ({ ...prev, [tab]: '' }))
     try {
@@ -120,13 +114,6 @@ export function Proposals({ state }: { state: AppState }) {
         )}
       </div>
 
-      {limits.aiRunsPerMonth === 0 && (
-        <div className="p-3 rounded-lg bg-[var(--color-accent-light)] border border-[var(--color-accent)]/20 text-sm text-[var(--color-accent-text)]">
-          <Lock size={14} className="inline mr-1.5 -mt-0.5" />
-          AI generation requires a paid plan. Upgrade to Starter or above to use Proposals & Content.
-        </div>
-      )}
-
       {/* Tabs */}
       <div className="flex gap-1 overflow-x-auto pb-1">
         {TABS.map(({ key, label, icon: Icon }) => (
@@ -181,10 +168,10 @@ export function Proposals({ state }: { state: AppState }) {
             )}
             <button
               onClick={() => generate(activeTab)}
-              disabled={loading[activeTab] || !product || limits.aiRunsPerMonth === 0}
+              disabled={loading[activeTab] || !product}
               className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading[activeTab] ? <Loader2 size={12} className="animate-spin" /> : limits.aiRunsPerMonth === 0 ? <Lock size={12} /> : <Sparkles size={12} />}
+              {loading[activeTab] ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
               {loading[activeTab] ? 'Generating...' : results[activeTab] ? 'Regenerate' : 'Generate'}
             </button>
           </div>

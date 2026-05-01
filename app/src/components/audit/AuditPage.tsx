@@ -2,8 +2,7 @@ import { useState } from 'react'
 import type { AppState } from '@/types'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { APP_NAME } from '@/lib/app-config'
-import { useSubscription } from '@/hooks/useSubscription'
-import { Loader2, Sparkles, Shield, Search, Zap, Code, Eye, Paintbrush, Smartphone, Monitor, Copy, Download, Lock } from 'lucide-react'
+import { Loader2, Sparkles, Shield, Search, Zap, Code, Eye, Paintbrush, Smartphone, Monitor, Copy, Download } from 'lucide-react'
 import {
   runSecurityAudit, runSEOAudit, runPerformanceAudit, runCodeQualityAudit,
   runAccessibilityAudit, runUIConsistencyAudit, runResponsiveAudit, runMobileVisualAudit,
@@ -32,7 +31,6 @@ const DOMAINS: DomainDef[] = [
 ]
 
 export function AuditPage({ state }: { state: AppState }) {
-  const { limits } = useSubscription()
   const [productId, setProductId] = useState(state.products[0]?.id ?? '')
   const [repoContext, setRepoContext] = useState('')
   const [results, setResults] = useState<Record<Domain, string>>({
@@ -53,10 +51,6 @@ export function AuditPage({ state }: { state: AppState }) {
 
   async function runSingleAudit(domain: DomainDef) {
     if (!product) return
-    if (limits.aiRunsPerMonth === 0) {
-      setErrors(prev => ({ ...prev, [domain.key]: 'AI generation requires a paid plan. Upgrade to get started.' }))
-      return
-    }
     setLoading(prev => ({ ...prev, [domain.key]: true }))
     setErrors(prev => ({ ...prev, [domain.key]: '' }))
     try {
@@ -72,7 +66,6 @@ export function AuditPage({ state }: { state: AppState }) {
 
   async function runAllAudits() {
     if (!product) return
-    if (limits.aiRunsPerMonth === 0) return
     await Promise.all(DOMAINS.map(domain => runSingleAudit(domain)))
   }
 
@@ -136,13 +129,6 @@ export function AuditPage({ state }: { state: AppState }) {
         </div>
       </div>
 
-      {limits.aiRunsPerMonth === 0 && (
-        <div className="p-3 rounded-lg bg-[var(--color-accent-light)] border border-[var(--color-accent)]/20 text-sm text-[var(--color-accent-text)]">
-          <Lock size={14} className="inline mr-1.5 -mt-0.5" />
-          AI generation requires a paid plan. Upgrade to Starter or above to run audits.
-        </div>
-      )}
-
       {/* Repo context input */}
       <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
         <label className="block text-xs font-medium text-[var(--color-ink-muted)] mb-2">Project Context (optional)</label>
@@ -156,10 +142,10 @@ export function AuditPage({ state }: { state: AppState }) {
         <div className="mt-3 flex justify-end">
           <button
             onClick={runAllAudits}
-            disabled={isAnyLoading || !product || limits.aiRunsPerMonth === 0}
+            disabled={isAnyLoading || !product}
             className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
           >
-            {isAnyLoading ? <Loader2 size={12} className="animate-spin" /> : limits.aiRunsPerMonth === 0 ? <Lock size={12} /> : <Sparkles size={12} />}
+            {isAnyLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
             {isAnyLoading ? `Running (${completedCount}/8)...` : 'Run Full Audit'}
           </button>
         </div>
@@ -206,7 +192,7 @@ export function AuditPage({ state }: { state: AppState }) {
                   )}
                   <button
                     onClick={() => runSingleAudit(domain)}
-                    disabled={isLoading || !product || limits.aiRunsPerMonth === 0}
+                    disabled={isLoading || !product}
                     className="inline-flex items-center gap-1 px-3 py-1.5 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
                   >
                     {isLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}

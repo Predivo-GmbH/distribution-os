@@ -23,7 +23,17 @@ export async function runProductDefiner(product: Product) {
 7. **Success Metrics** — how the founder will know it's working (specific KPIs)
 8. **Anti-Features** — 3 things this product explicitly does NOT do (and why)
 
-Write in customer language, not technical jargon. Every section should be directly usable in marketing copy.`,
+Write in customer language, not technical jargon. Every section should be directly usable in marketing copy.
+
+IMPORTANT: At the very end of your response, include a \`\`\`kb-extract block with extracted knowledge base fields. Only include fields you are confident about. Format:
+\`\`\`kb-extract
+positioning_oneliner: [the one-liner from section 2]
+icp_who: [target persona from section 4]
+icp_pain: [problem statement from section 5]
+positioning_benefit_1: [first key benefit]
+positioning_benefit_2: [second key benefit]
+positioning_benefit_3: [third key benefit]
+\`\`\``,
   })
 }
 
@@ -45,6 +55,12 @@ export async function runOfferDesigner(product: Product) {
 7. **Comparison Positioning** — "Unlike [competitor], we [unique benefit]" statements
 8. **Launch Offer** — special limited-time offer for first 100 customers
 
-Be specific with numbers. Don't use generic pricing — calculate based on the product's value proposition.`,
+Be specific with numbers. Don't use generic pricing — calculate based on the product's value proposition.
+
+IMPORTANT: At the very end of your response, include a \`\`\`kb-extract block with extracted knowledge base fields. Only include fields you are confident about. Format:
+\`\`\`kb-extract
+positioning_competitor: [the primary competitor from section 7]
+positioning_switch_reason: [why customers should switch]
+\`\`\``,
   })
 }

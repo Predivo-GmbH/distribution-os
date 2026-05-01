@@ -1,6 +1,7 @@
 import { handleCors, createJsonResponse } from '../_shared/cors.ts'
 import { getSupabaseAdmin } from '../_shared/supabaseAdmin.ts'
 import Stripe from 'https://esm.sh/stripe@17?target=deno'
+import { PRICE_TO_TIER } from '../_shared/tier-map.ts'
 
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
 if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY env var')
@@ -28,7 +29,12 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { returnUrl } = await req.json()
+    const { returnUrl, priceId } = await req.json()
+
+    // Validate priceId against allowed tiers
+    if (!priceId || !PRICE_TO_TIER[priceId]) {
+      return createJsonResponse(req, { error: 'Invalid or missing priceId' }, 400)
+    }
 
     const appUrl = Deno.env.get('APP_URL') || 'https://distributionos.predivo.ch'
     const allowedOrigins = [appUrl, 'http://localhost:5173']
@@ -66,12 +72,7 @@ Deno.serve(async (req: Request) => {
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
-      line_items: [
-        {
-          price: Deno.env.get('STRIPE_PRO_PRICE_ID') ?? (() => { throw new Error('Missing STRIPE_PRO_PRICE_ID env var') })(),
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${returnUrl}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: returnUrl,
     })

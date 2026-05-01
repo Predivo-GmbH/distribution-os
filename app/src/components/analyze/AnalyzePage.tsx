@@ -2,14 +2,12 @@ import { useState } from 'react'
 import type { AppState } from '@/types'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { APP_NAME } from '@/lib/app-config'
-import { useSubscription } from '@/hooks/useSubscription'
-import { Loader2, Sparkles, Globe, ClipboardList, Copy, Download, Lock } from 'lucide-react'
+import { Loader2, Sparkles, Globe, ClipboardList, Copy, Download } from 'lucide-react'
 import { runSiteAnalyzer, runWebsiteAudit } from '@/lib/ai'
 
 type Tab = 'analyze' | 'audit'
 
 export function AnalyzePage({ state }: { state: AppState }) {
-  const { limits } = useSubscription()
   const [productId, setProductId] = useState(state.products[0]?.id ?? '')
   const [url, setUrl] = useState('')
   const [activeTab, setActiveTab] = useState<Tab>('analyze')
@@ -22,10 +20,6 @@ export function AnalyzePage({ state }: { state: AppState }) {
   async function run(tab: Tab) {
     if (!product || !url.trim()) {
       setErrors(prev => ({ ...prev, [tab]: 'Enter a URL to analyze.' }))
-      return
-    }
-    if (limits.aiRunsPerMonth === 0) {
-      setErrors(prev => ({ ...prev, [tab]: 'AI generation requires a paid plan. Upgrade to get started.' }))
       return
     }
     setLoading(prev => ({ ...prev, [tab]: true }))
@@ -73,13 +67,6 @@ export function AnalyzePage({ state }: { state: AppState }) {
           </select>
         )}
       </div>
-
-      {limits.aiRunsPerMonth === 0 && (
-        <div className="p-3 rounded-lg bg-[var(--color-accent-light)] border border-[var(--color-accent)]/20 text-sm text-[var(--color-accent-text)]">
-          <Lock size={14} className="inline mr-1.5 -mt-0.5" />
-          AI generation requires a paid plan. Upgrade to Starter or above to use Site Analysis.
-        </div>
-      )}
 
       {/* URL input */}
       <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
@@ -146,10 +133,10 @@ export function AnalyzePage({ state }: { state: AppState }) {
             )}
             <button
               onClick={() => run(activeTab)}
-              disabled={loading[activeTab] || !product || !url.trim() || limits.aiRunsPerMonth === 0}
+              disabled={loading[activeTab] || !product || !url.trim()}
               className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
             >
-              {loading[activeTab] ? <Loader2 size={12} className="animate-spin" /> : limits.aiRunsPerMonth === 0 ? <Lock size={12} /> : <Sparkles size={12} />}
+              {loading[activeTab] ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
               {loading[activeTab] ? 'Analyzing...' : results[activeTab] ? 'Re-analyze' : 'Analyze'}
             </button>
           </div>

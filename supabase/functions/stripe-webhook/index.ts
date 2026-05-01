@@ -1,4 +1,5 @@
 import { getSupabaseAdmin } from '../_shared/supabaseAdmin.ts'
+import { PRICE_TO_TIER, type SubscriptionTier } from '../_shared/tier-map.ts'
 import Stripe from 'https://esm.sh/stripe@17?target=deno'
 
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
@@ -6,6 +7,17 @@ if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY env var')
 const stripe = new Stripe(stripeKey, { apiVersion: '2025-04-30.basil' })
 const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
 if (!webhookSecret) throw new Error('Missing STRIPE_WEBHOOK_SECRET env var')
+
+/**
+ * Resolve tier from a Stripe subscription's line items.
+ */
+function resolveTier(subscription: Stripe.Subscription): SubscriptionTier {
+  for (const item of subscription.items.data) {
+    const tier = PRICE_TO_TIER[item.price.id]
+    if (tier) return tier
+  }
+  return 'free'
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') {
@@ -35,11 +47,14 @@ Deno.serve(async (req: Request) => {
       const customerId = session.customer as string
       const subscriptionId = session.subscription as string
 
-      // Find user by stripe_customer_id and upgrade to pro
+      // Fetch the full subscription to get price IDs
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+      const tier = resolveTier(subscription)
+
       const { error: checkoutError } = await admin
         .from('user_preferences')
         .update({
-          subscription_tier: 'pro',
+          subscription_tier: tier,
           stripe_subscription_id: subscriptionId,
         })
         .eq('stripe_customer_id', customerId)
@@ -53,11 +68,12 @@ Deno.serve(async (req: Request) => {
       const subscription = event.data.object as Stripe.Subscription
       const customerId = subscription.customer as string
       const isActive = subscription.status === 'active' || subscription.status === 'trialing'
+      const tier = isActive ? resolveTier(subscription) : 'free'
 
       const { error: updateError } = await admin
         .from('user_preferences')
         .update({
-          subscription_tier: isActive ? 'pro' : 'free',
+          subscription_tier: tier,
           stripe_subscription_id: subscription.id,
         })
         .eq('stripe_customer_id', customerId)

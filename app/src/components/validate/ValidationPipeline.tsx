@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
 import type { AppState, WorkerType } from '@/types'
-import { useSubscription } from '@/hooks/useSubscription'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { APP_NAME } from '@/lib/app-config'
 import { loadInbox, loadKnowledgeBase, saveKnowledgeBase } from '@/lib/storage'
-import { Loader2, Sparkles, Search, Target, Compass, PlayCircle, Lock } from 'lucide-react'
+import { Loader2, Sparkles, Search, Target, Compass, PlayCircle } from 'lucide-react'
 import { runMarketResearcher, runCompetitorAnalyst, runDistributionSpecialist, parseKBExtract } from '@/lib/ai'
 import type { KBExtract } from '@/lib/ai'
 
@@ -23,7 +22,6 @@ const SECTIONS = [
 ] as const
 
 export function ValidationPipeline({ state }: { state: AppState }) {
-  const { limits } = useSubscription()
   const [productId, setProductId] = useState(state.products[0]?.id ?? '')
   const [results, setResults] = useState<Record<Section, string>>({ market: '', competitor: '', distribution: '' })
   const [loading, setLoading] = useState<Record<Section, boolean>>({ market: false, competitor: false, distribution: false })
@@ -84,12 +82,6 @@ export function ValidationPipeline({ state }: { state: AppState }) {
 
   async function generate(section: Section) {
     if (!product) return
-
-    // Tier check: free tier gets 0 AI runs
-    if (limits.aiRunsPerMonth === 0) {
-      setErrors(prev => ({ ...prev, [section]: 'AI generation requires a paid plan. Upgrade to get started.' }))
-      return
-    }
 
     setLoading(prev => ({ ...prev, [section]: true }))
     setErrors(prev => ({ ...prev, [section]: '' }))
@@ -153,21 +145,14 @@ export function ValidationPipeline({ state }: { state: AppState }) {
           )}
           <button
             onClick={runAll}
-            disabled={isAnyLoading || !product || limits.aiRunsPerMonth === 0}
+            disabled={isAnyLoading || !product}
             className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isAnyLoading ? <Loader2 size={12} className="animate-spin" /> : limits.aiRunsPerMonth === 0 ? <Lock size={12} /> : <PlayCircle size={12} />}
+            {isAnyLoading ? <Loader2 size={12} className="animate-spin" /> : <PlayCircle size={12} />}
             {isAnyLoading ? 'Running...' : hasAllResults ? 'Regenerate All' : 'Run All 3'}
           </button>
         </div>
       </div>
-
-      {limits.aiRunsPerMonth === 0 && (
-        <div className="p-3 rounded-lg bg-[var(--color-accent-light)] border border-[var(--color-accent)]/20 text-sm text-[var(--color-accent-text)]">
-          <Lock size={14} className="inline mr-1.5 -mt-0.5" />
-          AI generation requires a paid plan. Upgrade to Starter or above to run validation agents.
-        </div>
-      )}
 
       {SECTIONS.map(({ key, label, icon: Icon, desc }) => (
         <div key={key} className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
@@ -178,7 +163,7 @@ export function ValidationPipeline({ state }: { state: AppState }) {
             </div>
             <button
               onClick={() => generate(key)}
-              disabled={loading[key] || !product || limits.aiRunsPerMonth === 0}
+              disabled={loading[key] || !product}
               className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading[key] ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}

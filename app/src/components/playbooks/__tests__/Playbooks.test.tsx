@@ -9,7 +9,7 @@ import type { AppState } from '@/types'
 vi.mock('@/hooks/useSubscription', () => ({
   useSubscription: () => ({ tier: 'starter', isPaid: true, limits: { maxProducts: 2, aiRunsPerMonth: 5 }, loading: false }),
   TIER_LIMITS: {
-    free: { maxProducts: 1, aiRunsPerMonth: 0 },
+    free: { maxProducts: 1, aiRunsPerMonth: 3 },
     starter: { maxProducts: 2, aiRunsPerMonth: 5 },
     growth: { maxProducts: 5, aiRunsPerMonth: 25 },
     scale: { maxProducts: Infinity, aiRunsPerMonth: Infinity },
