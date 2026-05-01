@@ -9,14 +9,14 @@ vi.mock('@/lib/supabase', () => ({
 }))
 
 vi.mock('@/lib/supabase-storage', () => ({
-  loadUserPreferences: vi.fn().mockResolvedValue({ darkMode: false, weekStartDay: 'monday', subscriptionTier: 'free' }),
+  loadUserPreferences: vi.fn().mockResolvedValue({ darkMode: true, weekStartDay: 'monday', subscriptionTier: 'free' }),
   saveUserPreferences: vi.fn().mockResolvedValue(undefined),
 }))
 
 describe('usePreferences', () => {
   it('returns default preferences', () => {
     const { result } = renderHook(() => usePreferences())
-    expect(result.current.prefs.darkMode).toBe(false)
+    expect(result.current.prefs.darkMode).toBe(true)
     expect(result.current.prefs.weekStartDay).toBe('monday')
   })
 

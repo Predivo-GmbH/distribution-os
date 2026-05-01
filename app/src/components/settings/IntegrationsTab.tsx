@@ -123,7 +123,7 @@ export function IntegrationsTab() {
             <select
               value={config.emailService.provider}
               onChange={e => setConfig(prev => ({ ...prev, emailService: { ...prev.emailService, provider: e.target.value as IntegrationConfig['emailService']['provider'] } }))}
-              className="min-h-[44px] px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
+              className="min-h-[44px] px-3 py-2 rounded-xl border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
             >
               <option value="">Select provider...</option>
               <option value="resend">Resend</option>
@@ -146,7 +146,7 @@ export function IntegrationsTab() {
       <div className="flex items-center gap-3">
         <button
           onClick={handleSave}
-          className="px-5 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+          className="px-5 py-2.5 min-h-[44px] rounded-xl bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
         >
           Save Integrations
         </button>
@@ -166,7 +166,7 @@ function IntegrationCard({ title, description, connected, onToggle, children }: 
   title: string; description: string; connected: boolean; onToggle: () => void; children: React.ReactNode
 }) {
   return (
-    <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5 space-y-4">
+    <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5 space-y-4">
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2">

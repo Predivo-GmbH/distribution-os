@@ -27,24 +27,27 @@ export function IntelligencePanel({ id, title, children }: Props) {
   }
 
   return (
-    <div className="bg-[var(--color-accent-light)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
+    <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/[0.04] overflow-hidden relative">
+      <div className="absolute top-0 right-0 w-[200px] h-[100px] bg-indigo-500/[0.06] blur-[60px] rounded-full pointer-events-none" />
       <button
         onClick={toggle}
-        className="w-full flex items-center gap-2.5 px-4 sm:px-5 py-3.5 text-left hover:bg-[var(--color-accent-light)] transition-colors"
+        className="w-full flex items-center gap-2.5 px-4 sm:px-5 py-3.5 text-left hover:bg-indigo-500/[0.04] transition-colors relative"
       >
-        <Lightbulb size={15} className="text-[var(--color-accent)] shrink-0" />
+        <div className="w-7 h-7 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0">
+          <Lightbulb size={14} className="text-indigo-400" />
+        </div>
         <span className="text-sm font-medium text-[var(--color-accent-text)] flex-1">
           {title}
         </span>
         <ChevronDown
           size={14}
-          className={`text-[var(--color-accent)] transition-transform duration-200 ${
+          className={`text-[var(--color-accent-muted)] transition-transform duration-200 ${
             collapsed ? '-rotate-90' : ''
           }`}
         />
       </button>
       {!collapsed && (
-        <div className="px-4 sm:px-5 pb-4 pt-0 text-sm text-[var(--color-ink-body)] leading-relaxed">
+        <div className="px-4 sm:px-5 pb-4 pt-0 text-sm text-[var(--color-ink-body)] leading-relaxed relative">
           {children}
         </div>
       )}

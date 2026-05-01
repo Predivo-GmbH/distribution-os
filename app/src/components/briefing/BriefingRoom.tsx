@@ -139,7 +139,7 @@ function EngineCard({ engine }: { engine: Engine }) {
   const d = ENGINE_DETAILS[engine]
 
   return (
-    <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden transition-shadow hover:shadow-sm">
+    <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl overflow-hidden transition-shadow hover:shadow-sm">
       <button
         onClick={() => setOpen(!open)}
         aria-expanded={open}
@@ -236,7 +236,7 @@ export function BriefingRoom({ onVisit }: Props) {
       <PageMeta title={`Briefing Room — ${APP_NAME}`} noindex />
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight mb-1">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink)] tracking-tight mb-1">
           Briefing Room
         </h1>
         <p className="text-sm text-[var(--color-ink-muted)]">
@@ -271,7 +271,7 @@ export function BriefingRoom({ onVisit }: Props) {
       {tab === 'overview' && (
         <div role="tabpanel" id="briefing-tabpanel-overview" aria-labelledby="briefing-tab-overview" className="space-y-6">
           {/* The "Why" — front and center */}
-          <div className="bg-[var(--color-accent-light)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-6">
+          <div className="bg-[var(--color-accent-light)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-6">
             <h2 className="text-base font-semibold text-[var(--color-accent-text)] mb-3">Why does this exist?</h2>
             <div className="space-y-3 text-sm text-[var(--color-ink-body)] leading-relaxed">
               <p>
@@ -284,7 +284,7 @@ export function BriefingRoom({ onVisit }: Props) {
           </div>
 
           {/* The Goal */}
-          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-6">
+          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-6">
             <h2 className="text-base font-semibold text-[var(--color-ink)] mb-3">The end goal</h2>
             <div className="space-y-3 text-sm text-[var(--color-ink-body)] leading-relaxed">
               <p>
@@ -312,7 +312,7 @@ export function BriefingRoom({ onVisit }: Props) {
           </div>
 
           {/* What is Distribution OS */}
-          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-6">
+          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-6">
             <h2 className="text-base font-semibold text-[var(--color-ink)] mb-3">How {APP_NAME} works</h2>
             <div className="space-y-3 text-sm text-[var(--color-ink-body)] leading-relaxed">
               <p>
@@ -340,7 +340,7 @@ export function BriefingRoom({ onVisit }: Props) {
               { n: '2', title: 'Execute', desc: 'Tasks auto-generate weekly. Work through them on your Dashboard.' },
               { n: '3', title: 'Track', desc: 'Check off tasks. Watch your score and completion rate climb.' },
             ].map(s => (
-              <div key={s.n} className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 flex gap-3">
+              <div key={s.n} className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 flex gap-3">
                 <span className="font-mono text-xl font-bold text-[var(--color-accent)] shrink-0">{s.n}</span>
                 <div>
                   <p className="text-sm font-semibold text-[var(--color-ink)] mb-0.5">{s.title}</p>
@@ -450,7 +450,7 @@ export function BriefingRoom({ onVisit }: Props) {
           {(() => {
             const s = STAGE_DETAILS[activeStage]
             return (
-              <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
+              <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl overflow-hidden">
                 <div className="px-4 sm:px-6 pt-5 pb-4">
                   <p className="text-sm text-[var(--color-ink-body)] leading-relaxed">{s.what}</p>
                 </div>
@@ -526,7 +526,7 @@ export function BriefingRoom({ onVisit }: Props) {
       {tab === 'scoring' && (
         <div role="tabpanel" id="briefing-tabpanel-scoring" aria-labelledby="briefing-tab-scoring" className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
+            <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5">
               <p className="font-mono text-3xl font-bold text-[var(--color-accent)] mb-1">2–5</p>
               <p className="text-sm font-semibold text-[var(--color-ink)] mb-1.5">Points per task</p>
               <p className="text-xs text-[var(--color-ink-muted)] leading-relaxed">
@@ -537,7 +537,7 @@ export function BriefingRoom({ onVisit }: Props) {
                 reflecting its strategic impact. Higher-point tasks deliver more value but take more effort.
               </p>
             </div>
-            <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
+            <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5">
               <p className="font-mono text-3xl font-bold text-[var(--color-accent)] mb-1">Weekly</p>
               <p className="text-sm font-semibold text-[var(--color-ink)] mb-1.5">Score resets</p>
               <p className="text-xs text-[var(--color-ink-muted)] leading-relaxed">
@@ -548,7 +548,7 @@ export function BriefingRoom({ onVisit }: Props) {
                 resets every Monday when new tasks generate. A fresh start each week — no backlog anxiety.
               </p>
             </div>
-            <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
+            <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5">
               <p className="font-mono text-3xl font-bold text-[var(--color-accent)] mb-1">60%+</p>
               <p className="text-sm font-semibold text-[var(--color-ink)] mb-1.5">Target completion</p>
               <p className="text-xs text-[var(--color-ink-muted)] leading-relaxed">
@@ -561,7 +561,7 @@ export function BriefingRoom({ onVisit }: Props) {
             </div>
           </div>
 
-          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-5">
+          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-5">
             <h3 className="text-sm font-semibold text-[var(--color-ink)] mb-3">How tasks are generated</h3>
             <div className="space-y-3 text-sm text-[var(--color-ink-body)] leading-relaxed">
               <p>
@@ -583,7 +583,7 @@ export function BriefingRoom({ onVisit }: Props) {
       {tab === 'reference' && (
         <div role="tabpanel" id="briefing-tabpanel-reference" aria-labelledby="briefing-tab-reference" className="space-y-6">
           {/* Detailed workflow */}
-          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-6">
+          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-6">
             <h2 className="text-base font-semibold text-[var(--color-ink)] mb-4">Weekly Workflow</h2>
             <div className="space-y-4">
               {[
@@ -616,7 +616,7 @@ export function BriefingRoom({ onVisit }: Props) {
           </div>
 
           {/* Glossary */}
-          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-6">
+          <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-6">
             <h2 className="text-base font-semibold text-[var(--color-ink)] mb-4">Glossary</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-0">
               {[

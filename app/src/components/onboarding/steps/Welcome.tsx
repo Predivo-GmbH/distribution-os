@@ -22,7 +22,7 @@ export function Welcome({ onNext }: Props) {
       </p>
 
       {/* The purpose */}
-      <div className="bg-[var(--color-accent-light)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5 text-left w-full mb-6">
+      <div className="bg-[var(--color-accent-light)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5 text-left w-full mb-6">
         <p className="text-sm font-semibold text-[var(--color-accent-text)] mb-2">Your goal</p>
         <p className="text-sm text-[var(--color-ink-body)] leading-relaxed">
           Build a <strong>sustainable distribution system</strong> that gets your product in front of the right people — consistently, week after week. Not a viral hack. Not guesswork. A repeatable machine that compounds over time until growth becomes predictable.
@@ -30,7 +30,7 @@ export function Welcome({ onNext }: Props) {
       </div>
 
       {/* How it works */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5 text-left w-full mb-8">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5 text-left w-full mb-8">
         <p className="text-sm font-semibold text-[var(--color-ink)] mb-3">How it works:</p>
         <ol className="space-y-2.5 text-sm text-[var(--color-ink-body)]">
           <li className="flex gap-3">
@@ -50,7 +50,7 @@ export function Welcome({ onNext }: Props) {
 
       <button
         onClick={onNext}
-        className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
+        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
       >
         Start First Mission
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

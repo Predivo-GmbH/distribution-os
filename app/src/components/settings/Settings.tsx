@@ -40,7 +40,7 @@ export function Settings({ state, dispatch, prefs, onDarkModeChange, onWeekStart
   return (
     <div className="space-y-4 sm:space-y-6">
       <PageMeta title={`Settings — ${APP_NAME}`} noindex />
-      <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">Settings</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink)] tracking-tight">Settings</h1>
 
       {/* Tab bar */}
       <div className="border-b border-[var(--color-edge)] overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0" style={{ maskImage: 'linear-gradient(to right, black 90%, transparent)' }}>

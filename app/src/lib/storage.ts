@@ -77,7 +77,7 @@ export { getWeekId }
 const PREFS_KEY = 'distribution-os-prefs'
 
 const defaultPrefs: UserPreferences = {
-  darkMode: false,
+  darkMode: true,
   weekStartDay: 'monday',
   subscriptionTier: 'free',
 }

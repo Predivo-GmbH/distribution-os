@@ -91,8 +91,8 @@ export function AuditPage({ state }: { state: AppState }) {
     return (
       <div className="space-y-6">
         <PageMeta title={`Audit — ${APP_NAME}`} noindex />
-        <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">8-Domain Audit</h1>
-        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-6 text-center">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink)] tracking-tight">8-Domain Audit</h1>
+        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-6 text-center">
           <p className="text-sm text-[var(--color-ink-muted)]">Add a product first to run an audit.</p>
         </div>
       </div>
@@ -104,7 +104,7 @@ export function AuditPage({ state }: { state: AppState }) {
       <PageMeta title={`Audit — ${APP_NAME}`} noindex />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">8-Domain Audit</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink)] tracking-tight">8-Domain Audit</h1>
           <p className="text-sm text-[var(--color-ink-muted)] mt-1">Run parallel audits across security, SEO, performance, code quality, and more.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -112,7 +112,7 @@ export function AuditPage({ state }: { state: AppState }) {
             <select
               value={productId}
               onChange={e => setProductId(e.target.value)}
-              className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]"
+              className="px-3 py-2 min-h-[44px] rounded-xl border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]"
             >
               {state.products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
@@ -130,7 +130,7 @@ export function AuditPage({ state }: { state: AppState }) {
       </div>
 
       {/* Repo context input */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5">
         <label className="block text-xs font-medium text-[var(--color-ink-muted)] mb-2">Project Context (optional)</label>
         <textarea
           value={repoContext}
@@ -143,7 +143,7 @@ export function AuditPage({ state }: { state: AppState }) {
           <button
             onClick={runAllAudits}
             disabled={isAnyLoading || !product}
-            className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
           >
             {isAnyLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
             {isAnyLoading ? `Running (${completedCount}/8)...` : 'Run Full Audit'}
@@ -153,7 +153,7 @@ export function AuditPage({ state }: { state: AppState }) {
 
       {/* Progress */}
       {completedCount > 0 && (
-        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4">
+        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-[var(--color-ink)]">{completedCount} of 8 domains completed</span>
           </div>
@@ -172,7 +172,7 @@ export function AuditPage({ state }: { state: AppState }) {
           const Icon = domain.icon
 
           return (
-            <div key={domain.key} className={`bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden ${isExpanded ? 'sm:col-span-2' : ''}`}>
+            <div key={domain.key} className={`bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl overflow-hidden ${isExpanded ? 'sm:col-span-2' : ''}`}>
               <div className="flex items-center justify-between px-4 py-3">
                 <div className="flex items-center gap-2">
                   <Icon size={14} className="text-[var(--color-accent-text)]" />
@@ -193,7 +193,7 @@ export function AuditPage({ state }: { state: AppState }) {
                   <button
                     onClick={() => runSingleAudit(domain)}
                     disabled={isLoading || !product}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 min-h-[44px] rounded-xl text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
                   >
                     {isLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
                     {isLoading ? '...' : hasResult ? 'Redo' : 'Run'}

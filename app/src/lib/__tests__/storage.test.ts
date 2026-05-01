@@ -94,21 +94,21 @@ describe('generateId', () => {
 describe('loadPrefs / savePrefs', () => {
   it('returns default prefs when nothing stored', () => {
     const prefs = loadPrefs()
-    expect(prefs.darkMode).toBe(false)
+    expect(prefs.darkMode).toBe(true)
     expect(prefs.weekStartDay).toBe('monday')
   })
 
   it('saves and loads preferences', () => {
-    savePrefs({ darkMode: true, weekStartDay: 'sunday' })
+    savePrefs({ darkMode: false, weekStartDay: 'sunday' })
     const prefs = loadPrefs()
-    expect(prefs.darkMode).toBe(true)
+    expect(prefs.darkMode).toBe(false)
     expect(prefs.weekStartDay).toBe('sunday')
   })
 
   it('handles corrupt prefs JSON', () => {
     localStorage.setItem('distribution-os-prefs', 'invalid')
     const prefs = loadPrefs()
-    expect(prefs.darkMode).toBe(false)
+    expect(prefs.darkMode).toBe(true)
   })
 })
 

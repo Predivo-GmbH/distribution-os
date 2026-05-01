@@ -93,7 +93,7 @@ export function KnowledgeBaseTab({ state }: Props) {
             id={productSelectId}
             value={selectedProductId}
             onChange={e => handleProductChange(e.target.value)}
-            className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] font-medium focus:outline-none focus:border-[var(--color-edge-focus)]"
+            className="px-3 py-2 min-h-[44px] rounded-xl border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] font-medium focus:outline-none focus:border-[var(--color-edge-focus)]"
           >
             {state.products.map(p => (
               <option key={p.id} value={p.id}>{p.name}</option>
@@ -324,7 +324,7 @@ function SectionCard({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
+    <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl overflow-hidden">
       <button
         onClick={() => onToggle(section)}
         className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-[var(--color-surface-hover)] transition-colors"

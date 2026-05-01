@@ -92,8 +92,8 @@ export function OfferBuilder({ state }: { state: AppState }) {
     return (
       <div className="space-y-6">
         <PageMeta title={`Brief — ${APP_NAME}`} noindex />
-        <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">Offer Builder</h1>
-        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-6 text-center">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink)] tracking-tight">Offer Builder</h1>
+        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-6 text-center">
           <p className="text-sm text-[var(--color-ink-muted)]">Add a product first to build your offer.</p>
         </div>
       </div>
@@ -105,18 +105,18 @@ export function OfferBuilder({ state }: { state: AppState }) {
       <PageMeta title={`Brief — ${APP_NAME}`} noindex />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">Offer Builder</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink)] tracking-tight">Offer Builder</h1>
           <p className="text-sm text-[var(--color-ink-muted)] mt-1">Define your product and design an irresistible offer.</p>
         </div>
         {state.products.length > 1 && (
-          <select value={productId} onChange={e => setProductId(e.target.value)} className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]">
+          <select value={productId} onChange={e => setProductId(e.target.value)} className="px-3 py-2 min-h-[44px] rounded-xl border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]">
             {state.products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         )}
       </div>
 
       {SECTIONS.map(({ key, label, icon: Icon, desc }) => (
-        <div key={key} className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
+        <div key={key} className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl overflow-hidden">
           <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-[var(--color-edge)]">
             <div className="flex items-center gap-2">
               <Icon size={16} className="text-[var(--color-accent-text)]" />
@@ -125,7 +125,7 @@ export function OfferBuilder({ state }: { state: AppState }) {
             <button
               onClick={() => generate(key)}
               disabled={loading[key] || !product}
-              className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading[key] ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
               {loading[key] ? 'Generating...' : results[key] ? 'Regenerate' : 'Generate'}

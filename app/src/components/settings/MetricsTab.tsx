@@ -56,7 +56,7 @@ export function MetricsTab({ state }: Props) {
               return (
                 <div
                   key={week.id}
-                  className={`rounded-xl border p-4 text-center ${
+                  className={`rounded-2xl border p-4 text-center ${
                     pct >= 60
                       ? 'border-[var(--color-progress-success)]/30 bg-[var(--color-progress-success)]/5'
                       : 'border-[var(--color-edge)] bg-[var(--color-surface)]'
@@ -76,7 +76,7 @@ export function MetricsTab({ state }: Props) {
             })}
           </div>
         ) : (
-          <div className="text-center py-8 rounded-xl border border-dashed border-[var(--color-edge)] bg-[var(--color-surface)]">
+          <div className="text-center py-8 rounded-2xl border border-dashed border-[var(--color-edge)] bg-[var(--color-surface)]">
             <p className="text-sm text-[var(--color-ink-muted)]">
               Complete your first week to see streak data.
             </p>

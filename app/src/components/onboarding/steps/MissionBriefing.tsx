@@ -39,7 +39,7 @@ export function MissionBriefing({ name, stage, primaryEngine, secondaryEngines, 
       </p>
 
       {/* Task preview */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5 mb-6 space-y-5">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5 mb-6 space-y-5">
         {Object.entries(tasksByEngine).map(([engine, engineTasks]) => (
           <div key={engine}>
             <div className="flex items-center gap-2 mb-2">
@@ -85,7 +85,7 @@ export function MissionBriefing({ name, stage, primaryEngine, secondaryEngines, 
         </button>
         <button
           onClick={onLaunch}
-          className="inline-flex items-center gap-2 px-6 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
+          className="inline-flex items-center gap-2 px-6 py-2.5 min-h-[44px] rounded-xl bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
         >
           Launch Mission
         </button>

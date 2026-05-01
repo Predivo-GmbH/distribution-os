@@ -120,8 +120,8 @@ export function BuildKit({ state }: { state: AppState }) {
     return (
       <div className="space-y-6">
         <PageMeta title={`Build Kit — ${APP_NAME}`} noindex />
-        <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">Design Build Kit</h1>
-        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-6 text-center">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink)] tracking-tight">Design Build Kit</h1>
+        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-6 text-center">
           <p className="text-sm text-[var(--color-ink-muted)]">Add a product first to run the design pipeline.</p>
         </div>
       </div>
@@ -133,14 +133,14 @@ export function BuildKit({ state }: { state: AppState }) {
       <PageMeta title={`Build Kit — ${APP_NAME}`} noindex />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">Design Build Kit</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink)] tracking-tight">Design Build Kit</h1>
           <p className="text-sm text-[var(--color-ink-muted)] mt-1">Generate your brand foundation: tokens, brand book, and consistency report.</p>
         </div>
         {state.products.length > 1 && (
           <select
             value={productId}
             onChange={e => setProductId(e.target.value)}
-            className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]"
+            className="px-3 py-2 min-h-[44px] rounded-xl border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]"
           >
             {state.products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
@@ -181,7 +181,7 @@ export function BuildKit({ state }: { state: AppState }) {
 
       {/* Step: URL Input */}
       {currentStep === 'urls' && (
-        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5 space-y-4">
+        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5 space-y-4">
           <div>
             <h2 className="text-sm font-semibold text-[var(--color-ink)] mb-1">Reference URLs</h2>
             <p className="text-xs text-[var(--color-ink-muted)]">Add 1-5 websites that represent the visual direction you want. These will be analyzed for colors, fonts, spacing, and tone.</p>
@@ -220,7 +220,7 @@ export function BuildKit({ state }: { state: AppState }) {
             <button
               onClick={() => runStep('analyze')}
               disabled={loading || !product || urls.every(u => !u.trim())}
-              className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50 ml-auto"
+              className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50 ml-auto"
             >
               {loading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
               {loading ? 'Analyzing...' : 'Analyze Brand'}
@@ -279,7 +279,7 @@ export function BuildKit({ state }: { state: AppState }) {
 
       {/* Loading overlay for intermediate steps */}
       {loading && currentStep !== 'urls' && (
-        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-6 flex items-center justify-center gap-3">
+        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-6 flex items-center justify-center gap-3">
           <Loader2 size={16} className="animate-spin text-[var(--color-accent-text)]" />
           <span className="text-sm text-[var(--color-ink-muted)]">
             {currentStep === 'analyze' && 'Analyzing brand patterns...'}
@@ -311,7 +311,7 @@ function ResultCard({
   onDownload?: () => void
 }) {
   return (
-    <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
+    <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl overflow-hidden">
       <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-[var(--color-edge)]">
         <h2 className="text-sm font-semibold text-[var(--color-ink)]">{title}</h2>
         <div className="flex items-center gap-2">
@@ -335,7 +335,7 @@ function ResultCard({
             <button
               onClick={onNext}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
             >
               {loading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
               {loading ? 'Processing...' : nextLabel}

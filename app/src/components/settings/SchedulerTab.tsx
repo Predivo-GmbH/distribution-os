@@ -48,7 +48,7 @@ export function SchedulerTab() {
   return (
     <div className="space-y-6">
       {/* Master toggle */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-semibold text-[var(--color-ink)]">Automation Scheduler</h3>
@@ -77,7 +77,7 @@ export function SchedulerTab() {
       </div>
 
       {/* Worker schedule list */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl overflow-hidden">
         <div className="px-4 py-3 sm:px-5 border-b border-[var(--color-edge)]">
           <h3 className="text-base font-semibold text-[var(--color-ink)]">Worker Schedules</h3>
         </div>
@@ -178,7 +178,7 @@ export function SchedulerTab() {
       <div className="flex items-center gap-3">
         <button
           onClick={handleSave}
-          className="px-5 py-2 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+          className="px-5 py-2 min-h-[44px] rounded-xl bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
         >
           Save Schedule
         </button>

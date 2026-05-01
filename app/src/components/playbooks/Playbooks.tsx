@@ -60,8 +60,8 @@ export function Playbooks({ state }: { state: AppState }) {
     return (
       <div className="space-y-6">
         <PageMeta title={`Playbooks — ${APP_NAME}`} noindex />
-        <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">Engine Playbooks</h1>
-        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-6 text-center">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink)] tracking-tight">Engine Playbooks</h1>
+        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-6 text-center">
           <p className="text-sm text-[var(--color-ink-muted)]">Add a product first to generate playbooks.</p>
         </div>
       </div>
@@ -73,14 +73,14 @@ export function Playbooks({ state }: { state: AppState }) {
       <PageMeta title={`Playbooks — ${APP_NAME}`} noindex />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">Engine Playbooks</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink)] tracking-tight">Engine Playbooks</h1>
           <p className="text-sm text-[var(--color-ink-muted)] mt-1">Get a recommendation on which engine to start, then generate step-by-step execution guides.</p>
         </div>
         {state.products.length > 1 && (
           <select
             value={productId}
             onChange={e => setProductId(e.target.value)}
-            className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]"
+            className="px-3 py-2 min-h-[44px] rounded-xl border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]"
           >
             {state.products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
@@ -88,7 +88,7 @@ export function Playbooks({ state }: { state: AppState }) {
       </div>
 
       {/* Engine Advisor */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl overflow-hidden">
         <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-[var(--color-edge)]">
           <div className="flex items-center gap-2">
             <Compass size={16} className="text-[var(--color-accent-text)]" />
@@ -97,7 +97,7 @@ export function Playbooks({ state }: { state: AppState }) {
           <button
             onClick={getAdvice}
             disabled={advisorLoading || !product}
-            className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
           >
             {advisorLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
             {advisorLoading ? 'Analyzing...' : advisorResult ? 'Re-analyze' : 'Get Recommendation'}
@@ -129,7 +129,7 @@ export function Playbooks({ state }: { state: AppState }) {
           const isExpanded = expandedEngine === engine
 
           return (
-            <div key={engine} className={`bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden ${isExpanded ? 'sm:col-span-2 lg:col-span-3' : ''}`}>
+            <div key={engine} className={`bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl overflow-hidden ${isExpanded ? 'sm:col-span-2 lg:col-span-3' : ''}`}>
               <div className="flex items-center justify-between px-4 py-3">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: meta.color }} />
@@ -155,7 +155,7 @@ export function Playbooks({ state }: { state: AppState }) {
                   <button
                     onClick={() => generatePlaybook(engine)}
                     disabled={isLoading || !product}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 min-h-[44px] rounded-xl text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
                   >
                     {isLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
                     {isLoading ? '...' : hasResult ? 'Redo' : 'Generate'}

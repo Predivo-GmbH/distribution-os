@@ -37,7 +37,7 @@ export function GeneralTab({ state, dispatch, prefs, onDarkModeChange, onWeekSta
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* Appearance */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5">
         <h3 className="text-base font-semibold text-[var(--color-ink)] mb-4">Appearance</h3>
 
         <div className="flex items-center justify-between py-2">
@@ -72,7 +72,7 @@ export function GeneralTab({ state, dispatch, prefs, onDarkModeChange, onWeekSta
           <select
             value={prefs.weekStartDay}
             onChange={e => onWeekStartChange(e.target.value as UserPreferences['weekStartDay'])}
-            className="min-h-[44px] px-3 py-2 rounded-lg border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
+            className="min-h-[44px] px-3 py-2 rounded-xl border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
           >
             <option value="monday">Monday</option>
             <option value="sunday">Sunday</option>
@@ -82,7 +82,7 @@ export function GeneralTab({ state, dispatch, prefs, onDarkModeChange, onWeekSta
       </div>
 
       {/* Data Management */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5">
         <h3 className="text-base font-semibold text-[var(--color-ink)] mb-4">Data Management</h3>
 
         <div className="flex items-center justify-between py-2">
@@ -114,7 +114,7 @@ export function GeneralTab({ state, dispatch, prefs, onDarkModeChange, onWeekSta
 
       {/* Account */}
       {isSupabaseConfigured && (
-        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
+        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5">
           <h3 className="text-base font-semibold text-[var(--color-ink)] mb-4">Account</h3>
           <div className="flex items-center justify-between py-2">
             <div>
@@ -132,7 +132,7 @@ export function GeneralTab({ state, dispatch, prefs, onDarkModeChange, onWeekSta
       )}
 
       {/* About */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5">
         <h3 className="text-base font-semibold text-[var(--color-ink)] mb-2">About</h3>
         <p className="text-sm text-[var(--color-ink-body)]">
           {APP_NAME} v1.0.0 — Built by Predivo GmbH

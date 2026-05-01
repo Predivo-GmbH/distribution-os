@@ -50,7 +50,7 @@ export function StageSelect({ stage, onStageChange, onNext, onBack }: Props) {
             role="radio"
             aria-checked={stage === s.value}
             onClick={() => onStageChange(s.value)}
-            className={`w-full text-left px-4 py-3.5 min-h-[44px] rounded-xl border transition-colors ${
+            className={`w-full text-left px-4 py-3.5 min-h-[44px] rounded-2xl border transition-colors ${
               stage === s.value
                 ? 'border-[var(--color-accent)] bg-[var(--color-accent-light)]'
                 : 'border-[var(--color-edge)] hover:border-[var(--color-edge-outline)]'
@@ -87,7 +87,7 @@ export function StageSelect({ stage, onStageChange, onNext, onBack }: Props) {
         </button>
         <button
           onClick={onNext}
-          className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
+          className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-xl bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
         >
           Continue
         </button>

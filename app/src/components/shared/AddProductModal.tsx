@@ -165,7 +165,7 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
       />
 
       {/* Modal */}
-      <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="modal-title" className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[var(--color-surface)] rounded-xl shadow-lg border border-[var(--color-edge)] mx-4">
+      <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="modal-title" className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[var(--color-surface)] rounded-2xl shadow-lg border border-[var(--color-edge)] mx-4">
         {/* Header */}
         <div className="flex items-center justify-between px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4">
           <h2 id="modal-title" className="text-lg font-semibold text-[var(--color-ink)]">
@@ -317,7 +317,7 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
             <button
               type="submit"
               disabled={!name.trim()}
-              className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-xl bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {editProduct ? 'Save Changes' : '+ Add Product'}
             </button>

@@ -132,7 +132,7 @@ export function LaunchChecklist() {
       <PageMeta title={`Setup — ${APP_NAME}`} noindex />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">Launch Checklist</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink)] tracking-tight">Launch Checklist</h1>
           <p className="text-sm text-[var(--color-ink-muted)] mt-1">Everything you need before going live.</p>
         </div>
         <button
@@ -145,7 +145,7 @@ export function LaunchChecklist() {
       </div>
 
       {/* Progress bar */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-[var(--color-ink)]">{completedItems} of {totalItems} completed</span>
           <span className="text-sm font-semibold text-[var(--color-accent-text)]">{progress}%</span>
@@ -165,7 +165,7 @@ export function LaunchChecklist() {
       {CATEGORIES.map(({ key, label, icon: Icon, items }) => {
         const catCompleted = items.filter(i => checked[i.id]).length
         return (
-          <div key={key} className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
+          <div key={key} className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl overflow-hidden">
             <button
               onClick={() => toggleCategory(key)}
               className="w-full flex items-center justify-between px-4 sm:px-5 py-3 min-h-[44px] text-left hover:bg-[var(--color-surface-hover)] transition-colors"

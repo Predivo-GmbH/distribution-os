@@ -39,7 +39,7 @@ export function ProductsTab({ state, dispatch }: Props) {
         </p>
         <button
           onClick={openAdd}
-          className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
         >
           + Add Product
         </button>
@@ -54,7 +54,7 @@ export function ProductsTab({ state, dispatch }: Props) {
           return (
             <div
               key={product.id}
-              className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5"
+              className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">

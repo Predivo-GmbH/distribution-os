@@ -41,8 +41,8 @@ export function AnalyzePage({ state }: { state: AppState }) {
     return (
       <div className="space-y-6">
         <PageMeta title={`Analyze — ${APP_NAME}`} noindex />
-        <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">Site Analysis</h1>
-        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-6 text-center">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink)] tracking-tight">Site Analysis</h1>
+        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-6 text-center">
           <p className="text-sm text-[var(--color-ink-muted)]">Add a product first to analyze sites.</p>
         </div>
       </div>
@@ -54,14 +54,14 @@ export function AnalyzePage({ state }: { state: AppState }) {
       <PageMeta title={`Analyze — ${APP_NAME}`} noindex />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-[var(--color-ink)] tracking-tight">Site Analysis</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink)] tracking-tight">Site Analysis</h1>
           <p className="text-sm text-[var(--color-ink-muted)] mt-1">Reverse-engineer any website or score it against a conversion checklist.</p>
         </div>
         {state.products.length > 1 && (
           <select
             value={productId}
             onChange={e => setProductId(e.target.value)}
-            className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]"
+            className="px-3 py-2 min-h-[44px] rounded-xl border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]"
           >
             {state.products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
@@ -69,7 +69,7 @@ export function AnalyzePage({ state }: { state: AppState }) {
       </div>
 
       {/* URL input */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl p-4 sm:p-5">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-4 sm:p-5">
         <label className="block text-xs font-medium text-[var(--color-ink-muted)] mb-2">Website URL</label>
         <input
           type="url"
@@ -103,7 +103,7 @@ export function AnalyzePage({ state }: { state: AppState }) {
       </div>
 
       {/* Content */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-xl overflow-hidden">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-5 py-3 border-b border-[var(--color-edge)] gap-2">
           <h2 className="text-sm font-semibold text-[var(--color-ink)]">
             {activeTab === 'analyze' ? 'Site Deep Analysis' : 'Conversion Score (17 items)'}
@@ -134,7 +134,7 @@ export function AnalyzePage({ state }: { state: AppState }) {
             <button
               onClick={() => run(activeTab)}
               disabled={loading[activeTab] || !product || !url.trim()}
-              className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl text-xs font-medium bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] hover:bg-[var(--color-btn-primary-hover)] transition-colors disabled:opacity-50"
             >
               {loading[activeTab] ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
               {loading[activeTab] ? 'Analyzing...' : results[activeTab] ? 'Re-analyze' : 'Analyze'}

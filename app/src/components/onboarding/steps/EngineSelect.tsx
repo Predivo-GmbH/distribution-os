@@ -44,7 +44,7 @@ export function EngineSelect({ primaryEngine, secondaryEngines, onPrimaryChange,
               role="radio"
               aria-checked={primaryEngine === engine}
               onClick={() => onPrimaryChange(engine)}
-              className={`text-left px-4 py-3 min-h-[44px] rounded-xl border transition-colors ${
+              className={`text-left px-4 py-3 min-h-[44px] rounded-2xl border transition-colors ${
                 primaryEngine === engine
                   ? 'border-[var(--color-accent)] bg-[var(--color-accent-light)]'
                   : 'border-[var(--color-edge)] hover:border-[var(--color-edge-outline)]'
@@ -102,7 +102,7 @@ export function EngineSelect({ primaryEngine, secondaryEngines, onPrimaryChange,
         </button>
         <button
           onClick={onNext}
-          className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-lg bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
+          className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-xl bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-medium text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
         >
           Continue
         </button>
