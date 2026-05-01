@@ -74,7 +74,7 @@ export function Pricing() {
           {TIERS.map(({ name, price, period, desc, features, cta, highlighted, badge }) => (
             <div
               key={name}
-              className={`rounded-2xl p-6 sm:p-7 flex flex-col relative ${
+              className={`rounded-2xl p-6 sm:p-7 flex flex-col relative h-full ${
                 highlighted
                   ? 'border-2 border-indigo-500 bg-indigo-500/[0.06]'
                   : 'border border-white/[0.06] bg-white/[0.02]'

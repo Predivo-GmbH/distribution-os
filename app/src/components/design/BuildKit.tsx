@@ -140,7 +140,7 @@ export function BuildKit({ state }: { state: AppState }) {
           <select
             value={productId}
             onChange={e => setProductId(e.target.value)}
-            className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)]"
+            className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]"
           >
             {state.products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
@@ -148,7 +148,7 @@ export function BuildKit({ state }: { state: AppState }) {
       </div>
 
       {/* Step indicator */}
-      <div className="flex items-center gap-1 overflow-x-auto pb-1">
+      <div className="flex items-center gap-1 overflow-x-auto pb-1" style={{ maskImage: 'linear-gradient(to right, black 90%, transparent)', WebkitMaskImage: 'linear-gradient(to right, black 90%, transparent)' }}>
         {STEPS.map(({ key, label, icon: Icon }, i) => {
           const isActive = key === currentStep
           const isCompleted = i < stepIndex
@@ -194,7 +194,7 @@ export function BuildKit({ state }: { state: AppState }) {
                   value={url}
                   onChange={e => updateUrl(i, e.target.value)}
                   placeholder="https://example.com"
-                  className="flex-1 px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)]"
+                  className="flex-1 px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)]"
                 />
                 {urls.length > 1 && (
                   <button

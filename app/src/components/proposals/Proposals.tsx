@@ -107,7 +107,7 @@ export function Proposals({ state }: { state: AppState }) {
           <select
             value={productId}
             onChange={e => setProductId(e.target.value)}
-            className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)]"
+            className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]"
           >
             {state.products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>

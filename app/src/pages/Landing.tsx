@@ -311,7 +311,7 @@ export function Landing() {
               { label: 'Pricing', href: '#pricing' },
               { label: 'FAQ', href: '#faq' },
             ].map(({ label, href }) => (
-              <a key={label} href={href} className="px-3 py-1.5 rounded-full text-sm text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all">{label}</a>
+              <a key={label} href={href} className="px-3 py-1.5 min-h-[44px] inline-flex items-center rounded-full text-sm text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all">{label}</a>
             ))}
           </div>
           <div className="flex items-center gap-2">
@@ -499,7 +499,7 @@ export function Landing() {
             maskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)',
             WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)',
           }}>
-            <MarqueeColumn testimonials={TESTIMONIALS.slice(0, 3)} speed={20} className="w-80" />
+            <MarqueeColumn testimonials={TESTIMONIALS.slice(0, 3)} speed={20} className="w-full sm:w-80" />
             <MarqueeColumn testimonials={TESTIMONIALS.slice(3, 6)} speed={28} className="w-80 hidden md:block" />
             <MarqueeColumn testimonials={[...TESTIMONIALS.slice(2, 5)]} speed={24} className="w-80 hidden lg:block" />
           </div>
@@ -592,7 +592,7 @@ export function Landing() {
         {/* ── FINAL CTA — Grid background ── */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-20 sm:pb-28">
           <Reveal>
-            <div className="rounded-[2rem] border border-indigo-500/20 bg-gradient-to-b from-indigo-500/[0.06] to-white/[0.02] p-6 sm:p-10 md:p-16 lg:p-24 text-center relative overflow-hidden shadow-[0_0_80px_rgba(99,102,241,0.08)]">
+            <div className="rounded-[2rem] border border-indigo-500/20 bg-gradient-to-b from-indigo-500/[0.06] to-white/[0.02] px-6 py-10 sm:p-10 md:p-16 lg:p-24 text-center relative overflow-hidden shadow-[0_0_80px_rgba(99,102,241,0.08)]">
               <div className="absolute inset-0 opacity-40" style={{
                 backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)',
                 backgroundSize: '3rem 3rem',

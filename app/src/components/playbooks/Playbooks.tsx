@@ -80,7 +80,7 @@ export function Playbooks({ state }: { state: AppState }) {
           <select
             value={productId}
             onChange={e => setProductId(e.target.value)}
-            className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)]"
+            className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]"
           >
             {state.products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
@@ -137,7 +137,7 @@ export function Playbooks({ state }: { state: AppState }) {
                   {hasResult && (
                     <button
                       onClick={() => setExpandedEngine(isExpanded ? null : engine)}
-                      className="text-xs text-[var(--color-accent-text)] hover:underline"
+                      className="min-h-[44px] inline-flex items-center px-2 text-xs text-[var(--color-accent-text)] hover:underline"
                     >
                       {isExpanded ? 'Collapse' : 'Expand'}
                     </button>

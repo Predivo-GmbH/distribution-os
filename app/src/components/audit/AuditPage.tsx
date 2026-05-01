@@ -112,7 +112,7 @@ export function AuditPage({ state }: { state: AppState }) {
             <select
               value={productId}
               onChange={e => setProductId(e.target.value)}
-              className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)]"
+              className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]"
             >
               {state.products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
@@ -137,7 +137,7 @@ export function AuditPage({ state }: { state: AppState }) {
           onChange={e => setRepoContext(e.target.value)}
           placeholder="Paste your tech stack, folder structure, package.json, or any relevant project info here..."
           rows={4}
-          className="w-full px-3 py-2 rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] resize-y"
+          className="w-full px-3 py-2 rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] resize-y"
         />
         <div className="mt-3 flex justify-end">
           <button
@@ -179,7 +179,7 @@ export function AuditPage({ state }: { state: AppState }) {
                   <span className="text-sm font-semibold text-[var(--color-ink)]">{domain.label}</span>
                   <span className="text-xs text-[var(--color-ink-muted)]">{domain.maxPts}</span>
                   {hasResult && (
-                    <button onClick={() => setExpandedDomain(isExpanded ? null : domain.key)} className="text-xs text-[var(--color-accent-text)] hover:underline">
+                    <button onClick={() => setExpandedDomain(isExpanded ? null : domain.key)} className="min-h-[44px] inline-flex items-center px-2 text-xs text-[var(--color-accent-text)] hover:underline">
                       {isExpanded ? 'Collapse' : 'View'}
                     </button>
                   )}

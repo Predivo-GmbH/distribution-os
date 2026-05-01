@@ -109,7 +109,7 @@ export function OfferBuilder({ state }: { state: AppState }) {
           <p className="text-sm text-[var(--color-ink-muted)] mt-1">Define your product and design an irresistible offer.</p>
         </div>
         {state.products.length > 1 && (
-          <select value={productId} onChange={e => setProductId(e.target.value)} className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-sm text-[var(--color-ink)]">
+          <select value={productId} onChange={e => setProductId(e.target.value)} className="px-3 py-2 min-h-[44px] rounded-lg border border-[var(--color-edge)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)]">
             {state.products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         )}
