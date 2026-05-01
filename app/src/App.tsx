@@ -12,6 +12,7 @@ const SignUp = lazy(() => import('@/pages/SignUp').then(m => ({ default: m.SignU
 const ResetPassword = lazy(() => import('@/pages/ResetPassword').then(m => ({ default: m.ResetPassword })))
 const Pricing = lazy(() => import('@/pages/Pricing').then(m => ({ default: m.Pricing })))
 const LandingOriginal = lazy(() => import('@/pages/LandingOriginal').then(m => ({ default: m.LandingOriginal })))
+const AuthVerify = lazy(() => import('@/pages/AuthVerify').then(m => ({ default: m.AuthVerify })))
 
 /* Authenticated app shell — lazy-loaded so the Supabase SDK (165 KB)
    and app-state hooks are NOT on the public page critical path. */
@@ -73,6 +74,7 @@ export default function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/original" element={<LandingOriginal />} />
+          <Route path="/auth/verify" element={<AuthVerify />} />
         </Route>
 
         {/* Protected routes — AuthenticatedApp loads Supabase + app state */}

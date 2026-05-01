@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { Logo } from '@/components/shared/Logo'
 import { APP_NAME } from '@/lib/app-config'
 import { Mail, Lock, ArrowLeft } from 'lucide-react'
+import OtpInput from '@/components/auth/OtpInput'
+import ResendTimer from '@/components/auth/ResendTimer'
 
 type Tab = 'password' | 'email-code'
 type OtpStep = 'email' | 'verify'
@@ -15,7 +17,6 @@ export function Login() {
   const [tab, setTab] = useState<Tab>('password')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [otp, setOtp] = useState('')
   const [otpStep, setOtpStep] = useState<OtpStep>('email')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -48,19 +49,18 @@ export function Login() {
     }
   }
 
-  async function handleVerifyOtp(e: React.FormEvent) {
-    e.preventDefault()
+  const handleVerifyOtp = useCallback(async (code: string) => {
     setError('')
     setLoading(true)
     try {
-      await verifyOtp(email, otp)
+      await verifyOtp(email, code)
       navigate('/dashboard')
     } catch {
       setError('Invalid or expired code. Please try again.')
     } finally {
       setLoading(false)
     }
-  }
+  }, [email, verifyOtp, navigate])
 
   const inputClass =
     'w-full px-4 py-3 min-h-[44px] rounded-lg bg-white/[0.06] border border-white/[0.1] text-white text-base md:text-sm placeholder:text-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20 transition-all'
@@ -86,7 +86,7 @@ export function Login() {
           <div className="flex rounded-lg bg-white/[0.04] p-1 mb-6">
             <button
               type="button"
-              onClick={() => { setTab('password'); setError(''); setOtpStep('email'); setOtp('') }}
+              onClick={() => { setTab('password'); setError(''); setOtpStep('email') }}
               className={`flex-1 py-2 min-h-[44px] rounded-md text-sm font-medium transition-all ${tab === 'password' ? 'bg-white/[0.1] text-white shadow-sm' : 'text-slate-400 hover:text-slate-300'}`}
             >
               Password
@@ -183,40 +183,24 @@ export function Login() {
           )}
 
           {tab === 'email-code' && otpStep === 'verify' && (
-            <form onSubmit={handleVerifyOtp} className="space-y-4">
+            <div className="space-y-5">
               <p className="text-sm text-slate-400 text-center">
                 We sent a 6-digit code to <span className="text-white font-medium">{email}</span>
               </p>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">Verification Code</label>
-                <input
-                  type="text"
-                  value={otp}
-                  onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  required
-                  maxLength={6}
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  placeholder="000000"
-                  className={`${inputClass} font-mono text-center text-lg tracking-[0.3em]`}
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={loading || otp.length < 6}
-                className="w-full py-3 min-h-[44px] rounded-lg bg-white text-black font-semibold text-sm hover:bg-slate-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
-              >
-                {loading ? 'Verifying...' : 'Verify & Sign In'}
-              </button>
+              <OtpInput onComplete={handleVerifyOtp} disabled={loading} />
+              {loading && (
+                <p className="text-center text-sm text-slate-400">Verifying...</p>
+              )}
+              <ResendTimer onResend={async () => { await sendLoginOtp(email) }} />
               <button
                 type="button"
-                onClick={() => { setOtpStep('email'); setOtp(''); setError('') }}
+                onClick={() => { setOtpStep('email'); setError('') }}
                 className="w-full min-h-[44px] inline-flex items-center justify-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 Back to email
               </button>
-            </form>
+            </div>
           )}
         </div>
 

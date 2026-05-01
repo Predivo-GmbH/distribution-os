@@ -1,32 +1,23 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { Logo } from '@/components/shared/Logo'
 import { APP_NAME } from '@/lib/app-config'
 import { Mail, Lock, ArrowLeft } from 'lucide-react'
+import OtpInput from '@/components/auth/OtpInput'
+import ResendTimer from '@/components/auth/ResendTimer'
 
 type Step = 'email' | 'otp' | 'password'
-
-const RESEND_COOLDOWN = 60
 
 export function SignUp() {
   const { sendOtp, verifyOtp, updatePassword } = useAuth()
   const navigate = useNavigate()
   const [step, setStep] = useState<Step>('email')
   const [email, setEmail] = useState('')
-  const [otp, setOtp] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [resendCooldown, setResendCooldown] = useState(0)
-
-  // Resend countdown timer
-  useEffect(() => {
-    if (resendCooldown <= 0) return
-    const t = setTimeout(() => setResendCooldown(c => c - 1), 1000)
-    return () => clearTimeout(t)
-  }, [resendCooldown])
 
   const handleSendOtp = useCallback(async (e?: React.FormEvent) => {
     e?.preventDefault()
@@ -35,7 +26,6 @@ export function SignUp() {
     try {
       await sendOtp(email)
       setStep('otp')
-      setResendCooldown(RESEND_COOLDOWN)
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {
@@ -43,19 +33,18 @@ export function SignUp() {
     }
   }, [email, sendOtp])
 
-  async function handleVerifyOtp(e: React.FormEvent) {
-    e.preventDefault()
+  const handleVerifyOtp = useCallback(async (code: string) => {
     setError('')
     setLoading(true)
     try {
-      await verifyOtp(email, otp)
+      await verifyOtp(email, code)
       setStep('password')
     } catch {
       setError('Invalid or expired code. Please try again.')
     } finally {
       setLoading(false)
     }
-  }
+  }, [email, verifyOtp])
 
   async function handleSetPassword(e: React.FormEvent) {
     e.preventDefault()
@@ -74,16 +63,11 @@ export function SignUp() {
   }
 
   async function handleResend() {
-    if (resendCooldown > 0) return
     setError('')
-    setLoading(true)
     try {
       await sendOtp(email)
-      setResendCooldown(RESEND_COOLDOWN)
     } catch {
       setError('Failed to resend code. Please try again.')
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -162,50 +146,24 @@ export function SignUp() {
 
           {/* Step 2: OTP */}
           {step === 'otp' && (
-            <form onSubmit={handleVerifyOtp} className="space-y-4">
+            <div className="space-y-5">
               <p className="text-sm text-slate-400 text-center">
                 We sent a 6-digit code to <span className="text-white font-medium">{email}</span>
               </p>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">Verification Code</label>
-                <input
-                  type="text"
-                  value={otp}
-                  onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  required
-                  maxLength={6}
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  placeholder="000000"
-                  className={`${inputClass} font-mono text-center text-lg tracking-[0.3em]`}
-                />
-              </div>
+              <OtpInput onComplete={handleVerifyOtp} disabled={loading} />
+              {loading && (
+                <p className="text-center text-sm text-slate-400">Verifying...</p>
+              )}
+              <ResendTimer onResend={async () => { await handleResend() }} />
               <button
-                type="submit"
-                disabled={loading || otp.length < 6}
-                className="w-full py-3 min-h-[44px] rounded-lg bg-white text-black font-semibold text-sm hover:bg-slate-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+                type="button"
+                onClick={() => { setStep('email'); setError('') }}
+                className="w-full min-h-[44px] inline-flex items-center justify-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
               >
-                {loading ? 'Verifying...' : 'Verify'}
+                <ArrowLeft className="w-3.5 h-3.5" />
+                Use a different email
               </button>
-              <div className="flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={() => { setStep('email'); setOtp(''); setError('') }}
-                  className="min-h-[44px] inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={handleResend}
-                  disabled={resendCooldown > 0 || loading}
-                  className="min-h-[44px] inline-flex items-center text-sm text-indigo-400 hover:text-indigo-300 transition-colors disabled:text-slate-600 disabled:cursor-not-allowed"
-                >
-                  {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code'}
-                </button>
-              </div>
-            </form>
+            </div>
           )}
 
           {/* Step 3: Password */}
