@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { PageMeta } from '@/components/shared/PageMeta'
@@ -11,19 +11,18 @@ export function AuthVerify() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { verifyOtp } = useAuth()
-  const [status, setStatus] = useState<Status>('verifying')
-  const [errorMsg, setErrorMsg] = useState('')
+
+  const token = useMemo(() => searchParams.get('token'), [searchParams])
+  const email = useMemo(() => searchParams.get('email'), [searchParams])
+  const type = useMemo(() => searchParams.get('type') || 'signup', [searchParams])
+
+  const hasParams = Boolean(token && email)
+
+  const [status, setStatus] = useState<Status>(hasParams ? 'verifying' : 'error')
+  const [errorMsg, setErrorMsg] = useState(hasParams ? '' : 'Invalid verification link.')
 
   useEffect(() => {
-    const token = searchParams.get('token')
-    const email = searchParams.get('email')
-    const type = searchParams.get('type') || 'signup'
-
-    if (!token || !email) {
-      setStatus('error')
-      setErrorMsg('Invalid verification link.')
-      return
-    }
+    if (!token || !email) return
 
     verifyOtp(email, token)
       .then(() => {
@@ -35,7 +34,7 @@ export function AuthVerify() {
         setStatus('error')
         setErrorMsg('This code has expired or is invalid. Please request a new one.')
       })
-  }, [searchParams, verifyOtp, navigate])
+  }, [token, email, type, verifyOtp, navigate])
 
   return (
     <div className="min-h-dvh bg-[#0a0a0a] flex items-center justify-center px-4">
