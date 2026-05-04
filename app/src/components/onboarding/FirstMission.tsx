@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Engine, ProductStage } from '@/types'
 import { ENGINE_META } from '@/types'
 import type { Action } from '@/hooks/useAppState'
+import { useAISuggest } from '@/hooks/useAISuggest'
 import { Welcome } from './steps/Welcome'
 import { ProductName } from './steps/ProductName'
 import { StageSelect } from './steps/StageSelect'
@@ -20,6 +21,7 @@ export function FirstMission({ dispatch, onComplete }: Props) {
   const [stage, setStage] = useState<ProductStage>('early')
   const [primaryEngine, setPrimaryEngine] = useState<Engine>('pull')
   const [secondaryEngines, setSecondaryEngines] = useState<Engine[]>(['push'])
+  const ai = useAISuggest()
 
   function toggleSecondary(engine: Engine) {
     setSecondaryEngines(prev =>
@@ -66,6 +68,7 @@ export function FirstMission({ dispatch, onComplete }: Props) {
           onDescriptionChange={setDescription}
           onNext={() => setStep(3)}
           onBack={() => setStep(1)}
+          ai={ai}
         />
       )}
       {step === 3 && (
@@ -74,6 +77,7 @@ export function FirstMission({ dispatch, onComplete }: Props) {
           onStageChange={setStage}
           onNext={() => setStep(4)}
           onBack={() => setStep(2)}
+          ai={ai}
         />
       )}
       {step === 4 && (
@@ -84,6 +88,7 @@ export function FirstMission({ dispatch, onComplete }: Props) {
           onSecondaryToggle={toggleSecondary}
           onNext={() => setStep(5)}
           onBack={() => setStep(3)}
+          ai={ai}
         />
       )}
       {step === 5 && (

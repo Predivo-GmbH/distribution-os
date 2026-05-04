@@ -1,5 +1,7 @@
+import { Sparkles } from 'lucide-react'
 import type { Engine } from '@/types'
 import { ENGINE_META } from '@/types'
+import type { useAISuggest } from '@/hooks/useAISuggest'
 
 interface Props {
   primaryEngine: Engine
@@ -8,6 +10,7 @@ interface Props {
   onSecondaryToggle: (e: Engine) => void
   onNext: () => void
   onBack: () => void
+  ai?: ReturnType<typeof useAISuggest>
 }
 
 const ENGINE_DESCRIPTIONS: Record<Engine, string> = {
@@ -21,7 +24,22 @@ const ENGINE_DESCRIPTIONS: Record<Engine, string> = {
 
 const ENGINES: Engine[] = ['pull', 'push', 'bridge', 'search', 'equity', 'persistence']
 
-export function EngineSelect({ primaryEngine, secondaryEngines, onPrimaryChange, onSecondaryToggle, onNext, onBack }: Props) {
+export function EngineSelect({ primaryEngine, secondaryEngines, onPrimaryChange, onSecondaryToggle, onNext, onBack, ai }: Props) {
+  const aiPrimary = ai?.analysis?.primaryEngine
+  const aiSecondary = ai?.analysis?.secondaryEngines ?? []
+  const aiReasoning = ai?.analysis?.engineReasoning
+
+  function handleApplyAI() {
+    if (!aiPrimary) return
+    onPrimaryChange(aiPrimary)
+    // Apply secondary engines by toggling
+    for (const eng of aiSecondary) {
+      if (eng !== aiPrimary && !secondaryEngines.includes(eng)) {
+        onSecondaryToggle(eng)
+      }
+    }
+  }
+
   return (
     <div className="max-w-xl mx-auto py-6 sm:py-12">
       <p className="text-xs font-semibold uppercase tracking-[0.05em] text-[var(--color-accent-text)] mb-2">
@@ -33,6 +51,28 @@ export function EngineSelect({ primaryEngine, secondaryEngines, onPrimaryChange,
       <p className="text-sm text-[var(--color-ink-body)] mb-5 sm:mb-8">
         Engines are the channels through which you distribute your product. Pick one primary engine to focus on, then optionally add secondary engines. Your weekly tasks will be generated based on these selections.
       </p>
+
+      {/* AI recommendation banner */}
+      {aiPrimary && (
+        <button
+          onClick={handleApplyAI}
+          className="w-full mb-5 flex items-start gap-3 px-4 py-3 rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-accent-light)] text-left transition-colors hover:border-[var(--color-accent)]/60"
+        >
+          <Sparkles size={14} className="text-[var(--color-accent-text)] shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-[var(--color-accent-text)]">
+              AI suggests: {ENGINE_META[aiPrimary].label}
+              {aiSecondary.length > 0 && (
+                <span className="font-normal"> + {aiSecondary.map(e => ENGINE_META[e].label).join(', ')}</span>
+              )}
+            </p>
+            {aiReasoning && (
+              <p className="text-xs text-[var(--color-ink-muted)] mt-0.5">{aiReasoning}</p>
+            )}
+            <p className="text-[10px] text-[var(--color-ink-muted)] mt-1">Click to apply</p>
+          </div>
+        </button>
+      )}
 
       {/* Primary engine */}
       <div className="mb-6">
@@ -59,6 +99,12 @@ export function EngineSelect({ primaryEngine, secondaryEngines, onPrimaryChange,
                 <span className="text-sm font-semibold text-[var(--color-ink)]">
                   {ENGINE_META[engine].label}
                 </span>
+                {aiPrimary === engine && primaryEngine !== engine && (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium text-[var(--color-accent-text)] bg-[var(--color-accent-light)]">
+                    <Sparkles size={8} />
+                    AI pick
+                  </span>
+                )}
               </div>
               <p className="text-xs text-[var(--color-ink-muted)] leading-relaxed">
                 {ENGINE_DESCRIPTIONS[engine]}
@@ -88,6 +134,9 @@ export function EngineSelect({ primaryEngine, secondaryEngines, onPrimaryChange,
                 style={{ backgroundColor: ENGINE_META[engine].color }}
               />
               {ENGINE_META[engine].label}
+              {aiSecondary.includes(engine) && !secondaryEngines.includes(engine) && (
+                <Sparkles size={8} className="text-[var(--color-accent-text)]" />
+              )}
             </button>
           ))}
         </div>

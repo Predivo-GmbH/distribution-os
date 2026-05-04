@@ -1,5 +1,7 @@
+import { Sparkles, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import type { useAISuggest } from '@/hooks/useAISuggest'
 
 interface Props {
   name: string
@@ -8,9 +10,18 @@ interface Props {
   onDescriptionChange: (v: string) => void
   onNext: () => void
   onBack: () => void
+  ai?: ReturnType<typeof useAISuggest>
 }
 
-export function ProductName({ name, description, onNameChange, onDescriptionChange, onNext, onBack }: Props) {
+export function ProductName({ name, description, onNameChange, onDescriptionChange, onNext, onBack, ai }: Props) {
+  async function handleAISuggest() {
+    if (!ai || !name.trim()) return
+    const result = await ai.analyze(name, description)
+    if (result?.description && !description.trim()) {
+      onDescriptionChange(result.description)
+    }
+  }
+
   return (
     <div className="max-w-lg mx-auto py-6 sm:py-12">
       <p className="text-xs font-semibold uppercase tracking-[0.05em] text-[var(--color-accent-text)] mb-2">
@@ -33,12 +44,31 @@ export function ProductName({ name, description, onNameChange, onDescriptionChan
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--color-ink)] mb-1">Short Description</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-medium text-[var(--color-ink)]">Short Description</label>
+            {ai?.available && name.trim() && (
+              <button
+                type="button"
+                onClick={handleAISuggest}
+                disabled={ai.loading}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-[var(--color-accent-text)] hover:bg-[var(--color-accent-light)] transition-colors disabled:opacity-50"
+              >
+                {ai.loading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                {ai.loading ? 'Analyzing...' : 'AI Suggest'}
+              </button>
+            )}
+          </div>
           <Input
             value={description}
             onChange={e => onDescriptionChange(e.target.value)}
             placeholder="One line about what it does"
           />
+          {ai?.analysis?.description && description === ai.analysis.description && (
+            <p className="mt-1.5 text-xs text-[var(--color-accent-text)] flex items-center gap-1">
+              <Sparkles size={10} />
+              AI-generated — feel free to edit
+            </p>
+          )}
         </div>
       </div>
 

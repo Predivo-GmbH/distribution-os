@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { X } from 'lucide-react'
+import { X, Sparkles, Loader2 } from 'lucide-react'
 import type { Product, ProductStage, Engine } from '@/types'
 import { ENGINE_META } from '@/types'
 import type { Action } from '@/hooks/useAppState'
 import { Input } from '@/components/ui/Input'
+import { useAISuggest } from '@/hooks/useAISuggest'
 
 interface Props {
   open: boolean
@@ -37,6 +38,7 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
   const [stage, setStage] = useState<ProductStage>('early')
   const [primaryEngine, setPrimaryEngine] = useState<Engine>('pull')
   const [secondaryEngines, setSecondaryEngines] = useState<Engine[]>([])
+  const ai = useAISuggest()
 
   // Pre-fill when editing — setState in effect is intentional here to sync form with prop
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -108,6 +110,16 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
       firstInput?.focus()
     }
   }, [open])
+
+  async function handleAISuggest() {
+    if (!name.trim()) return
+    const result = await ai.analyze(name, description)
+    if (!result) return
+    if (!description.trim() && result.description) setDescription(result.description)
+    setStage(result.stage)
+    setPrimaryEngine(result.primaryEngine)
+    setSecondaryEngines(result.secondaryEngines.filter(e => e !== result.primaryEngine))
+  }
 
   function toggleSecondary(engine: Engine) {
     setSecondaryEngines(prev =>
@@ -191,6 +203,21 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
             />
             <p className="mt-1 text-xs text-[var(--color-ink-muted)]">Enter a product name</p>
           </div>
+
+          {/* AI Suggest banner */}
+          {ai.available && name.trim() && !editProduct && (
+            <button
+              type="button"
+              onClick={handleAISuggest}
+              disabled={ai.loading}
+              className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-dashed border-[var(--color-accent)]/40 bg-[var(--color-accent-light)]/50 text-left transition-colors hover:border-[var(--color-accent)]/70 disabled:opacity-60"
+            >
+              {ai.loading ? <Loader2 size={14} className="animate-spin text-[var(--color-accent-text)]" /> : <Sparkles size={14} className="text-[var(--color-accent-text)]" />}
+              <span className="text-xs font-medium text-[var(--color-accent-text)]">
+                {ai.loading ? 'Analyzing product...' : 'AI Fill — auto-suggest description, stage & engines'}
+              </span>
+            </button>
+          )}
 
           {/* Description */}
           <div>

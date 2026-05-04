@@ -1,10 +1,13 @@
+import { Sparkles } from 'lucide-react'
 import type { ProductStage } from '@/types'
+import type { useAISuggest } from '@/hooks/useAISuggest'
 
 interface Props {
   stage: ProductStage
   onStageChange: (s: ProductStage) => void
   onNext: () => void
   onBack: () => void
+  ai?: ReturnType<typeof useAISuggest>
 }
 
 const STAGES: { value: ProductStage; label: string; desc: string }[] = [
@@ -30,7 +33,14 @@ const STAGES: { value: ProductStage; label: string; desc: string }[] = [
   },
 ]
 
-export function StageSelect({ stage, onStageChange, onNext, onBack }: Props) {
+export function StageSelect({ stage, onStageChange, onNext, onBack, ai }: Props) {
+  const aiStage = ai?.analysis?.stage
+  const aiReasoning = ai?.analysis?.stageReasoning
+
+  function handleApplyAI() {
+    if (aiStage) onStageChange(aiStage)
+  }
+
   return (
     <div className="max-w-lg mx-auto py-6 sm:py-12">
       <p className="text-xs font-semibold uppercase tracking-[0.05em] text-[var(--color-accent-text)] mb-2">
@@ -42,6 +52,25 @@ export function StageSelect({ stage, onStageChange, onNext, onBack }: Props) {
       <p className="text-sm text-[var(--color-ink-body)] mb-8">
         Your stage determines which distribution tasks are most relevant right now. You can change this later as your product grows.
       </p>
+
+      {/* AI recommendation banner */}
+      {aiStage && (
+        <button
+          onClick={handleApplyAI}
+          className="w-full mb-4 flex items-start gap-3 px-4 py-3 rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-accent-light)] text-left transition-colors hover:border-[var(--color-accent)]/60"
+        >
+          <Sparkles size={14} className="text-[var(--color-accent-text)] shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-[var(--color-accent-text)]">
+              AI suggests: {STAGES.find(s => s.value === aiStage)?.label}
+            </p>
+            {aiReasoning && (
+              <p className="text-xs text-[var(--color-ink-muted)] mt-0.5">{aiReasoning}</p>
+            )}
+            <p className="text-[10px] text-[var(--color-ink-muted)] mt-1">Click to apply</p>
+          </div>
+        </button>
+      )}
 
       <div role="radiogroup" aria-label="Product stage" className="space-y-2 mb-8">
         {STAGES.map(s => (
@@ -69,8 +98,16 @@ export function StageSelect({ stage, onStageChange, onNext, onBack }: Props) {
                   <div className="w-2 h-2 rounded-full bg-[var(--color-accent)]" />
                 )}
               </div>
-              <div>
-                <p className="text-sm font-semibold text-[var(--color-ink)]">{s.label}</p>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-[var(--color-ink)]">{s.label}</p>
+                  {aiStage === s.value && stage !== s.value && (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium text-[var(--color-accent-text)] bg-[var(--color-accent-light)]">
+                      <Sparkles size={8} />
+                      AI pick
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-[var(--color-ink-muted)] mt-0.5">{s.desc}</p>
               </div>
             </div>
