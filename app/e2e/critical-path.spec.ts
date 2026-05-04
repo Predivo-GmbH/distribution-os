@@ -18,7 +18,8 @@ import { test, expect } from '@playwright/test'
 const CONFIG = {
   authPath: '/login',
   testEmail: 'roger@mueller.ro',
-  supabaseUrl: 'https://jxjpbmkgmuunpayqgbsx.supabase.co',
+  supabaseUrl: process.env.VITE_SUPABASE_URL || 'https://jxjpbmkgmuunpayqgbsx.supabase.co',
+  supabaseAnonKey: process.env.VITE_SUPABASE_ANON_KEY || '',
   edgeFunctions: [
     'send-auth-email',
     'stripe-webhook',
@@ -158,7 +159,10 @@ test.describe('CRITICAL PATH — Infrastructure', () => {
   test('Supabase auth service is healthy', async ({ request }) => {
     const response = await request.get(
       `${CONFIG.supabaseUrl}/auth/v1/health`,
-      { failOnStatusCode: false }
+      {
+        headers: CONFIG.supabaseAnonKey ? { apikey: CONFIG.supabaseAnonKey } : {},
+        failOnStatusCode: false,
+      }
     )
     expect(response.status()).toBe(200)
   })
