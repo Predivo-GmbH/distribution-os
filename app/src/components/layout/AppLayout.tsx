@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { LayoutDashboard, Package, Settings, BookOpen, Inbox, Menu, X, Lightbulb, FileText, Rocket, Palette, FileEdit, Map, ClipboardCheck, Clock, Globe, Lock } from 'lucide-react'
+import { LayoutDashboard, Package, Settings, BookOpen, Inbox, Menu, X, Lightbulb, FileText, Rocket, Palette, FileEdit, Map, ClipboardCheck, Clock, Globe, Lock, LogOut } from 'lucide-react'
 import type { Product } from '@/types'
 import { ENGINE_META } from '@/types'
 import { cn } from '@/lib/utils'
@@ -14,6 +14,8 @@ interface Props {
   products: Product[]
   showBriefingBadge?: boolean
   onboardingComplete?: boolean
+  userEmail?: string
+  onSignOut?: () => Promise<void>
 }
 
 const ONBOARDING_UNLOCKED = new Set(['/dashboard', '/products', '/settings'])
@@ -33,7 +35,7 @@ const NAV_ITEMS = [
   { to: '/analyze', icon: Globe, label: 'Analyze' },
 ]
 
-export function AppLayout({ children, products, showBriefingBadge, onboardingComplete = true }: Props) {
+export function AppLayout({ children, products, showBriefingBadge, onboardingComplete = true, userEmail, onSignOut }: Props) {
   const [inboxCount, setInboxCount] = useState(() => getPendingCount())
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -150,6 +152,34 @@ export function AppLayout({ children, products, showBriefingBadge, onboardingCom
 
       {/* Spacer */}
       <div className="flex-1" />
+
+      {/* User account */}
+      {userEmail && (
+        <div className="px-3 pb-2">
+          <div className="border-t border-[var(--color-edge)] pt-3">
+            <div className="flex items-center gap-2.5 px-3 py-2">
+              <div className="w-7 h-7 rounded-full bg-[var(--color-accent)] flex items-center justify-center shrink-0">
+                <span className="text-xs font-bold text-white leading-none">
+                  {userEmail[0].toUpperCase()}
+                </span>
+              </div>
+              <span className="text-sm text-[var(--color-ink-body)] truncate flex-1" title={userEmail}>
+                {userEmail}
+              </span>
+              {onSignOut && (
+                <button
+                  onClick={async () => { await onSignOut(); window.location.href = '/login' }}
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-error)] transition-colors"
+                  title="Sign out"
+                  aria-label="Sign out"
+                >
+                  <LogOut size={14} />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Resources + Settings section */}
       <div className="px-3 pb-4">

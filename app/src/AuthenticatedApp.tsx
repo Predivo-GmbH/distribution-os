@@ -7,6 +7,7 @@ import { useAppState } from '@/hooks/useAppState'
 import { useOnboardingState } from '@/hooks/useOnboardingState'
 import { usePreferences } from '@/hooks/usePreferences'
 import { useScheduler } from '@/hooks/useScheduler'
+import { useAuth } from '@/hooks/useAuth'
 
 const Dashboard = lazy(() => import('@/components/dashboard/Dashboard').then(m => ({ default: m.Dashboard })))
 const ProductView = lazy(() => import('@/components/products/ProductView').then(m => ({ default: m.ProductView })))
@@ -34,6 +35,7 @@ const AnalyzePage = lazy(() => import('@/components/analyze/AnalyzePage').then(m
 export function AuthenticatedApp() {
   const { state, dispatch } = useAppState()
   const { prefs, setDarkMode, setWeekStartDay } = usePreferences()
+  const { user, signOut } = useAuth()
   const hasProducts = state.products.length > 0
   const {
     isFirstTime,
@@ -52,7 +54,7 @@ export function AuthenticatedApp() {
   const onboardingComplete = !isFirstTime && !needsSetupSprint
 
   return (
-    <AppLayout products={state.products} showBriefingBadge={showBriefingBadge} onboardingComplete={onboardingComplete}>
+    <AppLayout products={state.products} showBriefingBadge={showBriefingBadge} onboardingComplete={onboardingComplete} userEmail={user?.email} onSignOut={signOut}>
       {showWelcomeModal && (
         <WelcomeModal
           productName={state.products[0]?.name || 'Your product'}
