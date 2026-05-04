@@ -81,7 +81,7 @@ describe('Playbooks', () => {
 
   it('shows empty state when no products', () => {
     renderComponent(makeState([]))
-    expect(screen.getByText('Add a product first to generate playbooks.')).toBeInTheDocument()
+    expect(screen.getByText('No product yet')).toBeInTheDocument()
   })
 
   it('renders Get Recommendation button', () => {

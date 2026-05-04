@@ -84,7 +84,7 @@ describe('AuditPage', () => {
 
   it('shows empty state when no products', () => {
     renderComponent(makeState([]))
-    expect(screen.getByText('Add a product first to run an audit.')).toBeInTheDocument()
+    expect(screen.getByText('No product yet')).toBeInTheDocument()
   })
 
   it('renders Run Full Audit button', () => {

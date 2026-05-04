@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
-import { Inbox as InboxIcon, Check, Pencil, RefreshCw, X, ChevronDown, ChevronRight, Filter } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Inbox as InboxIcon, Check, Pencil, RefreshCw, X, ChevronDown, ChevronRight, Filter, Map, Sparkles } from 'lucide-react'
 import type { AppState, InboxArtifact, ArtifactStatus, Engine } from '@/types'
 import { ENGINE_META, WORKER_LABELS } from '@/types'
 import { loadInbox, updateArtifactStatus, updateArtifact, removeArtifact } from '@/lib/storage'
@@ -20,6 +21,7 @@ const STATUS_LABELS: Record<ArtifactStatus, { label: string; color: string; bg: 
 }
 
 export function Inbox({ state }: Props) {
+  const navigate = useNavigate()
   const [artifacts, setArtifacts] = useState<InboxArtifact[]>(() => loadInbox())
   const [statusFilter, setStatusFilter] = useState<FilterStatus>('all')
   const [productFilter, setProductFilter] = useState<string>('all')
@@ -171,12 +173,26 @@ export function Inbox({ state }: Props) {
       {/* Empty state */}
       {filtered.length === 0 && (
         <div className="text-center py-16">
-          <InboxIcon size={40} className="mx-auto mb-3 text-[var(--color-ink-muted)] opacity-40" />
-          <p className="text-sm text-[var(--color-ink-muted)]">
-            {artifacts.length === 0
-              ? 'No artifacts yet. AI workers will generate content here once configured.'
-              : 'No artifacts match your current filters.'}
-          </p>
+          <div className="mx-auto w-14 h-14 rounded-2xl bg-indigo-500/[0.08] flex items-center justify-center mb-4">
+            <InboxIcon size={24} className="text-indigo-400" />
+          </div>
+          {artifacts.length === 0 ? (
+            <>
+              <h3 className="text-base font-semibold text-[var(--color-ink)] mb-1">Your inbox is empty</h3>
+              <p className="text-sm text-[var(--color-ink-muted)] max-w-sm mx-auto mb-5">
+                AI workers will deliver generated content here — blog posts, outreach emails, audit reports, and more. Run a playbook to get your first results.
+              </p>
+              <button
+                onClick={() => navigate('/playbooks')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-xl bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
+              >
+                <Map size={14} />
+                Go to Playbooks
+              </button>
+            </>
+          ) : (
+            <p className="text-sm text-[var(--color-ink-muted)]">No artifacts match your current filters.</p>
+          )}
         </div>
       )}
 

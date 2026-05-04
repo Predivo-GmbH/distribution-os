@@ -88,7 +88,7 @@ describe('ValidationPipeline', () => {
 
   it('shows empty state when no products', () => {
     renderPipeline(makeState([]))
-    expect(screen.getByText('Add a product first to run validation.')).toBeInTheDocument()
+    expect(screen.getByText('No product yet')).toBeInTheDocument()
   })
 
   it('renders Generate buttons for each section', () => {

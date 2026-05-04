@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Search, Inbox, TrendingUp, TrendingDown } from 'lucide-react'
+import { Search, Inbox, TrendingUp, TrendingDown, Map, Lightbulb, BookOpen, Rocket } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { AppState } from '@/types'
 import { ENGINE_META } from '@/types'
@@ -99,6 +99,57 @@ export function Dashboard({ state, dispatch }: Props) {
           <p>Tasks are auto-generated each Monday based on your products' stages and active engines. Your <strong>weekly score</strong> (top-right) tracks total points earned. Aim for 100%, but even consistent 60% weeks build real momentum.</p>
         </div>
       </IntelligencePanel>
+
+      {/* What's Next — shown for new users who just completed setup */}
+      {completed === 0 && !lastWeek && (
+        <div className="relative overflow-hidden rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/[0.06] to-violet-500/[0.04] p-5 sm:p-6">
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/[0.06] blur-[60px] rounded-full pointer-events-none" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-3">
+              <Rocket size={16} className="text-indigo-400" />
+              <h3 className="text-sm font-bold text-[var(--color-ink)]">You're all set! Here's what to do first:</h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button
+                onClick={() => navigate('/playbooks')}
+                className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-surface)] border border-[var(--color-edge)] hover:border-indigo-500/30 hover:bg-indigo-500/[0.04] transition-all text-left"
+              >
+                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0">
+                  <Map size={14} className="text-indigo-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-[var(--color-ink)]">Run a playbook</p>
+                  <p className="text-[10px] text-[var(--color-ink-muted)]">Generate your first strategy</p>
+                </div>
+              </button>
+              <button
+                onClick={() => navigate('/validate')}
+                className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-surface)] border border-[var(--color-edge)] hover:border-indigo-500/30 hover:bg-indigo-500/[0.04] transition-all text-left"
+              >
+                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0">
+                  <Lightbulb size={14} className="text-indigo-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-[var(--color-ink)]">Validate your idea</p>
+                  <p className="text-[10px] text-[var(--color-ink-muted)]">3-agent market deep dive</p>
+                </div>
+              </button>
+              <button
+                onClick={() => navigate('/briefing')}
+                className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-surface)] border border-[var(--color-edge)] hover:border-indigo-500/30 hover:bg-indigo-500/[0.04] transition-all text-left"
+              >
+                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0">
+                  <BookOpen size={14} className="text-indigo-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-[var(--color-ink)]">Read your briefing</p>
+                  <p className="text-[10px] text-[var(--color-ink-muted)]">Learn the distribution playbook</p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Header with ambient glow */}
       <div className="relative">

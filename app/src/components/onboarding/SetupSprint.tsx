@@ -268,19 +268,21 @@ export function SetupSprint({ state, onComplete }: Props) {
             )}
 
             {firstRunStatus === 'done' && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-[var(--color-success)]">
-                  <CheckCircle2 size={16} />
-                  First run complete! {artifactCount > 0 ? `${artifactCount} artifact${artifactCount !== 1 ? 's' : ''} generated.` : 'Workers executed.'}
+              <div className="space-y-4">
+                <div className="text-center py-2">
+                  <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center mb-3 shadow-lg shadow-indigo-500/20">
+                    <CheckCircle2 size={24} className="text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold text-[var(--color-ink)]">You're live!</h3>
+                  <p className="text-sm text-[var(--color-ink-muted)] mt-1">
+                    {artifactCount > 0 ? `${artifactCount} artifact${artifactCount !== 1 ? 's' : ''} generated.` : 'Your workers are ready.'} Your 48 AI workers are now configured and ready to distribute.
+                  </p>
                 </div>
-                <p className="text-sm text-[var(--color-ink-body)]">
-                  Head to the Inbox to review, edit, and approve your first batch of AI-generated content.
-                </p>
                 <button
                   onClick={onComplete}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 min-h-[44px] rounded-xl bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors active:scale-[0.98]"
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 min-h-[48px] rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold text-sm hover:from-indigo-500 hover:to-violet-500 transition-all active:scale-[0.98] shadow-lg shadow-indigo-500/20"
                 >
-                  Go to Inbox
+                  Go to Dashboard
                   <ChevronRight size={14} />
                 </button>
               </div>

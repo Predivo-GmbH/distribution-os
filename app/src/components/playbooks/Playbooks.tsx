@@ -61,8 +61,14 @@ export function Playbooks({ state }: { state: AppState }) {
       <div className="space-y-6">
         <PageMeta title={`Playbooks — ${APP_NAME}`} noindex />
         <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-ink)] tracking-tight">Engine Playbooks</h1>
-        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-6 text-center">
-          <p className="text-sm text-[var(--color-ink-muted)]">Add a product first to generate playbooks.</p>
+        <div className="bg-[var(--color-surface)] border border-[var(--color-edge)] rounded-2xl p-8 sm:p-12 text-center">
+          <div className="mx-auto w-14 h-14 rounded-2xl bg-indigo-500/[0.08] flex items-center justify-center mb-4">
+            <Compass size={24} className="text-indigo-400" />
+          </div>
+          <h3 className="text-base font-semibold text-[var(--color-ink)] mb-1">No product yet</h3>
+          <p className="text-sm text-[var(--color-ink-muted)] max-w-sm mx-auto">
+            Playbooks generate step-by-step distribution guides tailored to your product. Add your first product to get started.
+          </p>
         </div>
       </div>
     )
