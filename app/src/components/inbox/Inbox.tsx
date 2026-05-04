@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Inbox as InboxIcon, Check, Pencil, RefreshCw, X, ChevronDown, ChevronRight, Filter, Map } from 'lucide-react'
+import { Inbox as InboxIcon, Check, Pencil, RefreshCw, X, ChevronDown, ChevronRight, Filter, Map as MapIcon } from 'lucide-react'
 import type { AppState, InboxArtifact, ArtifactStatus, Engine } from '@/types'
 import { ENGINE_META, WORKER_LABELS } from '@/types'
 import { loadInbox, updateArtifactStatus, updateArtifact, removeArtifact } from '@/lib/storage'
@@ -186,7 +186,7 @@ export function Inbox({ state }: Props) {
                 onClick={() => navigate('/playbooks')}
                 className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-xl bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-text)] font-semibold text-sm hover:bg-[var(--color-btn-primary-hover)] transition-colors"
               >
-                <Map size={14} />
+                <MapIcon size={14} />
                 Go to Playbooks
               </button>
             </>
