@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { LayoutDashboard, Package, Settings, BookOpen, Inbox, Menu, X, Lightbulb, FileText, Rocket, Palette, FileEdit, Map, ClipboardCheck, Clock, Globe } from 'lucide-react'
+import { LayoutDashboard, Package, Settings, BookOpen, Inbox, Menu, X, Lightbulb, FileText, Rocket, Palette, FileEdit, Map, ClipboardCheck, Clock, Globe, Lock } from 'lucide-react'
 import type { Product } from '@/types'
 import { ENGINE_META } from '@/types'
 import { cn } from '@/lib/utils'
@@ -13,7 +13,10 @@ interface Props {
   children: ReactNode
   products: Product[]
   showBriefingBadge?: boolean
+  onboardingComplete?: boolean
 }
+
+const ONBOARDING_UNLOCKED = new Set(['/dashboard', '/products', '/settings'])
 
 const NAV_ITEMS = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -30,7 +33,7 @@ const NAV_ITEMS = [
   { to: '/analyze', icon: Globe, label: 'Analyze' },
 ]
 
-export function AppLayout({ children, products, showBriefingBadge }: Props) {
+export function AppLayout({ children, products, showBriefingBadge, onboardingComplete = true }: Props) {
   const [inboxCount, setInboxCount] = useState(() => getPendingCount())
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -75,30 +78,48 @@ export function AppLayout({ children, products, showBriefingBadge }: Props) {
 
       {/* Primary navigation */}
       <nav className="flex flex-col gap-0.5 px-3 py-4" aria-label="Main navigation">
-        {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/dashboard'}
-            onClick={() => setSidebarOpen(false)}
-            className={({ isActive }) =>
-              cn(
-                'group flex items-center gap-2.5 px-3 py-2 min-h-[44px] rounded-xl text-sm transition-all duration-200',
-                isActive
-                  ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-text)] font-medium'
-                  : 'text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-ink)]'
-              )
-            }
-          >
-            <Icon size={16} strokeWidth={1.5} className="shrink-0" />
-            {label}
-            {label === 'Inbox' && inboxCount > 0 && (
-              <span className="ml-auto px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-[var(--color-accent)] text-white leading-none tabular-nums">
-                {inboxCount}
-              </span>
-            )}
-          </NavLink>
-        ))}
+        {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
+          const locked = !onboardingComplete && !ONBOARDING_UNLOCKED.has(to)
+
+          if (locked) {
+            return (
+              <div
+                key={to}
+                className="group flex items-center gap-2.5 px-3 py-2 min-h-[44px] rounded-xl text-sm opacity-35 cursor-not-allowed select-none"
+                title="Complete setup to unlock"
+              >
+                <Icon size={16} strokeWidth={1.5} className="shrink-0" />
+                {label}
+                <Lock size={10} className="ml-auto text-[var(--color-ink-muted)]" />
+              </div>
+            )
+          }
+
+          return (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/dashboard'}
+              onClick={() => setSidebarOpen(false)}
+              className={({ isActive }) =>
+                cn(
+                  'group flex items-center gap-2.5 px-3 py-2 min-h-[44px] rounded-xl text-sm transition-all duration-200',
+                  isActive
+                    ? 'bg-[var(--color-accent-light)] text-[var(--color-accent-text)] font-medium'
+                    : 'text-[var(--color-ink-body)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-ink)]'
+                )
+              }
+            >
+              <Icon size={16} strokeWidth={1.5} className="shrink-0" />
+              {label}
+              {label === 'Inbox' && inboxCount > 0 && (
+                <span className="ml-auto px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-[var(--color-accent)] text-white leading-none tabular-nums">
+                  {inboxCount}
+                </span>
+              )}
+            </NavLink>
+          )
+        })}
       </nav>
 
       {/* Engine section */}

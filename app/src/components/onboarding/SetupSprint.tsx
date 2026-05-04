@@ -400,7 +400,7 @@ function ProductCard({ product }: { product: Product }) {
             ? 'bg-[var(--color-success)]/10 text-[var(--color-success)]'
             : 'bg-[var(--color-warning-bg)] text-[var(--color-warning)]'
         }`}>
-          {configured ? 'KB ready' : 'KB needed'}
+          {configured ? 'KB ready' : 'Add knowledge base'}
         </span>
       </div>
     </div>

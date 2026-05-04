@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { WelcomeModal } from '@/components/onboarding/WelcomeModal'
 import { useAppState } from '@/hooks/useAppState'
 import { useOnboardingState } from '@/hooks/useOnboardingState'
 import { usePreferences } from '@/hooks/usePreferences'
@@ -37,17 +38,27 @@ export function AuthenticatedApp() {
   const {
     isFirstTime,
     needsSetupSprint,
+    showWelcomeModal,
     completeFirstMission,
     completeSetupSprint,
     markBriefingVisited,
+    dismissWelcomeModal,
     showBriefingBadge,
   } = useOnboardingState(hasProducts)
 
   // Run automation scheduler in background
   useScheduler(state.products)
 
+  const onboardingComplete = !isFirstTime && !needsSetupSprint
+
   return (
-    <AppLayout products={state.products} showBriefingBadge={showBriefingBadge}>
+    <AppLayout products={state.products} showBriefingBadge={showBriefingBadge} onboardingComplete={onboardingComplete}>
+      {showWelcomeModal && (
+        <WelcomeModal
+          productName={state.products[0]?.name || 'Your product'}
+          onDismiss={dismissWelcomeModal}
+        />
+      )}
       <Suspense fallback={<LoadingSpinner />}>
         <Routes>
           <Route

@@ -6,6 +6,7 @@ interface OnboardingState {
   firstMissionComplete: boolean
   setupSprintComplete: boolean
   briefingVisited: boolean
+  welcomeModalSeen: boolean
   completedSteps: number[]
 }
 
@@ -13,6 +14,7 @@ const DEFAULT_STATE: OnboardingState = {
   firstMissionComplete: false,
   setupSprintComplete: false,
   briefingVisited: false,
+  welcomeModalSeen: false,
   completedSteps: [],
 }
 
@@ -71,16 +73,28 @@ export function useOnboardingState(hasProducts: boolean) {
     })
   }, [])
 
+  const dismissWelcomeModal = useCallback(() => {
+    setState(prev => {
+      if (prev.welcomeModalSeen) return prev
+      const next = { ...prev, welcomeModalSeen: true }
+      save(next)
+      return next
+    })
+  }, [])
+
   const needsSetupSprint = !isFirstTime && hasProducts && !state.setupSprintComplete
+  const showWelcomeModal = needsSetupSprint && !state.welcomeModalSeen
 
   return {
     onboarding: state,
     isFirstTime,
     needsSetupSprint,
+    showWelcomeModal,
     completeStep,
     completeFirstMission,
     completeSetupSprint,
     markBriefingVisited,
+    dismissWelcomeModal,
     showBriefingBadge: !state.briefingVisited,
   }
 }
