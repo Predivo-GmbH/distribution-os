@@ -33,12 +33,14 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_PASSWORD_GATE_DISABLED: 'true'
       - name: E2E Tests
-        run: npm run test:e2e
+        run: npx playwright test --project=chromium --project=mobile --timeout=15000
+        timeout-minutes: 10
         continue-on-error: true
         env:
           VITE_PASSWORD_GATE_DISABLED: 'true'
       - name: Accessibility Tests
         run: npm run test:a11y
+        timeout-minutes: 5
         continue-on-error: true
         env:
           VITE_PASSWORD_GATE_DISABLED: 'true'
