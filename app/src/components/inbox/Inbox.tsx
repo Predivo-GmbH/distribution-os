@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Inbox as InboxIcon, Check, Pencil, RefreshCw, X, ChevronDown, ChevronRight, Filter, Map, Sparkles } from 'lucide-react'
+import { Inbox as InboxIcon, Check, Pencil, RefreshCw, X, ChevronDown, ChevronRight, Filter, Map } from 'lucide-react'
 import type { AppState, InboxArtifact, ArtifactStatus, Engine } from '@/types'
 import { ENGINE_META, WORKER_LABELS } from '@/types'
 import { loadInbox, updateArtifactStatus, updateArtifact, removeArtifact } from '@/lib/storage'
