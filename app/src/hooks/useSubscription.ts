@@ -3,7 +3,7 @@ import { isSupabaseConfigured } from '@/lib/supabase-config'
 import type { SubscriptionTier } from '@/types'
 
 export const TIER_LIMITS = {
-  free: { maxProducts: 1, aiRunsPerMonth: 3 },
+  free: { maxProducts: 1, aiRunsPerMonth: 25 },
   starter: { maxProducts: 2, aiRunsPerMonth: 15 },
   growth: { maxProducts: 5, aiRunsPerMonth: 50 },
   scale: { maxProducts: Infinity, aiRunsPerMonth: Infinity },

@@ -43,21 +43,37 @@ export function ProductName({ name, description, onNameChange, onDescriptionChan
             placeholder="e.g. Distribution OS, BelegPilot, Acme CRM"
           />
         </div>
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-sm font-medium text-[var(--color-ink)]">Short Description</label>
-            {ai?.available && name.trim() && (
-              <button
-                type="button"
-                onClick={handleAISuggest}
-                disabled={ai.loading}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-[var(--color-accent-text)] hover:bg-[var(--color-accent-light)] transition-colors disabled:opacity-50"
-              >
-                {ai.loading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                {ai.loading ? 'Analyzing...' : 'AI Suggest'}
-              </button>
+
+        {ai?.available && name.trim() && (
+          <div>
+            <button
+              type="button"
+              onClick={handleAISuggest}
+              disabled={ai.loading}
+              className="w-full flex items-center gap-2.5 px-4 py-3 rounded-xl border border-dashed border-[var(--color-accent)]/40 bg-[var(--color-accent-light)]/50 text-left transition-colors hover:border-[var(--color-accent)]/70 disabled:opacity-60"
+            >
+              {ai.loading ? (
+                <Loader2 size={16} className="animate-spin text-[var(--color-accent-text)] shrink-0" />
+              ) : (
+                <Sparkles size={16} className="text-[var(--color-accent-text)] shrink-0 animate-pulse" />
+              )}
+              <span className="flex flex-col">
+                <span className="text-sm font-medium text-[var(--color-accent-text)]">
+                  {ai.loading ? 'Analyzing...' : 'AI Suggest \u2014 auto-fill description, stage & engines'}
+                </span>
+                {!ai.loading && (
+                  <span className="text-xs text-[var(--color-ink-body)]">(uses 1 credit)</span>
+                )}
+              </span>
+            </button>
+            {ai?.error && (
+              <p className="text-xs text-red-500 mt-1.5">{ai.error}</p>
             )}
           </div>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium text-[var(--color-ink)] mb-1">Short Description</label>
           <Input
             value={description}
             onChange={e => onDescriptionChange(e.target.value)}

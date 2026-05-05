@@ -13,19 +13,27 @@ Deno.serve(async (req: Request) => {
       return createJsonResponse(req, { error: 'Method not allowed' }, 405)
     }
 
-    // Authenticate user
+    // Authenticate user — decode JWT directly to avoid auth API rate limits
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       return createJsonResponse(req, { error: 'Missing authorization' }, 401)
     }
 
-    const admin = getSupabaseAdmin()
-    const { data: { user }, error: authError } = await admin.auth.getUser(
-      authHeader.replace('Bearer ', ''),
-    )
-    if (authError || !user) {
-      return createJsonResponse(req, { error: 'Unauthorized' }, 401)
+    const token = authHeader.replace('Bearer ', '')
+    let userId: string
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      userId = payload.sub
+      if (!userId) throw new Error('no sub claim')
+      // Check expiry
+      if (payload.exp && payload.exp * 1000 < Date.now()) {
+        return createJsonResponse(req, { error: 'Token expired' }, 401)
+      }
+    } catch {
+      return createJsonResponse(req, { error: 'Invalid token' }, 401)
     }
+
+    const admin = getSupabaseAdmin()
 
     const { model, max_tokens, system, messages } = await req.json()
 
@@ -37,7 +45,7 @@ Deno.serve(async (req: Request) => {
     const { data: prefs } = await admin
       .from('user_preferences')
       .select('subscription_tier')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     const tier: SubscriptionTier = (prefs?.subscription_tier as SubscriptionTier) ?? 'free'
@@ -49,7 +57,7 @@ Deno.serve(async (req: Request) => {
       const { count, error: countError } = await admin
         .from('ai_usage')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .gte('created_at', monthStart)
 
       if (countError) {
@@ -70,7 +78,7 @@ Deno.serve(async (req: Request) => {
     const { data: keyRow } = await admin
       .from('user_api_keys')
       .select('api_key')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     if (keyRow?.api_key) {
@@ -109,7 +117,7 @@ Deno.serve(async (req: Request) => {
     const usage = (data as { usage?: { input_tokens?: number; output_tokens?: number } }).usage
     if (usage) {
       admin.from('ai_usage').insert({
-        user_id: user.id,
+        user_id: userId,
         model,
         input_tokens: usage.input_tokens ?? 0,
         output_tokens: usage.output_tokens ?? 0,

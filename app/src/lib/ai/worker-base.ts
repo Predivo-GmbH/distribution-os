@@ -155,14 +155,68 @@ async function callAIViaProxy(config: AIConfig, options: AICallOptions): Promise
     })
 
     if (error) {
+      // If edge function is throttled (429) or unavailable, fall back to direct API
+      const isThrottled = error.message?.includes('429') || error.message?.includes('throttle')
+      if (isThrottled) {
+        return callAIDirect(config, options)
+      }
       return { success: false, content: '', error: error.message || 'Edge function error' }
     }
 
     if (data?.error) {
+      // Also handle 429 returned in the response body
+      if (data.code === 'QUOTA_EXCEEDED') {
+        return { success: false, content: '', error: data.error }
+      }
       return { success: false, content: '', error: data.error }
     }
 
     const text = (data.content as { type: string; text: string }[])
+      .filter((block: { type: string }) => block.type === 'text')
+      .map((block: { text: string }) => block.text)
+      .join('\n')
+
+    return { success: true, content: text }
+  } catch (err) {
+    // On any network failure, attempt direct API fallback
+    return callAIDirect(config, options)
+  }
+}
+
+async function callAIDirect(config: AIConfig, options: AICallOptions): Promise<AICallResult> {
+  // Fallback: direct browser-to-Anthropic API (requires CORS header)
+  const apiKey = config.apiKey
+  if (!apiKey) {
+    return { success: false, content: '', error: 'AI service temporarily unavailable. Add your own API key in Settings to use AI features directly.' }
+  }
+
+  const endpoint = getAPIEndpoint(config)
+
+  try {
+    const response = await fetch(`${endpoint}/v1/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: config.model,
+        max_tokens: options.maxTokens ?? config.maxTokens,
+        system: options.systemPrompt,
+        messages: [{ role: 'user', content: options.userPrompt }],
+      }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      const msg = (errorData as { error?: { message?: string } }).error?.message || `API error ${response.status}`
+      return { success: false, content: '', error: msg }
+    }
+
+    const data = await response.json() as { content: { type: string; text: string }[] }
+    const text = data.content
       .filter((block: { type: string }) => block.type === 'text')
       .map((block: { text: string }) => block.text)
       .join('\n')

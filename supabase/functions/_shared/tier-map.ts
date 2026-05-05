@@ -22,7 +22,7 @@ if (scalePriceId) PRICE_TO_TIER[scalePriceId] = 'scale'
 
 /** Tier limits — must stay in sync with app/src/hooks/useSubscription.ts */
 export const TIER_LIMITS: Record<SubscriptionTier, { maxProducts: number; aiRunsPerMonth: number }> = {
-  free:    { maxProducts: 1,        aiRunsPerMonth: 3 },
+  free:    { maxProducts: 1,        aiRunsPerMonth: 25 },
   starter: { maxProducts: 2,        aiRunsPerMonth: 15 },
   growth:  { maxProducts: 5,        aiRunsPerMonth: 50 },
   scale:   { maxProducts: Infinity, aiRunsPerMonth: Infinity },

@@ -55,7 +55,9 @@ export async function analyzeProduct(name: string, description?: string): Promis
     maxTokens: 512,
   })
 
-  if (!result.success) return null
+  if (!result.success) {
+    throw new Error(result.error || 'AI call failed')
+  }
 
   try {
     // Extract JSON from response (handle markdown code blocks)

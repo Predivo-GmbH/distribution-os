@@ -9,6 +9,7 @@ interface UseAISuggestReturn {
   error: string | null
   analyze: (name: string, description?: string) => Promise<ProductAnalysis | null>
   available: boolean
+  usageNote: string
 }
 
 export function useAISuggest(): UseAISuggestReturn {
@@ -19,27 +20,30 @@ export function useAISuggest(): UseAISuggestReturn {
   // AI is available when either Supabase proxy or local API key is configured
   const available = isSupabaseConfigured || isAIConfigured()
 
+  const usageNote = 'Uses 1 of your monthly AI credits'
+
   const analyze = useCallback(async (name: string, description?: string) => {
     if (!name.trim()) return null
 
-    setLoading(true)
     setError(null)
+    setLoading(true)
 
     try {
       const result = await analyzeProduct(name.trim(), description?.trim() || undefined)
       if (result) {
         setAnalysis(result)
       } else {
-        setError('Could not analyze product. Try again.')
+        setError('AI analysis returned no results. The service may be temporarily unavailable — try again in a moment.')
       }
       return result
-    } catch {
-      setError('AI analysis failed. Try again.')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'AI analysis failed'
+      setError(msg.includes('API key') ? msg : `AI analysis failed: ${msg}`)
       return null
     } finally {
       setLoading(false)
     }
   }, [])
 
-  return { analysis, loading, error, analyze, available }
+  return { analysis, loading, error, analyze, available, usageNote }
 }

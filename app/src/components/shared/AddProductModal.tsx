@@ -219,6 +219,12 @@ export function AddProductModal({ open, onClose, dispatch, editProduct }: Props)
             </button>
           )}
 
+          {ai.error && (
+            <p className="text-xs text-red-500 flex items-center gap-1">
+              <span>Failed:</span> {ai.error}
+            </p>
+          )}
+
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-[var(--color-ink)] mb-1">Description</label>
