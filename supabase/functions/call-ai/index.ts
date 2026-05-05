@@ -2,31 +2,31 @@ import { handleCors, createJsonResponse } from '../_shared/cors.ts'
 import { getSupabaseAdmin } from '../_shared/supabaseAdmin.ts'
 import { TIER_LIMITS, type SubscriptionTier } from '../_shared/tier-map.ts'
 
-const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')
+const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') || ''
 
 Deno.serve(async (req: Request) => {
-  const corsResponse = handleCors(req)
-  if (corsResponse) return corsResponse
-
-  if (req.method !== 'POST') {
-    return createJsonResponse(req, { error: 'Method not allowed' }, 405)
-  }
-
-  // Authenticate user
-  const authHeader = req.headers.get('Authorization')
-  if (!authHeader) {
-    return createJsonResponse(req, { error: 'Missing authorization' }, 401)
-  }
-
-  const admin = getSupabaseAdmin()
-  const { data: { user }, error: authError } = await admin.auth.getUser(
-    authHeader.replace('Bearer ', ''),
-  )
-  if (authError || !user) {
-    return createJsonResponse(req, { error: 'Unauthorized' }, 401)
-  }
-
   try {
+    const corsResponse = handleCors(req)
+    if (corsResponse) return corsResponse
+
+    if (req.method !== 'POST') {
+      return createJsonResponse(req, { error: 'Method not allowed' }, 405)
+    }
+
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return createJsonResponse(req, { error: 'Missing authorization' }, 401)
+    }
+
+    const admin = getSupabaseAdmin()
+    const { data: { user }, error: authError } = await admin.auth.getUser(
+      authHeader.replace('Bearer ', ''),
+    )
+    if (authError || !user) {
+      return createJsonResponse(req, { error: 'Unauthorized' }, 401)
+    }
+
     const { model, max_tokens, system, messages } = await req.json()
 
     if (!model || !messages) {
@@ -53,7 +53,7 @@ Deno.serve(async (req: Request) => {
         .gte('created_at', monthStart)
 
       if (countError) {
-        return createJsonResponse(req, { error: 'Failed to check usage quota' }, 500)
+        return createJsonResponse(req, { error: `Quota check failed: ${countError.message}` }, 500)
       }
 
       if ((count ?? 0) >= limit) {
@@ -118,6 +118,9 @@ Deno.serve(async (req: Request) => {
 
     return createJsonResponse(req, data)
   } catch (err) {
-    return createJsonResponse(req, { error: `Internal error: ${err instanceof Error ? err.message : 'Unknown'}` }, 500)
+    return new Response(JSON.stringify({ error: `Internal error: ${err instanceof Error ? err.message : String(err)}` }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    })
   }
 })
