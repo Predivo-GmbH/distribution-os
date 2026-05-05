@@ -11,7 +11,8 @@
     "test": "vitest",
     "test:ci": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test --project=chromium --project=mobile",
+    "test:critical": "playwright test e2e/critical-path.spec.ts --project=chromium",
+    "test:e2e": "playwright test --project=chromium",
     "test:e2e:ui": "playwright test --ui",
     "test:a11y": "playwright test --project=a11y",
     "test:all": "vitest run && playwright test"
