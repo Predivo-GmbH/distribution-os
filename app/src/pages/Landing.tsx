@@ -644,7 +644,7 @@ export function Landing() {
             </div>
           </div>
           <div className="pt-8 border-t border-white/[0.04] flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-slate-500 text-xs">&copy; {new Date().getFullYear()} Predivo GmbH. All rights reserved.</p>
+            <p className="text-slate-500 text-xs">&copy; {new Date().getFullYear()} Distribution OS by Predivo GmbH. All rights reserved.</p>
             <p className="text-slate-500 text-xs">Made in Switzerland</p>
           </div>
         </div>
