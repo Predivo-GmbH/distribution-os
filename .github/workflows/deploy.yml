@@ -41,6 +41,15 @@ jobs:
           sudo apt-get install -y lftp
           FTP_CONN="set ftp:ssl-allow no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5; open -u ${{ secrets.FTP_USER }},${{ secrets.FTP_PASS }} ${{ secrets.FTP_HOST }};"
 
+          echo "distributionos" > ./app/dist/.site-id
+
+          REMOTE_ID=$(lftp -e "${FTP_CONN} cat /distributionos.predivo.ch/.site-id; quit" 2>/dev/null || echo "")
+          if [ -n "$REMOTE_ID" ] && [ "$REMOTE_ID" != "distributionos" ]; then
+            echo "::error::DEPLOY ABORTED — remote .site-id is '$REMOTE_ID', expected 'distributionos'. Wrong FTP target!"
+            exit 1
+          fi
+          echo "Site-id guard passed (remote='${REMOTE_ID:-<none>}')"
+
           # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
           lftp -e "
             $FTP_CONN
@@ -51,6 +60,7 @@ jobs:
           # Step 2: Upload index.html + root files (switches to new asset references)
           lftp -e "
             $FTP_CONN
+            put ./app/dist/.site-id -o /distributionos.predivo.ch/.site-id;
             put ./app/dist/index.html -o /distributionos.predivo.ch/index.html;
             put ./app/dist/.htaccess -o /distributionos.predivo.ch/.htaccess;
             put ./app/dist/favicon.svg -o /distributionos.predivo.ch/favicon.svg;
