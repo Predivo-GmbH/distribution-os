@@ -1,6 +1,7 @@
 import { handleCors, createJsonResponse } from '../_shared/cors.ts'
 import { getSupabaseAdmin } from '../_shared/supabaseAdmin.ts'
 import { TIER_LIMITS, type SubscriptionTier } from '../_shared/tier-map.ts'
+import { logAnthropicUsage } from '../_shared/log-usage.ts'
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') || ''
 
@@ -112,6 +113,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const data = await response.json()
+    await logAnthropicUsage('Distribution-OS', 'call-ai', data)
 
     // Log usage (fire-and-forget)
     const usage = (data as { usage?: { input_tokens?: number; output_tokens?: number } }).usage

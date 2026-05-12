@@ -1,4 +1,5 @@
 import { handleCors, createJsonResponse } from '../_shared/cors.ts'
+import { logAnthropicUsage } from '../_shared/log-usage.ts'
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') || ''
 
@@ -54,7 +55,9 @@ Deno.serve(async (req: Request) => {
       return createJsonResponse(req, { error: msg }, response.status)
     }
 
-    return createJsonResponse(req, await response.json())
+    const data = await response.json()
+    await logAnthropicUsage('Distribution-OS', 'ai-proxy', data)
+    return createJsonResponse(req, data)
   } catch (err) {
     return new Response(JSON.stringify({ error: `Internal: ${err instanceof Error ? err.message : String(err)}` }), {
       status: 500,
