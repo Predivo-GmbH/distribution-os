@@ -63,9 +63,8 @@ def otp_box(valid_text):
 # --- Confirmation (new user signup via signInWithOtp) ---
 confirmation = layout(''.join([
     '<h1 style="font-size:22px;font-weight:700;color:#18181b;margin:0 0 16px 0;">Confirm your signup</h1>',
-    '<p style="font-size:15px;color:#3f3f46;line-height:1.6;margin:0 0 8px 0;">Enter this code to verify your email address and create your ' + APP + ' account.</p>',
+    '<p style="font-size:15px;color:#3f3f46;line-height:1.6;margin:0 0 8px 0;">Enter this code on the signup page to verify your email address and create your ' + APP + ' account.</p>',
     otp_box('Valid for 10 minutes'),
-    button('Confirm Email', '{{ .ConfirmationURL }}'),
     '<p style="font-size:13px;color:#a1a1aa;margin:16px 0 0 0;">If you did not create an account, you can safely ignore this email.</p>'
 ]))
 
@@ -80,9 +79,8 @@ recovery = layout(''.join([
 # --- Magic Link (existing user login via signInWithOtp) ---
 magic_link = layout(''.join([
     '<h1 style="font-size:22px;font-weight:700;color:#18181b;margin:0 0 16px 0;">Sign in to ' + APP + '</h1>',
-    '<p style="font-size:15px;color:#3f3f46;line-height:1.6;margin:0 0 8px 0;">Use the code below to sign in to your account, or click the button.</p>',
+    '<p style="font-size:15px;color:#3f3f46;line-height:1.6;margin:0 0 8px 0;">Enter this code on the login page to sign in to your account.</p>',
     otp_box('Valid for 10 minutes'),
-    button('Sign In', '{{ .ConfirmationURL }}'),
     '<p style="font-size:13px;color:#a1a1aa;margin:16px 0 0 0;">If you did not request this, you can safely ignore this email.</p>'
 ]))
 
