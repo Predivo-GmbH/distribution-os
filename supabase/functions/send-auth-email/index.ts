@@ -113,16 +113,15 @@ function getEmailContent(payload: AuthEmailPayload): { subject: string; html: st
   switch (email_action_type) {
     case 'signup':
       return {
-        subject: 'Confirm your ' + APP_NAME + ' account',
+        subject: APP_NAME + ' \u2013 Your verification code: ' + token,
         html: layout([
           '<h1 style="font-size:22px;font-weight:700;color:#18181b;margin:0 0 16px 0;">Confirm your signup</h1>',
-          '<p style="font-size:15px;color:#3f3f46;line-height:1.6;margin:0 0 8px 0;">Thanks for signing up for ' + APP_NAME + '. Use the code below to verify your email address:</p>',
+          '<p style="font-size:15px;color:#3f3f46;line-height:1.6;margin:0 0 8px 0;">Enter this code on the signup page to verify your email address and create your ' + APP_NAME + ' account:</p>',
           '<div style="margin:20px 0;padding:16px;background:#f5f5f5;border-radius:8px;text-align:center;">',
           '<p style="color:#3f3f46;margin:0 0 8px 0;font-size:13px;">Your verification code</p>',
           '<p style="font-size:32px;font-weight:700;letter-spacing:8px;color:#18181b;margin:0;font-family:\'Courier New\',monospace;">' + token + '</p>',
           '<p style="color:#a1a1aa;margin:8px 0 0 0;font-size:12px;">Valid for 10 minutes</p>',
           '</div>',
-          button('Confirm Email', actionUrl),
           '<p style="font-size:13px;color:#a1a1aa;margin:16px 0 0 0;">If you didn&rsquo;t create an account, you can safely ignore this email.</p>',
         ].join('\n')),
       }
@@ -140,16 +139,15 @@ function getEmailContent(payload: AuthEmailPayload): { subject: string; html: st
 
     case 'magiclink':
       return {
-        subject: 'Your ' + APP_NAME + ' login code',
+        subject: 'Your ' + APP_NAME + ' login code: ' + token,
         html: layout([
           '<h1 style="font-size:22px;font-weight:700;color:#18181b;margin:0 0 16px 0;">Sign in to ' + APP_NAME + '</h1>',
-          '<p style="font-size:15px;color:#3f3f46;line-height:1.6;margin:0 0 8px 0;">Use the code below to sign in to your account, or click the button.</p>',
+          '<p style="font-size:15px;color:#3f3f46;line-height:1.6;margin:0 0 8px 0;">Enter this code on the login page to sign in to your account.</p>',
           '<div style="margin:20px 0;padding:16px;background:#f5f5f5;border-radius:8px;text-align:center;">',
           '<p style="color:#3f3f46;margin:0 0 8px 0;font-size:13px;">Your verification code</p>',
           '<p style="font-size:32px;font-weight:700;letter-spacing:8px;color:#18181b;margin:0;font-family:\'Courier New\',monospace;">' + token + '</p>',
-          '<p style="color:#a1a1aa;margin:8px 0 0 0;font-size:12px;">Valid for 1 hour</p>',
+          '<p style="color:#a1a1aa;margin:8px 0 0 0;font-size:12px;">Valid for 10 minutes</p>',
           '</div>',
-          button('Sign In', actionUrl),
           '<p style="font-size:13px;color:#a1a1aa;margin:16px 0 0 0;">If you didn&rsquo;t request this, you can safely ignore this email.</p>',
         ].join('\n')),
       }
