@@ -177,7 +177,7 @@ async function callAIViaProxy(config: AIConfig, options: AICallOptions): Promise
       .join('\n')
 
     return { success: true, content: text }
-  } catch (err) {
+  } catch {
     // On any network failure, attempt direct API fallback
     return callAIDirect(config, options)
   }
