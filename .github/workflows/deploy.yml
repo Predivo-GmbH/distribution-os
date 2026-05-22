@@ -3,6 +3,11 @@ name: Deploy to Production
 on:
   push:
     branches: [master]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
 
 concurrency:
   group: deploy-production
@@ -31,6 +36,15 @@ jobs:
       - name: Type Check
         run: npx tsc --noEmit
         working-directory: app
+
+      - name: Coverage
+        run: npm run test:coverage
+        working-directory: app
+
+      - name: Feature Coverage Check
+        run: node scripts/check-feature-coverage.mjs
+        working-directory: app
+        continue-on-error: true
 
       - name: Build
         run: npm run build
