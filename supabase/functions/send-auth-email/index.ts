@@ -17,7 +17,7 @@ const BRAND = '#6C5CE7'
 const ACCENT = '#6C5CE7'
 const FONT = "'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif"
 const ICON_URL = 'https://distributionos.predivo.ch/apple-touch-icon.png'
-const APP_NAME = 'ShipSolo'
+const APP_NAME = 'Distribution OS'
 const COMPANY = 'Predivo GmbH'
 
 interface AuthEmailPayload {
@@ -65,7 +65,9 @@ function layout(body: string): string {
     // Footer
     '<table role="presentation" cellpadding="0" cellspacing="0" style="padding-top:24px;">',
     '<tr><td align="center" style="font-family:' + FONT + ';font-size:12px;color:#a1a1aa;">',
-    '&copy; 2026 ' + COMPANY + ' &middot; ' + APP_NAME,
+    '&copy; ' + new Date().getFullYear() + ' ' + APP_NAME + ' by ' + COMPANY + '. All rights reserved.',
+    '<br />',
+    '<span style="font-size:11px;color:#a1a1aa;">Swiss-made &middot; Software that Thinks Ahead</span>',
     '<br />',
     '<a href="' + SITE_URL + '" style="color:' + BRAND + ';text-decoration:none;">distributionos.predivo.ch</a>',
     '</td></tr>',

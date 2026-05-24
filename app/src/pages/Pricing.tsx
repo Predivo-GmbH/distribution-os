@@ -124,9 +124,12 @@ export function Pricing() {
       {/* Footer */}
       <footer className="border-t border-white/[0.04] bg-[#050508]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-slate-600">
-            {APP_NAME} &mdash; Built by Predivo GmbH
-          </p>
+          <div>
+            <p className="text-xs text-slate-600">
+              &copy; {new Date().getFullYear()} Distribution OS by Predivo GmbH. All rights reserved.
+            </p>
+            <p className="text-xs text-slate-600 mt-1">Swiss-made &middot; Software that Thinks Ahead</p>
+          </div>
           <div className="flex items-center gap-4 text-xs">
             <Link to="/" className="px-2 min-h-[44px] inline-flex items-center text-slate-500 hover:text-slate-300 transition-colors">Home</Link>
             <Link to="/login" className="px-2 min-h-[44px] inline-flex items-center text-slate-500 hover:text-slate-300 transition-colors">Log In</Link>

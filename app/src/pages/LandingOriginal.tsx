@@ -286,9 +286,12 @@ export function LandingOriginal() {
       {/* Footer */}
       <footer className="border-t border-[var(--color-edge)] py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-[var(--color-ink-muted)]">
-            {APP_NAME} — Built by Predivo GmbH
-          </p>
+          <div>
+            <p className="text-xs text-[var(--color-ink-muted)]">
+              &copy; {new Date().getFullYear()} Distribution OS by Predivo GmbH. All rights reserved.
+            </p>
+            <p className="text-xs text-[var(--color-ink-muted)] mt-1">Swiss-made &middot; Software that Thinks Ahead</p>
+          </div>
           <div className="flex items-center gap-4 text-xs text-[var(--color-ink-muted)]">
             <Link to="/pricing" className="px-2 min-h-[44px] inline-flex items-center hover:text-[var(--color-ink-body)] transition-colors">Pricing</Link>
             <Link to="/login" className="px-2 min-h-[44px] inline-flex items-center hover:text-[var(--color-ink-body)] transition-colors">Log In</Link>
