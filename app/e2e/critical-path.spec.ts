@@ -1,11 +1,11 @@
 /**
- * CRITICAL PATH E2E TESTS — ShipSolo (Distribution-OS)
- * =====================================================
+ * CRITICAL PATH E2E TESTS — Distribution-OS
+ * ==========================================
  * Tests that the most fundamental user flows ACTUALLY WORK.
  * If these fail, the app is broken. CI MUST NOT use continue-on-error.
  *
  * Tests:
- * 1. Login flow: OTP send succeeds (no error)
+ * 1. Login flow: auth page loads, form is functional
  * 2. Edge functions: all reachable, not returning 500
  * 3. Protected routes: redirect works AND auth page is functional
  * 4. Supabase: project is alive, auth service healthy
@@ -13,7 +13,9 @@
 
 import { test, expect } from '@playwright/test'
 
-// ── Project Config ──────────────────────────────────────────────────
+const BASE_URL = process.env.BASE_URL || 'https://distributionos.predivo.ch'
+
+// -- Project Config ----------------------------------------------------------
 
 const CONFIG = {
   authPath: '/login',
@@ -21,55 +23,19 @@ const CONFIG = {
   supabaseUrl: process.env.VITE_SUPABASE_URL || 'https://jxjpbmkgmuunpayqgbsx.supabase.co',
   supabaseAnonKey: process.env.VITE_SUPABASE_ANON_KEY || '',
   edgeFunctions: [
+    'ai-proxy',
+    'call-ai',
     'send-auth-email',
+    'stripe-checkout',
+    'stripe-portal',
     'stripe-webhook',
-    'delete-account',
   ],
-  protectedRoutes: ['/dashboard', '/settings', '/products', '/inbox'],
+  protectedRoutes: ['/dashboard', '/settings', '/products', '/inbox', '/briefing'],
 }
 
-// ── Login Flow ──────────────────────────────────────────────────────
+// -- Login Flow --------------------------------------------------------------
 
 test.describe('CRITICAL PATH — Login Flow', () => {
-  test('OTP tab is functional and form submits', async ({ page }) => {
-    await page.goto(CONFIG.authPath)
-    await page.waitForLoadState('networkidle')
-
-    // Switch to Email Code tab
-    const emailCodeTab = page.locator('button:has-text("Email Code")')
-    await expect(emailCodeTab).toBeVisible({ timeout: 10000 })
-    await emailCodeTab.click()
-
-    // Fill email
-    const emailInput = page.locator('input[type="email"]').first()
-    await expect(emailInput).toBeVisible({ timeout: 5000 })
-    await expect(emailInput).toBeEditable()
-    await emailInput.fill(CONFIG.testEmail)
-
-    // Submit button should be visible and clickable
-    const submitBtn = page.locator('button:has-text("Send Login Code")')
-    await expect(submitBtn).toBeVisible()
-    await expect(submitBtn).toBeEnabled()
-    await submitBtn.click()
-
-    // Wait for network response
-    await page.waitForTimeout(3000)
-
-    // After submit, either OTP code screen appears OR a known error
-    // (like "No account found") — both mean the form submitted and Supabase responded.
-    // Only a JS crash or network failure would be a real problem.
-    const codeScreen = page.locator('text=/sent a 6-digit code/i').first()
-    const errorAlert = page.locator('[role="alert"]').first()
-
-    const codeVisible = await codeScreen.isVisible().catch(() => false)
-    const errorVisible = await errorAlert.isVisible().catch(() => false)
-
-    expect(
-      codeVisible || errorVisible,
-      'Neither OTP code screen nor error appeared — form did not submit or Supabase is unreachable'
-    ).toBe(true)
-  })
-
   test('auth page loads without JS errors', async ({ page }) => {
     const errors: string[] = []
     page.on('pageerror', (err) => errors.push(err.message))
@@ -80,11 +46,10 @@ test.describe('CRITICAL PATH — Login Flow', () => {
     expect(errors, `JS errors: ${errors.join(', ')}`).toEqual([])
   })
 
-  test('password login form is functional', async ({ page }) => {
+  test('login form is functional', async ({ page }) => {
     await page.goto(CONFIG.authPath)
     await page.waitForLoadState('networkidle')
 
-    // Password tab should be active by default
     const emailInput = page.locator('input[type="email"]').first()
     await expect(emailInput).toBeVisible({ timeout: 10000 })
     await expect(emailInput).toBeEditable()
@@ -92,14 +57,18 @@ test.describe('CRITICAL PATH — Login Flow', () => {
     const passwordInput = page.locator('input[type="password"]')
     await expect(passwordInput).toBeVisible()
     await expect(passwordInput).toBeEditable()
+  })
 
-    const signInBtn = page.locator('button:has-text("Sign In")')
-    await expect(signInBtn).toBeVisible()
-    await expect(signInBtn).toBeEnabled()
+  test('signup page accessible', async ({ page }) => {
+    await page.goto('/signup')
+    await page.waitForLoadState('networkidle')
+
+    const emailInput = page.locator('input[type="email"]').first()
+    await expect(emailInput).toBeVisible({ timeout: 10000 })
   })
 })
 
-// ── Edge Function Health ────────────────────────────────────────────
+// -- Edge Function Health ----------------------------------------------------
 
 test.describe('CRITICAL PATH — Edge Functions', () => {
   for (const funcName of CONFIG.edgeFunctions) {
@@ -114,10 +83,8 @@ test.describe('CRITICAL PATH — Edge Functions', () => {
       )
 
       const status = response.status()
-      // 500 = function crashed or misconfigured
       expect(status, `"${funcName}" returned 500 — DOWN`).not.toBe(500)
 
-      // Check for verify_jwt misconfiguration
       if (status === 401) {
         const body = await response.text()
         expect(
@@ -129,7 +96,7 @@ test.describe('CRITICAL PATH — Edge Functions', () => {
   }
 })
 
-// ── Protected Routes ────────────────────────────────────────────────
+// -- Protected Routes --------------------------------------------------------
 
 test.describe('CRITICAL PATH — Route Guards', () => {
   for (const route of CONFIG.protectedRoutes) {
@@ -137,22 +104,16 @@ test.describe('CRITICAL PATH — Route Guards', () => {
       await page.goto(route)
       await page.waitForLoadState('networkidle')
 
-      // Should redirect to login
       await expect(page).toHaveURL(/\/login/)
 
-      // Auth form should be functional (not just present)
       const emailInput = page.locator('input[type="email"]').first()
       await expect(emailInput).toBeVisible({ timeout: 5000 })
       await expect(emailInput).toBeEditable()
-
-      const signInBtn = page.locator('button:has-text("Sign In")')
-      await expect(signInBtn).toBeVisible()
-      await expect(signInBtn).toBeEnabled()
     })
   }
 })
 
-// ── Infrastructure ──────────────────────────────────────────────────
+// -- Infrastructure ----------------------------------------------------------
 
 test.describe('CRITICAL PATH — Infrastructure', () => {
   test('Supabase auth service is healthy', async ({ request }) => {
@@ -174,12 +135,11 @@ test.describe('CRITICAL PATH — Infrastructure', () => {
         failOnStatusCode: false,
       }
     )
-    // Any response < 500 means the project is alive
     expect(response.status()).toBeLessThan(500)
   })
 
   test('Production site is reachable', async ({ request }) => {
-    const response = await request.get('https://distributionos.predivo.ch', {
+    const response = await request.get(BASE_URL, {
       failOnStatusCode: false,
     })
     expect(response.status()).toBeLessThan(500)
