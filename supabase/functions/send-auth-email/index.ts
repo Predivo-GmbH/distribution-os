@@ -106,7 +106,7 @@ function buildActionUrl(payload: AuthEmailPayload): string {
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? payload.email_data.site_url ?? 'https://jxjpbmkgmuunpayqgbsx.supabase.co'
   const redirectTo = redirect_to || SITE_URL
-  return supabaseUrl + '/auth/v1/verify?token_hash=' + token_hash + '&type=' + type + '&redirect_to=' + encodeURIComponent(redirectTo)
+  return supabaseUrl + '/auth/v1/verify?token=' + token_hash + '&type=' + type + '&redirect_to=' + encodeURIComponent(redirectTo)
 }
 
 function getEmailContent(payload: AuthEmailPayload): { subject: string; html: string } {
