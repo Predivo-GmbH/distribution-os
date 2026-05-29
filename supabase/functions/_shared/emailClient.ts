@@ -6,7 +6,7 @@
  *   SMTP_PORT     — 465 (implicit TLS)
  *   SMTP_USER     — noreply@distributionos.predivo.ch
  *   SMTP_PASS     — mailbox password
- *   SMTP_FROM     — "ShipSolo <noreply@distributionos.predivo.ch>"
+ *   SMTP_FROM     — "Distribution-OS <noreply@distributionos.predivo.ch>"
  */
 import nodemailer from 'npm:nodemailer@6'
 
@@ -43,7 +43,7 @@ function getTransporter() {
 }
 
 export async function sendEmail({ to, subject, html, text }: SendEmailOptions): Promise<void> {
-  const from = Deno.env.get('SMTP_FROM') ?? 'ShipSolo <noreply@distributionos.predivo.ch>'
+  const from = Deno.env.get('SMTP_FROM') ?? 'Distribution-OS <noreply@distributionos.predivo.ch>'
   const transporter = getTransporter()
 
   await transporter.sendMail({

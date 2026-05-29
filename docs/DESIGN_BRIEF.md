@@ -127,6 +127,14 @@
 - **i18n:** DE (primary) + FR (secondary) + IT (tertiary) via `src/lib/i18n.ts` pattern
 - **Deploy:** GitHub Actions → Metanet (frontend) + Railway (backend)
 
+## Footer Standard
+
+Footer must comply with `C:\Business\Internal Projects\footer-standard.md`. Key rules:
+- Use a shared Footer component -- never inline footer markup on individual pages
+- Copyright: `Distribution OS by Predivo GmbH. All rights reserved.`
+- Slogan: `Swiss-made · Software that Thinks Ahead` (always English)
+- Email templates must also include standard footer
+
 ## Component Specifications
 
 ### Sidebar (from Stripe)

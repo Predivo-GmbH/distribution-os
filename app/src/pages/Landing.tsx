@@ -5,7 +5,7 @@ import { Logo } from '@/components/shared/Logo'
 import { APP_NAME } from '@/lib/app-config'
 
 /* ============================================================
-   ShipSolo Landing Page
+   Distribution-OS Landing Page
    Premium dark theme with floating pill nav, spotlight cards,
    shimmer text, marquee testimonials, FAQ accordion
    ============================================================ */
@@ -73,9 +73,9 @@ const STEPS = [
 ]
 
 const TESTIMONIALS = [
-  { quote: 'ShipSolo replaced my entire marketing team. I went from 0 to 500 users in 6 weeks using just the Push and Pull engines.', name: 'Sarah Chen', role: 'Founder, DataFlow', initials: 'SC' },
+  { quote: 'Distribution-OS replaced my entire marketing team. I went from 0 to 500 users in 6 weeks using just the Push and Pull engines.', name: 'Sarah Chen', role: 'Founder, DataFlow', initials: 'SC' },
   { quote: 'The AI workers write better outreach than I ever could. My reply rates tripled after switching from manual DMs.', name: 'Marcus Rivera', role: 'Founder, DevStack', initials: 'MR' },
-  { quote: 'I was spending 20 hours a week on distribution. Now it\'s 2 hours. ShipSolo handles the rest while I sleep.', name: 'Aisha Patel', role: 'Founder, MailBridge', initials: 'AP' },
+  { quote: 'I was spending 20 hours a week on distribution. Now it\'s 2 hours. Distribution-OS handles the rest while I sleep.', name: 'Aisha Patel', role: 'Founder, MailBridge', initials: 'AP' },
   { quote: 'The Search Engine alone got us listed on 40+ directories in a week. Organic traffic doubled the next month.', name: 'James Wu', role: 'Founder, APIStack', initials: 'JW' },
   { quote: 'Finally, a tool that understands solo founder constraints. Every playbook is actionable, not theoretical.', name: 'Elena Voss', role: 'Founder, FormCraft', initials: 'EV' },
   { quote: 'The Persistence Engine saved 35% of our churning users with automated win-back sequences. ROI was immediate.', name: 'Raj Mehta', role: 'Founder, CloudSync', initials: 'RM' },
@@ -90,8 +90,8 @@ const TIERS = [
 
 const FAQS = [
   { q: 'What exactly are AI workers?', a: 'Each worker is a specialized AI agent trained for a specific distribution task — writing content, analyzing competitors, generating outreach, scoring audits, and more. You get 48 workers across 6 distribution engines.' },
-  { q: 'Do I need technical skills?', a: 'Not at all. ShipSolo is built for non-technical solo founders. Add your product details, and the AI handles strategy, content, and execution.' },
-  { q: 'How is this different from ChatGPT?', a: 'ChatGPT is a general assistant. ShipSolo is a distribution-specific operating system with structured workflows, playbooks, and engines designed specifically to grow your SaaS.' },
+  { q: 'Do I need technical skills?', a: 'Not at all. Distribution-OS is built for non-technical solo founders. Add your product details, and the AI handles strategy, content, and execution.' },
+  { q: 'How is this different from ChatGPT?', a: 'ChatGPT is a general assistant. Distribution-OS is a distribution-specific operating system with structured workflows, playbooks, and engines designed specifically to grow your SaaS.' },
   { q: 'Can I cancel anytime?', a: 'Yes. No contracts, no lock-in. Cancel with one click from your settings page. Your data stays available for 30 days after cancellation.' },
   { q: 'What distribution channels does it cover?', a: 'Six engines: Pull (SEO/content), Push (social/email), Bridge (partnerships), Search (marketplace), Equity (community), and Persistence (retention). Each engine has specialized AI workers.' },
   { q: 'Is my data safe?', a: 'Your data is encrypted at rest and in transit. We use Supabase with row-level security. API keys are proxied through our servers and never stored in your browser.' },
@@ -108,7 +108,7 @@ function DashboardMockup() {
           <div className="w-2.5 h-2.5 rounded-full bg-green-400/60" />
         </div>
         <div className="flex-1 mx-4 sm:mx-8 h-6 rounded bg-white/[0.04] flex items-center justify-center">
-          <span className="text-[11px] text-slate-400 font-mono">app.shipsolo.com</span>
+          <span className="text-[11px] text-slate-400 font-mono">distributionos.predivo.ch</span>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-2 mb-3">

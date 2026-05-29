@@ -20,7 +20,7 @@ test.describe('Password Gate', () => {
     await page.getByPlaceholder('Access code').fill('predivo2026')
     await page.getByRole('button', { name: 'Enter' }).click()
     // After gate, should see landing page
-    await expect(page.getByText('ShipSolo', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText('Distribution-OS', { exact: true }).first()).toBeVisible()
   })
 
   test('bypasses gate when session key is set', async ({ page }) => {

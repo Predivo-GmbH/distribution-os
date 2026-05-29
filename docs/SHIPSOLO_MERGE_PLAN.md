@@ -1,4 +1,4 @@
-# ShipSolo — Complete Product Plan
+# Distribution-OS — Complete Product Plan
 
 **Date:** 2026-04-28 (revised)
 **Status:** Approved — ready for build
@@ -67,7 +67,7 @@ Built on the existing Distribution-OS codebase (24 AI workers, 6 distribution en
 
 ### Group E — 8-Domain Audit Framework (10 features, NEW)
 
-Full-mode audit with repo connection. User connects their GitHub repo, ShipSolo runs 8 parallel audit agents and delivers a scored report.
+Full-mode audit with repo connection. User connects their GitHub repo, Distribution-OS runs 8 parallel audit agents and delivers a scored report.
 
 | # | Feature | Weight | Description |
 |---|---|---|---|
@@ -137,7 +137,7 @@ Step-by-step execution guides that make the 6 distribution engines actionable. E
 |---|---|---|
 | **D** (Code Quality & Reviews) | D1 Code Review, D2 Design Review, D3 Security Review, D4 Build Health, D5 Plan Generator, D6 Learning Loop | Developer tooling — competes with CodeRabbit/Snyk/SonarQube. Not core to founder workflow. |
 | **F** (Testing Framework) | F1 CI Pipeline Builder, F2 Feature Registry, F3 Coverage Gate, F4 Production Gate Monitor | Dev tooling — target users (Bolt/Lovable/Cursor founders) don't set up CI themselves. |
-| **B4** (Sprint Planner) | Sprint planning | Users already have Linear/Notion. Not ShipSolo's job. |
+| **B4** (Sprint Planner) | Sprint planning | Users already have Linear/Notion. Not Distribution-OS's job. |
 | **G1** (Pattern Library) | Searchable UI patterns | Content exists but low leverage. Users can find hero examples elsewhere. |
 | **G4** (Analysis Template) | Structured analysis format | Too generic to justify as paid feature. |
 
@@ -249,7 +249,7 @@ Step-by-step execution guides that make the 6 distribution engines actionable. E
 - **Effort:** Medium-Heavy
 
 ### Sprint 10: Rebrand + Landing Page + Polish
-- Rename to ShipSolo (or keep Distribution OS — decision here)
+- Rename to Distribution-OS (or keep Distribution OS — decision here)
 - Conversion-optimized landing page (10 sections)
 - Responsive polish across all pages
 - Founding member badge + urgency counter

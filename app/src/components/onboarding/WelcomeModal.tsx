@@ -34,7 +34,7 @@ export function WelcomeModal({ productName, onDismiss }: Props) {
         onClick={e => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-label="Welcome to ShipSolo"
+        aria-label="Welcome to Distribution-OS"
       >
         {/* Ambient glow */}
         <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[300px] h-[150px] bg-indigo-500/[0.08] blur-[80px] rounded-full pointer-events-none" />
@@ -46,7 +46,7 @@ export function WelcomeModal({ productName, onDismiss }: Props) {
               <Zap size={24} className="text-white" />
             </div>
             <h2 className="text-xl sm:text-2xl font-bold text-[var(--color-ink)] tracking-tight">
-              Welcome to ShipSolo!
+              Welcome to Distribution-OS!
             </h2>
             <p className="text-sm text-[var(--color-ink-muted)] mt-1">
               <strong className="text-[var(--color-ink)]">{productName}</strong> is ready. Let's set up your distribution system.

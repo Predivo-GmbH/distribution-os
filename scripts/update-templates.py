@@ -1,4 +1,4 @@
-"""Update ShipSolo email templates: correct subject format, deep links, OTP copyability."""
+"""Update Distribution-OS email templates: correct subject format, deep links, OTP copyability."""
 import urllib.request, json
 
 ref = 'jxjpbmkgmuunpayqgbsx'
@@ -7,7 +7,7 @@ token = 'sbp_a41ca66c2e931965a241edb2e5ea19e5b249d283'
 BRAND = '#6C5CE7'
 FONT = "Segoe UI,-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,Arial,sans-serif"
 ICON = 'https://distributionos.predivo.ch/apple-touch-icon.png'
-APP = 'ShipSolo'
+APP = 'Distribution-OS'
 COMPANY = 'Predivo GmbH'
 SITE = 'https://distributionos.predivo.ch'
 
@@ -115,12 +115,12 @@ payload = {
     "mailer_templates_invite_content": invite,
     "mailer_templates_reauthentication_content": reauth,
     # Correct subject format per playbook standard
-    "mailer_subjects_confirmation": "{{ .Token }} is your ShipSolo verification code",
-    "mailer_subjects_recovery": "Reset your ShipSolo password",
-    "mailer_subjects_magic_link": "{{ .Token }} is your ShipSolo sign-in code",
+    "mailer_subjects_confirmation": "{{ .Token }} is your Distribution-OS verification code",
+    "mailer_subjects_recovery": "Reset your Distribution-OS password",
+    "mailer_subjects_magic_link": "{{ .Token }} is your Distribution-OS sign-in code",
     "mailer_subjects_email_change": "Confirm your new email address",
-    "mailer_subjects_invite": "You have been invited to ShipSolo",
-    "mailer_subjects_reauthentication": "{{ .Token }} is your ShipSolo verification code"
+    "mailer_subjects_invite": "You have been invited to Distribution-OS",
+    "mailer_subjects_reauthentication": "{{ .Token }} is your Distribution-OS verification code"
 }
 
 for k, v in payload.items():
