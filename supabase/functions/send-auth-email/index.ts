@@ -94,7 +94,7 @@ function button(text: string, href: string): string {
   ].join('')
 }
 
-// Build the confirmation/action URL
+// Build the confirmation/action URL via Supabase's server-side verify endpoint
 function buildActionUrl(payload: AuthEmailPayload): string {
   const { token_hash, email_action_type, redirect_to } = payload.email_data
   const type = email_action_type === 'signup' ? 'signup' :
@@ -104,8 +104,9 @@ function buildActionUrl(payload: AuthEmailPayload): string {
                email_action_type === 'email_change' ? 'email_change' :
                email_action_type
 
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? payload.email_data.site_url ?? 'https://jxjpbmkgmuunpayqgbsx.supabase.co'
   const redirectTo = redirect_to || SITE_URL
-  return SITE_URL + '/auth/confirm?token_hash=' + token_hash + '&type=' + type + '&redirect_to=' + encodeURIComponent(redirectTo)
+  return supabaseUrl + '/auth/v1/verify?token_hash=' + token_hash + '&type=' + type + '&redirect_to=' + encodeURIComponent(redirectTo)
 }
 
 function getEmailContent(payload: AuthEmailPayload): { subject: string; html: string } {
