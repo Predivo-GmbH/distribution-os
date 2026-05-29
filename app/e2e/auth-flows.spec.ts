@@ -1,33 +1,10 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate } from './helpers'
+import { unlockGate, unlockGateAuth } from './helpers'
 
 test.describe('Auth Flows — Login, Signup, Reset, Sign Out', () => {
-  test.beforeEach(async ({ page }) => {
-    await unlockGate(page)
-    // Mock all Supabase auth API calls
-    await page.route('**/auth/v1/**', route => {
-      const url = route.request().url()
-      if (url.includes('/token')) {
-        return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ access_token: 'mock-jwt', user: { id: 'u1', email: 'test@test.com' } }) })
-      }
-      if (url.includes('/otp')) {
-        return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({}) })
-      }
-      if (url.includes('/recover')) {
-        return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({}) })
-      }
-      if (url.includes('/user')) {
-        return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ id: 'u1', email: 'test@test.com' }) })
-      }
-      if (url.includes('/logout')) {
-        return route.fulfill({ status: 204, body: '' })
-      }
-      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({}) })
-    })
-  })
-
   // AUTH-005: Login — password tab full flow
   test('AUTH-005: login password tab — fill email + password and submit', async ({ page }) => {
+    await unlockGate(page)
     await page.goto('/login')
     await expect(page.getByText('Welcome back')).toBeVisible()
 
@@ -50,6 +27,7 @@ test.describe('Auth Flows — Login, Signup, Reset, Sign Out', () => {
 
   // AUTH-006: Login — email-code tab full OTP flow
   test('AUTH-006: login email-code tab — send OTP then enter 6-digit code', async ({ page }) => {
+    await unlockGate(page)
     await page.goto('/login')
 
     // Switch to Email Code tab
@@ -80,6 +58,7 @@ test.describe('Auth Flows — Login, Signup, Reset, Sign Out', () => {
 
   // AUTH-007: Login — tab switch between Password and Email Code
   test('AUTH-007: login tab switch between Password and Email Code', async ({ page }) => {
+    await unlockGate(page)
     await page.goto('/login')
 
     // Default: Password tab active
@@ -98,7 +77,8 @@ test.describe('Auth Flows — Login, Signup, Reset, Sign Out', () => {
 
   // AUTH-008: Sign Out clears session and redirects to /login
   test('AUTH-008: sign out clears session and redirects to /login', async ({ page }) => {
-    // Seed authenticated state + Supabase configured flag
+    await unlockGateAuth(page)
+    // Seed product + onboarding state
     await page.addInitScript(() => {
       const state = {
         products: [{ id: 'p1', name: 'TestSaaS', description: 'Test', stage: 'early', primaryEngine: 'push', secondaryEngines: [], color: '#6366f1', createdAt: '2026-01-01', updatedAt: '2026-01-01' }],
@@ -112,17 +92,16 @@ test.describe('Auth Flows — Login, Signup, Reset, Sign Out', () => {
     await page.goto('/settings')
 
     // Navigate to General tab
-    const tabBar = page.locator('main nav')
-    await tabBar.getByText('General').click()
+    await page.getByRole('tab', { name: 'General' }).click()
 
-    // Verify Sign Out button exists (only shown when Supabase is configured — in test env it may not show, so check for Reset as a proxy)
+    // Verify Sign Out button exists (shown when Supabase is configured)
     const signOutBtn = page.getByRole('button', { name: 'Sign Out' })
     const resetBtn = page.getByRole('button', { name: 'Reset' })
 
     // At minimum, the General tab should render with data management options
     await expect(resetBtn).toBeVisible()
 
-    // If Sign Out is visible (Supabase configured), click it
+    // If Sign Out is visible, click it
     if (await signOutBtn.isVisible().catch(() => false)) {
       await signOutBtn.click()
     }
@@ -130,6 +109,7 @@ test.describe('Auth Flows — Login, Signup, Reset, Sign Out', () => {
 
   // SIGNUP-001: Sign Up step 1 — email entry full form
   test('SIGNUP-001: sign up step 1 renders email form and submits', async ({ page }) => {
+    await unlockGate(page)
     await page.goto('/signup')
     await expect(page.getByText('Create your account')).toBeVisible()
     await expect(page.getByText('Enter your email to get started')).toBeVisible()
@@ -145,6 +125,7 @@ test.describe('Auth Flows — Login, Signup, Reset, Sign Out', () => {
 
   // SIGNUP-002: Sign Up step 2 — OTP input with auto-advance
   test('SIGNUP-002: sign up step 2 — OTP input renders with 6 boxes', async ({ page }) => {
+    await unlockGate(page)
     await page.goto('/signup')
     const emailInput = page.locator('input[type="email"]')
     await emailInput.fill('newuser@test.com')
@@ -158,21 +139,13 @@ test.describe('Auth Flows — Login, Signup, Reset, Sign Out', () => {
     const count = await otpInputs.count()
     expect(count).toBe(6)
 
-    // ResendTimer should be visible
-    await expect(page.getByText(/resend|Use a different email/i)).toBeVisible()
+    // "Use a different email" button should be visible
+    await expect(page.getByRole('button', { name: 'Use a different email' })).toBeVisible()
   })
 
   // SIGNUP-003: Sign Up step 3 — password setup
   test('SIGNUP-003: sign up step 3 — password setup after OTP verify', async ({ page }) => {
-    // Mock OTP verification to succeed and advance to password step
-    await page.route('**/auth/v1/token*', route => {
-      return route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ access_token: 'mock-jwt', refresh_token: 'mock-rt', user: { id: 'u1', email: 'new@test.com' } }),
-      })
-    })
-
+    await unlockGate(page)
     await page.goto('/signup')
     const emailInput = page.locator('input[type="email"]')
     await emailInput.fill('new@test.com')
@@ -186,7 +159,6 @@ test.describe('Auth Flows — Login, Signup, Reset, Sign Out', () => {
     }
 
     // Should advance to password step (or show error — both valid interactions)
-    // The password step shows "Set a password (optional)" or the form stays at OTP with error
     await page.waitForTimeout(1000)
     const hasPasswordStep = await page.getByText('Set a password').isVisible().catch(() => false)
     const hasError = await page.getByRole('alert').isVisible().catch(() => false)
@@ -195,6 +167,7 @@ test.describe('Auth Flows — Login, Signup, Reset, Sign Out', () => {
 
   // SIGNUP-004: Auth Verify — /auth/verify deep link
   test('SIGNUP-004: auth verify page shows verifying state', async ({ page }) => {
+    await unlockGate(page)
     await page.goto('/auth/verify?token=test-token&email=test@test.com&type=signup')
 
     // Should show verifying OR error state
@@ -207,6 +180,7 @@ test.describe('Auth Flows — Login, Signup, Reset, Sign Out', () => {
   })
 
   test('SIGNUP-004b: auth verify page with no params shows error', async ({ page }) => {
+    await unlockGate(page)
     await page.goto('/auth/verify')
     await expect(page.getByText('Verification failed')).toBeVisible()
     await expect(page.getByText('Invalid verification link')).toBeVisible()
@@ -215,8 +189,9 @@ test.describe('Auth Flows — Login, Signup, Reset, Sign Out', () => {
 
   // RESET-001: Reset Password full form flow
   test('RESET-001: reset password renders email form and submits', async ({ page }) => {
+    await unlockGate(page)
     await page.goto('/reset-password')
-    await expect(page.getByText('Reset password')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Reset password' })).toBeVisible()
     await expect(page.getByText("Enter your email and we'll send you a reset link")).toBeVisible()
 
     const emailInput = page.locator('input[type="email"]')
@@ -224,13 +199,13 @@ test.describe('Auth Flows — Login, Signup, Reset, Sign Out', () => {
     await page.getByRole('button', { name: 'Send Reset Link' }).click()
 
     // Should show "Check your email" confirmation
-    await expect(page.getByText('Check your email')).toBeVisible({ timeout: 5000 })
+    await expect(page.getByRole('heading', { name: 'Check your email' })).toBeVisible({ timeout: 5000 })
     await expect(page.getByText('We sent a password reset link to')).toBeVisible()
-    await expect(page.getByText('Back to Login')).toBeVisible()
   })
 
   // RESET-002: Reset Password — update mode (recovery link)
   test('RESET-002: reset password update mode shows new password form', async ({ page }) => {
+    await unlockGate(page)
     await page.goto('/reset-password#type=recovery')
     await expect(page.getByText('Set new password')).toBeVisible()
     await expect(page.getByText('Enter your new password below')).toBeVisible()

@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate, seedProduct } from './helpers'
+import { unlockGateAuth, seedProduct } from './helpers'
 
 test.describe('Briefing Room — Full Tab Coverage', () => {
   test.beforeEach(async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
   })
 

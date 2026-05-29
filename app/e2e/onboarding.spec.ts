@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate, seedNewUser } from './helpers'
+import { unlockGateAuth, seedNewUser } from './helpers'
 
 test.describe('Onboarding — First Mission Wizard', () => {
   test.beforeEach(async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedNewUser(page)
     // Mock AI suggest endpoint
     await page.route('**/functions/v1/ai-proxy', route =>

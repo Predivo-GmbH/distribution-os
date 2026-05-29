@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate, seedProduct } from './helpers'
+import { unlockGateAuth, seedProduct } from './helpers'
 
 test.describe('Stripe Billing', () => {
   test.beforeEach(async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     // Mock all Stripe edge function endpoints
     await page.route('**/functions/v1/stripe-checkout', route =>
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ url: 'https://checkout.stripe.com/mock-session' }) })

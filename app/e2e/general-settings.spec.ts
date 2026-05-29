@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate, seedProduct } from './helpers'
+import { unlockGateAuth, seedProduct } from './helpers'
 
 test.describe('Settings — General Tab', () => {
   test.beforeEach(async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/settings')
-    await page.locator('main nav').getByText('General').click()
+    await page.getByRole('tab', { name: 'General' }).click()
   })
 
   // GEN-001: Dark Mode toggle
@@ -75,7 +75,7 @@ test.describe('Settings — General Tab', () => {
     await page.getByRole('button', { name: 'Reset' }).click()
 
     // After dismissing, data should still be intact
-    await page.locator('main nav').getByText('Products').click()
+    await page.getByRole('tab', { name: 'Products' }).click()
     await expect(page.getByText('TestSaaS')).toBeVisible()
   })
 
@@ -86,7 +86,7 @@ test.describe('Settings — General Tab', () => {
     await page.getByRole('button', { name: 'Reset' }).click()
 
     // After accepting, products should be cleared
-    await page.locator('main nav').getByText('Products').click()
+    await page.getByRole('tab', { name: 'Products' }).click()
     await expect(page.getByText('TestSaaS')).not.toBeVisible({ timeout: 3000 })
   })
 

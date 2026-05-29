@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate, seedProduct, seedInbox } from './helpers'
+import { unlockGateAuth, seedProduct, seedInbox } from './helpers'
 
 test.describe('Inbox — Filters and Actions', () => {
   test.beforeEach(async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await seedInbox(page)
     // Mock AI for regeneration

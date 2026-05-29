@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate, seedProduct, seedProductWithKB, seedAIConfig } from './helpers'
+import { unlockGateAuth, seedProduct, seedProductWithKB, seedAIConfig } from './helpers'
 
 test.describe('Settings — Full Tab Coverage', () => {
   test.beforeEach(async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProductWithKB(page)
     await seedAIConfig(page)
     await page.goto('/settings')
@@ -42,7 +42,7 @@ test.describe('Settings — Full Tab Coverage', () => {
 
   // SET-007: Knowledge Base — add/remove voice examples
   test('SET-007: Knowledge Base tab — add and remove voice examples', async ({ page }) => {
-    await page.locator('main nav').getByText('Knowledge Base').click()
+    await page.getByRole('tab', { name: 'Knowledge Base' }).click()
     await expect(page.getByText('Voice Examples')).toBeVisible()
 
     // Existing examples from seedProductWithKB
@@ -65,7 +65,7 @@ test.describe('Settings — Full Tab Coverage', () => {
 
   // SET-008: Knowledge Base — fill ICP, Positioning, Tone
   test('SET-008: Knowledge Base — fill ICP, Positioning, and Tone auto-saves', async ({ page }) => {
-    await page.locator('main nav').getByText('Knowledge Base').click()
+    await page.getByRole('tab', { name: 'Knowledge Base' }).click()
 
     // ICP section should show pre-filled values from seed
     await expect(page.getByText('ICP Definition')).toBeVisible()
@@ -92,7 +92,7 @@ test.describe('Settings — Full Tab Coverage', () => {
 
   // SET-009: AI Configuration — full flow with show/hide and save
   test('SET-009: AI Configuration — API key input, show/hide, save', async ({ page }) => {
-    await page.locator('main nav').getByText('AI Configuration').click()
+    await page.getByRole('tab', { name: 'AI Configuration' }).click()
 
     // API key input with show/hide toggle
     const keyInput = page.getByPlaceholder('sk-ant-...')
@@ -117,7 +117,7 @@ test.describe('Settings — Full Tab Coverage', () => {
 
   // SET-012: Integrations — enter access token + toggle auto-publish
   test('SET-012: Integrations tab — enter access token and toggle auto-publish', async ({ page }) => {
-    await page.locator('main nav').getByText('Integrations').click()
+    await page.getByRole('tab', { name: 'Integrations' }).click()
 
     // 4 integration cards visible
     await expect(page.getByText('LinkedIn').first()).toBeVisible()
@@ -138,7 +138,7 @@ test.describe('Settings — Full Tab Coverage', () => {
 
   // SET-016: Tasks tab — task template library by engine
   test('SET-016: Tasks tab shows task template library grouped by engine', async ({ page }) => {
-    await page.locator('main nav').getByText('Tasks').click()
+    await page.getByRole('tab', { name: 'Tasks' }).click()
 
     // Should show engine groupings with task templates
     await expect(page.getByText(/Engine Tasks/)).toBeVisible()
@@ -150,7 +150,7 @@ test.describe('Settings — Full Tab Coverage', () => {
 
   // SET-017: Metrics tab — scoring configuration
   test('SET-017: Metrics tab shows scoring configuration and streak history', async ({ page }) => {
-    await page.locator('main nav').getByText('Metrics').click()
+    await page.getByRole('tab', { name: 'Metrics' }).click()
 
     // Scoring configuration
     await expect(page.getByText('Scoring Configuration')).toBeVisible()

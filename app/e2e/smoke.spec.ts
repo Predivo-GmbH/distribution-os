@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate, seedProduct } from './helpers'
+import { unlockGate, unlockGateAuth, seedProduct } from './helpers'
 
 test.describe('Smoke Tests — All Routes Load', () => {
   test('Landing page loads', async ({ page }) => {
@@ -37,14 +37,14 @@ test.describe('Smoke Tests — All Routes Load', () => {
   })
 
   test('Dashboard loads with seeded product', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/dashboard')
     await expect(page.locator('text=Command Center')).toBeVisible()
   })
 
   test('Products page loads', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/products')
     await expect(page.locator('text=Products')).toBeVisible()
@@ -52,28 +52,28 @@ test.describe('Smoke Tests — All Routes Load', () => {
   })
 
   test('Product detail page loads', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/products/test-product-1')
     await expect(page.locator('h1:has-text("TestSaaS")')).toBeVisible()
   })
 
   test('Settings page loads', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/settings')
     await expect(page.locator('h1:has-text("Settings")')).toBeVisible()
   })
 
   test('Briefing Room loads', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/briefing')
     await expect(page.locator('text=Briefing Room')).toBeVisible()
   })
 
   test('Inbox page loads', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/inbox')
     await expect(page.locator('h1:has-text("Inbox")')).toBeVisible()

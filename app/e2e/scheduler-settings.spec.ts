@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate, seedProduct, seedAIConfig } from './helpers'
+import { unlockGateAuth, seedProduct, seedAIConfig } from './helpers'
 
 test.describe('Scheduler Settings', () => {
   test.beforeEach(async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await seedAIConfig(page)
     await page.goto('/settings')
-    await page.locator('main nav').getByText('Scheduler').click()
+    await page.getByRole('tab', { name: 'Scheduler' }).click()
   })
 
   test('shows scheduler master toggle', async ({ page }) => {

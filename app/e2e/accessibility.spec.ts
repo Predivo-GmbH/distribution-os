@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import { unlockGate, seedProduct } from './helpers'
+import { unlockGate, unlockGateAuth, seedProduct } from './helpers'
 
 test.describe('Accessibility — WCAG 2.1 AA', () => {
   test('Landing page passes axe audit', async ({ page }) => {
@@ -44,7 +44,7 @@ test.describe('Accessibility — WCAG 2.1 AA', () => {
   })
 
   test('Dashboard passes axe audit', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/dashboard')
     await page.waitForLoadState('networkidle')
@@ -57,7 +57,7 @@ test.describe('Accessibility — WCAG 2.1 AA', () => {
   })
 
   test('Products page passes axe audit', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/products')
     await page.waitForLoadState('networkidle')
@@ -68,7 +68,7 @@ test.describe('Accessibility — WCAG 2.1 AA', () => {
   })
 
   test('Settings page passes axe audit', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/settings')
     await page.waitForLoadState('networkidle')
@@ -79,7 +79,7 @@ test.describe('Accessibility — WCAG 2.1 AA', () => {
   })
 
   test('Briefing Room passes axe audit', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/briefing')
     await page.waitForLoadState('networkidle')
@@ -90,7 +90,7 @@ test.describe('Accessibility — WCAG 2.1 AA', () => {
   })
 
   test('Inbox page passes axe audit', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/inbox')
     await page.waitForLoadState('networkidle')

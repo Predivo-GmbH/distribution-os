@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate, seedProductForSetupSprint } from './helpers'
+import { unlockGateAuth, seedProductForSetupSprint } from './helpers'
 
 test.describe('Setup Sprint', () => {
   test.beforeEach(async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProductForSetupSprint(page)
   })
 

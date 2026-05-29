@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate, seedProductWithHistory, seedInbox, seedProduct } from './helpers'
+import { unlockGateAuth, seedProductWithHistory, seedInbox, seedProduct } from './helpers'
 
 test.describe('Dashboard — Command Center Full Coverage', () => {
   // DASH-005: Per-engine metric cards
   test('DASH-005: per-engine metric cards show score, max, and percentage', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProductWithHistory(page)
     await page.goto('/dashboard')
 
@@ -23,7 +23,7 @@ test.describe('Dashboard — Command Center Full Coverage', () => {
 
   // DASH-006: Overall weekly progress bar
   test('DASH-006: overall weekly progress bar shows score / max', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/dashboard')
 
@@ -42,7 +42,7 @@ test.describe('Dashboard — Command Center Full Coverage', () => {
 
   // DASH-007: Week date range display
   test('DASH-007: week date range display visible', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/dashboard')
 
@@ -54,7 +54,7 @@ test.describe('Dashboard — Command Center Full Coverage', () => {
 
   // DASH-008: AI GenerateButton shortcut per task
   test('DASH-008: AI GenerateButton visible on tasks when AI is configured', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     // Seed AI config
     await page.addInitScript(() => {
@@ -83,7 +83,7 @@ test.describe('Dashboard — Command Center Full Coverage', () => {
 
   // DASH-009: Inbox summary / pending count shortcut panel
   test('DASH-009: inbox summary panel shows pending count and links to inbox', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await seedInbox(page)
     await page.goto('/dashboard')

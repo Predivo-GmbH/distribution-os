@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate, seedProduct } from './helpers'
+import { unlockGateAuth, seedProduct } from './helpers'
 
 test.describe('Visual & Brand Consistency', () => {
   test.beforeEach(async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
   })
 
@@ -60,7 +60,7 @@ test.describe('Visual & Brand Consistency', () => {
   test('settings tabs render without layout shift', async ({ page }) => {
     await page.goto('/settings')
     // Scope to the tab bar inside main content area (not the sidebar nav)
-    const tabBar = page.locator('main nav')
+    // Using role-based tab selectors instead of 'main nav'
     const tabs = ['Products', 'Knowledge Base', 'AI Configuration', 'Integrations', 'Scheduler', 'Tasks', 'Metrics', 'General']
     for (const tab of tabs) {
       await tabBar.getByText(tab).click()

@@ -1,10 +1,101 @@
 import { type Page } from '@playwright/test'
 
-/** Bypass the PasswordGate by setting the session key before navigation */
+// Fake Supabase auth session for tests — matches the dummy VITE_SUPABASE_URL in .env.test
+const FAKE_SESSION = {
+  access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXVzZXItMSIsImVtYWlsIjoidGVzdEB0ZXN0LmNvbSIsInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjo5OTk5OTk5OTk5fQ.test',
+  refresh_token: 'fake-refresh-token',
+  expires_in: 3600,
+  token_type: 'bearer',
+  user: {
+    id: 'test-user-1',
+    email: 'test@test.com',
+    role: 'authenticated',
+    aud: 'authenticated',
+    app_metadata: {},
+    user_metadata: {},
+    created_at: '2026-01-01T00:00:00.000Z',
+  },
+}
+
+/**
+ * Mock all Supabase network endpoints.  Called by both unlockGate (public)
+ * and unlockGateAuth (authenticated) so the SDK never hits a real server.
+ */
+async function mockSupabaseNetwork(page: Page) {
+  await page.route('**/auth/v1/**', route => {
+    const url = route.request().url()
+    if (url.includes('/token')) {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(FAKE_SESSION) })
+    }
+    if (url.includes('/session')) {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(FAKE_SESSION) })
+    }
+    if (url.includes('/user')) {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(FAKE_SESSION.user) })
+    }
+    if (url.includes('/otp') || url.includes('/magiclink') || url.includes('/signup')) {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({}) })
+    }
+    if (url.includes('/recover')) {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({}) })
+    }
+    if (url.includes('/logout') || url.includes('/signout')) {
+      return route.fulfill({ status: 204, body: '' })
+    }
+    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({}) })
+  })
+
+  // Mock Supabase REST API — return 401 so useAppState falls back to localStorage
+  // (returning [] would overwrite seeded localStorage data during hydration)
+  await page.route('**/rest/v1/**', route =>
+    route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ message: 'not authenticated' }) })
+  )
+}
+
+/**
+ * Bypass the PasswordGate for PUBLIC pages (landing, login, signup, etc.).
+ * Does NOT seed an auth session, so PublicOnlyRoutes won't redirect.
+ * Still mocks Supabase network to prevent connection errors.
+ */
 export async function unlockGate(page: Page) {
   await page.addInitScript(() => {
     sessionStorage.setItem('distribution-os-dev-access', 'true')
+    // Explicitly remove any auth session so PublicOnlyRoutes does not redirect
+    localStorage.removeItem('sb-localhost-auth-token')
   })
+  await mockSupabaseNetwork(page)
+}
+
+/**
+ * Bypass the PasswordGate AND seed a fake auth session for AUTHENTICATED pages
+ * (dashboard, settings, inbox, etc.).  The Supabase SDK reads the session
+ * from localStorage and useAuth() returns a user, so ProtectedRoutes passes.
+ */
+export async function unlockGateAuth(page: Page) {
+  await page.addInitScript(() => {
+    sessionStorage.setItem('distribution-os-dev-access', 'true')
+
+    // Seed a fake Supabase session into localStorage so the SDK's
+    // getSession() returns a user immediately (before any HTTP call).
+    const fakeSession = {
+      access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXVzZXItMSIsImVtYWlsIjoidGVzdEB0ZXN0LmNvbSIsInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjo5OTk5OTk5OTk5fQ.test',
+      refresh_token: 'fake-refresh-token',
+      expires_in: 3600,
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
+      token_type: 'bearer',
+      user: {
+        id: 'test-user-1',
+        email: 'test@test.com',
+        role: 'authenticated',
+        aud: 'authenticated',
+        app_metadata: {},
+        user_metadata: {},
+        created_at: '2026-01-01T00:00:00.000Z',
+      },
+    }
+    localStorage.setItem('sb-localhost-auth-token', JSON.stringify(fakeSession))
+  })
+  await mockSupabaseNetwork(page)
 }
 
 /** Seed a product into localStorage so the app skips FirstMission onboarding */

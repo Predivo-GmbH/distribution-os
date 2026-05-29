@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate, seedProduct, seedAIConfig, seedProductWithKB } from './helpers'
+import { unlockGateAuth, seedProduct, seedAIConfig, seedProductWithKB } from './helpers'
 
 /**
  * AI-powered pages: Validation, Offer Builder, Playbooks, Proposals, Build Kit, Audit, Analyze.
@@ -7,7 +7,7 @@ import { unlockGate, seedProduct, seedAIConfig, seedProductWithKB } from './help
  */
 test.describe('AI Pages — Full Coverage', () => {
   test.beforeEach(async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProductWithKB(page)
     await seedAIConfig(page)
 

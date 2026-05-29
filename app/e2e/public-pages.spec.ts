@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate } from './helpers'
+import { unlockGate, unlockGateAuth } from './helpers'
 
 test.describe('Public Pages — Landing & Pricing', () => {
   // PUB-001: Landing page full render
@@ -47,7 +47,7 @@ test.describe('Public Pages — Landing & Pricing', () => {
 
   // NAV-006: Mobile sidebar / responsive layout — full test
   test('NAV-006: mobile responsive layout hides sidebar on small viewport', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await page.addInitScript(() => {
       const state = {
         products: [{ id: 'p1', name: 'TestSaaS', description: 'Test', stage: 'early', primaryEngine: 'push', secondaryEngines: [], color: '#6366f1', createdAt: '2026-01-01', updatedAt: '2026-01-01' }],

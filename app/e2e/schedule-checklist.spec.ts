@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate, seedProduct, seedAIConfig, seedSchedulerRecords, seedLaunchChecklist } from './helpers'
+import { unlockGateAuth, seedProduct, seedAIConfig, seedSchedulerRecords, seedLaunchChecklist } from './helpers'
 
 test.describe('Schedule & Ops + Launch Checklist', () => {
   test.beforeEach(async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await seedAIConfig(page)
   })

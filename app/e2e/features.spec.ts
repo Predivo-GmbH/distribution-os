@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { unlockGate, seedProduct, seedInbox } from './helpers'
+import { unlockGateAuth, seedProduct, seedInbox } from './helpers'
 
 test.describe('Feature Tests — Key User Journeys', () => {
   test('Password Gate blocks access and unlocks with correct code', async ({ page }) => {
@@ -10,7 +10,7 @@ test.describe('Feature Tests — Key User Journeys', () => {
   })
 
   test('Landing page links navigate correctly', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await page.goto('/')
 
     // Click Log In
@@ -25,7 +25,7 @@ test.describe('Feature Tests — Key User Journeys', () => {
   })
 
   test('Dashboard task generation and completion', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/dashboard')
 
@@ -43,7 +43,7 @@ test.describe('Feature Tests — Key User Journeys', () => {
   })
 
   test('Dashboard search filters tasks', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/dashboard')
 
@@ -62,7 +62,7 @@ test.describe('Feature Tests — Key User Journeys', () => {
   })
 
   test('Products list shows product card and navigates to detail', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/products')
 
@@ -77,7 +77,7 @@ test.describe('Feature Tests — Key User Journeys', () => {
   })
 
   test('Add Product modal opens and closes', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/products')
 
@@ -91,7 +91,7 @@ test.describe('Feature Tests — Key User Journeys', () => {
   })
 
   test('Settings tabs switch correctly', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/settings')
 
@@ -104,7 +104,7 @@ test.describe('Feature Tests — Key User Journeys', () => {
   })
 
   test('Sidebar navigation works', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/dashboard')
 
@@ -122,7 +122,7 @@ test.describe('Feature Tests — Key User Journeys', () => {
   })
 
   test('Briefing Room tabs and engine cards', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/briefing')
 
@@ -139,7 +139,7 @@ test.describe('Feature Tests — Key User Journeys', () => {
   })
 
   test('Inbox displays artifacts with correct filters', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await seedProduct(page)
     await seedInbox(page)
     await page.goto('/inbox')
@@ -153,7 +153,7 @@ test.describe('Feature Tests — Key User Journeys', () => {
   })
 
   test('Pricing page has all tier plans', async ({ page }) => {
-    await unlockGate(page)
+    await unlockGateAuth(page)
     await page.goto('/pricing')
     await expect(page.locator('text=Free')).toBeVisible()
     await expect(page.locator('text=Starter')).toBeVisible()
