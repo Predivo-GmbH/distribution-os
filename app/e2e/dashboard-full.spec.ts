@@ -75,7 +75,6 @@ test.describe('Dashboard — Command Center Full Coverage', () => {
 
     // GenerateButton (sparkle icon) should be visible near tasks
     // The GenerateButton uses a Sparkles icon — look for buttons with generate/sparkle
-    const generateBtns = page.locator('button[title*="Generate"], button:has(svg.lucide-sparkles)')
     // If no generate buttons, the feature may require hovering — verify the task list has engine-grouped structure
     const taskSection = page.locator('[role="checkbox"]').first().locator('..')
     await expect(taskSection).toBeVisible()

@@ -40,7 +40,7 @@ test.describe('Stripe Billing', () => {
     await seedProduct(page)
 
     // Simulate checkout call via route mock
-    const response = await page.evaluate(async () => {
+    await page.evaluate(async () => {
       const res = await fetch('/functions/v1/stripe-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

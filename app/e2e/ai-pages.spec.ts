@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { unlockGateAuth, seedProduct, seedAIConfig, seedProductWithKB } from './helpers'
+import { unlockGateAuth, seedAIConfig, seedProductWithKB } from './helpers'
 
 /**
  * AI-powered pages: Validation, Offer Builder, Playbooks, Proposals, Build Kit, Audit, Analyze.
@@ -347,8 +347,7 @@ test.describe('AI Pages — Full Coverage', () => {
     await page.goto('/audit')
     // Export button may only appear after results — verify page loads
     await expect(page.getByRole('heading', { name: /Audit/i })).toBeVisible()
-    const exportBtn = page.locator('button', { hasText: /export|download|copy/i })
-    // Button may or may not be visible before running audit — page should not crash
+    // Export button may or may not be visible before running audit — page should not crash
     await expect(page.getByText('Security')).toBeVisible()
   })
 

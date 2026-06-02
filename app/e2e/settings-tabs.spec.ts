@@ -11,7 +11,7 @@ test.describe('Settings Tabs', () => {
 
   test('renders all 8 settings tabs', async ({ page }) => {
     // Tab bar is inside <nav> within the main content area
-    // Using role-based tab selectors instead of 'main nav'
+    const tabBar = page.locator('[role="tablist"]')
     await expect(tabBar.getByText('Products')).toBeVisible()
     await expect(tabBar.getByText('Knowledge Base')).toBeVisible()
     await expect(tabBar.getByText('AI Configuration')).toBeVisible()

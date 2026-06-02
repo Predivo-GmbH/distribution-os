@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { unlockGateAuth, seedProduct, seedProductWithKB, seedAIConfig } from './helpers'
+import { unlockGateAuth, seedProductWithKB, seedAIConfig } from './helpers'
 
 test.describe('Settings — Full Tab Coverage', () => {
   test.beforeEach(async ({ page }) => {

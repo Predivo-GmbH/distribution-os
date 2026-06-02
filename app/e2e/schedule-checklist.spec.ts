@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { unlockGateAuth, seedProduct, seedAIConfig, seedSchedulerRecords, seedLaunchChecklist } from './helpers'
+import { unlockGateAuth, seedProduct, seedAIConfig, seedSchedulerRecords } from './helpers'
 
 test.describe('Schedule & Ops + Launch Checklist', () => {
   test.beforeEach(async ({ page }) => {

@@ -67,7 +67,7 @@ test.describe('Public Pages — Landing & Pricing', () => {
     await page.waitForTimeout(500)
     // The layout should still be functional — either sidebar is hidden or a hamburger is shown
     const aside = page.locator('aside').first()
-    const isVisible = await aside.isVisible().catch(() => false)
+    await aside.isVisible().catch(() => false)
     // Either sidebar is hidden on mobile or still visible but styled differently — both are valid responsive behavior
     expect(true).toBeTruthy() // Layout renders without crash
   })

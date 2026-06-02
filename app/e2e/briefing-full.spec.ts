@@ -13,7 +13,6 @@ test.describe('Briefing Room — Full Tab Coverage', () => {
     await expect(page.getByText('Briefing Room')).toBeVisible()
 
     // All 5 tabs
-    const tabs = page.locator('[role="tab"]')
     await expect(page.getByRole('tab', { name: 'Overview' })).toBeVisible()
     await expect(page.getByRole('tab', { name: 'Engines' })).toBeVisible()
     await expect(page.getByRole('tab', { name: 'Stages' })).toBeVisible()
