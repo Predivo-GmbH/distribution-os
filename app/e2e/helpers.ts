@@ -1,6 +1,10 @@
 import { type Page } from '@playwright/test'
 
-// Fake Supabase auth session for tests — matches the dummy VITE_SUPABASE_URL in .env.test
+// supabase-js stores its session under `sb-<project-ref>-auth-token`, where the
+// ref is derived from VITE_SUPABASE_URL in .env.test. Must stay in sync with it.
+const AUTH_STORAGE_KEY = 'sb-jxjpbmkgmuunpayqgbsx-auth-token'
+
+// Fake Supabase auth session for tests — matches VITE_SUPABASE_URL in .env.test
 const FAKE_SESSION = {
   access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXVzZXItMSIsImVtYWlsIjoidGVzdEB0ZXN0LmNvbSIsInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjo5OTk5OTk5OTk5fQ.test',
   refresh_token: 'fake-refresh-token',
@@ -58,11 +62,11 @@ async function mockSupabaseNetwork(page: Page) {
  * Still mocks Supabase network to prevent connection errors.
  */
 export async function unlockGate(page: Page) {
-  await page.addInitScript(() => {
+  await page.addInitScript((authKey: string) => {
     sessionStorage.setItem('distribution-os-dev-access', 'true')
     // Explicitly remove any auth session so PublicOnlyRoutes does not redirect
-    localStorage.removeItem('sb-localhost-auth-token')
-  })
+    localStorage.removeItem(authKey)
+  }, AUTH_STORAGE_KEY)
   await mockSupabaseNetwork(page)
 }
 
@@ -72,7 +76,7 @@ export async function unlockGate(page: Page) {
  * from localStorage and useAuth() returns a user, so ProtectedRoutes passes.
  */
 export async function unlockGateAuth(page: Page) {
-  await page.addInitScript(() => {
+  await page.addInitScript((authKey: string) => {
     sessionStorage.setItem('distribution-os-dev-access', 'true')
 
     // Seed a fake Supabase session into localStorage so the SDK's
@@ -93,8 +97,8 @@ export async function unlockGateAuth(page: Page) {
         created_at: '2026-01-01T00:00:00.000Z',
       },
     }
-    localStorage.setItem('sb-localhost-auth-token', JSON.stringify(fakeSession))
-  })
+    localStorage.setItem(authKey, JSON.stringify(fakeSession))
+  }, AUTH_STORAGE_KEY)
   await mockSupabaseNetwork(page)
 }
 

@@ -47,7 +47,7 @@ test.describe('Smoke Tests — All Routes Load', () => {
     await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/products')
-    await expect(page.locator('text=Products')).toBeVisible()
+    await expect(page.locator('h1:has-text("Products")')).toBeVisible()
     await expect(page.locator('text=TestSaaS')).toBeVisible()
   })
 
@@ -69,7 +69,7 @@ test.describe('Smoke Tests — All Routes Load', () => {
     await unlockGateAuth(page)
     await seedProduct(page)
     await page.goto('/briefing')
-    await expect(page.locator('text=Briefing Room')).toBeVisible()
+    await expect(page.locator('h1:has-text("Briefing Room")')).toBeVisible()
   })
 
   test('Inbox page loads', async ({ page }) => {
