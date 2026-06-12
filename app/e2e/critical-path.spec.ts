@@ -16,7 +16,7 @@
 import { test, expect } from '@playwright/test'
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://jxjpbmkgmuunpayqgbsx.supabase.co'
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4anBibWtnbXV1bnBheXFnYnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDE0MjgsImV4cCI6MjA4OTQxNzQyOH0.6QC2w93bJFYb-aiCvZ_ydC1tm48jXddvdM8mIw5bxBI'
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_8Q_iepRvUKjASo9_3RagaA_q7uaSCMr'
 // Service-role key must come from the environment — never commit it (see docs/Credentials.txt)
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
 const E2E_EMAIL = process.env.E2E_TEST_EMAIL || 'e2e-test@distributionos.predivo.ch'
