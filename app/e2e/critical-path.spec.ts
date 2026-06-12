@@ -13,7 +13,7 @@
  *               E2E_TEST_EMAIL, E2E_TEST_PASSWORD
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect, request as apiRequest } from '@playwright/test'
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://jxjpbmkgmuunpayqgbsx.supabase.co'
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_8Q_iepRvUKjASo9_3RagaA_q7uaSCMr'
@@ -210,16 +210,19 @@ test.describe('TIER 2 — call-ai', () => {
     })
     await new Promise(r => setTimeout(r, 2000))
 
-    // Verify usage was logged
-    const r = await request.get(
+    // Verify usage was logged — non-browser UA required: Supabase rejects
+    // secret API keys when the User-Agent looks like a browser
+    const ctx = await apiRequest.newContext({ userAgent: 'distribution-os-e2e' })
+    const r = await ctx.get(
       `${SUPABASE_URL}/rest/v1/ai_usage?user_id=eq.${E2E_USER_ID}&order=created_at.desc&limit=1`,
       { headers: { apikey: SERVICE_ROLE_KEY, Authorization: `Bearer ${SERVICE_ROLE_KEY}` } }
     )
-    expect(r.status()).toBe(200)
+    expect(r.status(), `ai_usage read failed: ${await r.text()}`).toBe(200)
     const rows = await r.json()
     expect(rows.length).toBeGreaterThan(0)
     expect(rows[0].model).toBe('claude-sonnet-4-20250514')
     expect(rows[0].input_tokens).toBeGreaterThan(0)
+    await ctx.dispose()
   })
 })
 
@@ -376,7 +379,7 @@ test.describe('TIER 2 — User Preferences', () => {
         user_id: E2E_USER_ID,
         dark_mode: true,
         week_start_day: 'sunday',
-        subscription_tier: 'pro',
+        subscription_tier: 'scale',
       }),
       failOnStatusCode: false,
     })
@@ -395,7 +398,7 @@ test.describe('TIER 2 — User Preferences', () => {
     // Reset to defaults
     await request.post(`${SUPABASE_URL}/rest/v1/user_preferences`, {
       headers: { ...headers(), Prefer: 'return=representation,resolution=merge-duplicates' },
-      data: JSON.stringify({ user_id: E2E_USER_ID, dark_mode: false, week_start_day: 'monday', subscription_tier: 'pro' }),
+      data: JSON.stringify({ user_id: E2E_USER_ID, dark_mode: false, week_start_day: 'monday', subscription_tier: 'scale' }),
     })
   })
 })
