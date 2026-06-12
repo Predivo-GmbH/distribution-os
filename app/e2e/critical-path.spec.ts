@@ -17,9 +17,10 @@ import { test, expect } from '@playwright/test'
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://jxjpbmkgmuunpayqgbsx.supabase.co'
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4anBibWtnbXV1bnBheXFnYnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDE0MjgsImV4cCI6MjA4OTQxNzQyOH0.6QC2w93bJFYb-aiCvZ_ydC1tm48jXddvdM8mIw5bxBI'
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4anBibWtnbXV1bnBheXFnYnN4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3Mzg0MTQyOCwiZXhwIjoyMDg5NDE3NDI4fQ.J7uqUjotUxy4NnmVTtijEhW1K3UGl1GDpo79JOWZVSo'
+// Service-role key must come from the environment — never commit it (see docs/Credentials.txt)
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
 const E2E_EMAIL = process.env.E2E_TEST_EMAIL || 'e2e-test@distributionos.predivo.ch'
-const E2E_PASSWORD = process.env.E2E_TEST_PASSWORD || 'E2ETest2026x'
+const E2E_PASSWORD = process.env.E2E_TEST_PASSWORD ?? ''
 const E2E_USER_ID = '6ffcc8aa-7518-44d0-ac1c-db4a1651ad90'
 const BASE_URL = process.env.BASE_URL || 'https://distributionos.predivo.ch'
 
