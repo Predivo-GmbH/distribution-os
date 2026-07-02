@@ -128,7 +128,7 @@ export function Pricing() {
             <p className="text-xs text-slate-600">
               &copy; {new Date().getFullYear()} Distribution OS by Predivo GmbH. All rights reserved.
             </p>
-            <p className="text-xs text-slate-600 mt-1">Swiss-made &middot; Software that Thinks Ahead</p>
+            <p className="text-xs text-slate-600 mt-1">Swiss-made</p>
           </div>
           <div className="flex items-center gap-4 text-xs">
             <Link to="/" className="px-2 min-h-[44px] inline-flex items-center text-slate-500 hover:text-slate-300 transition-colors">Home</Link>

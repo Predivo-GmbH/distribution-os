@@ -67,7 +67,7 @@ function layout(body: string): string {
     '<tr><td align="center" style="font-family:' + FONT + ';font-size:12px;color:#a1a1aa;">',
     '&copy; ' + new Date().getFullYear() + ' ' + APP_NAME + ' by ' + COMPANY + '. All rights reserved.',
     '<br />',
-    '<span style="font-size:11px;color:#a1a1aa;">Swiss-made &middot; Software that Thinks Ahead</span>',
+    '<span style="font-size:11px;color:#a1a1aa;">Swiss-made</span>',
     '<br />',
     '<a href="' + SITE_URL + '" style="color:' + BRAND + ';text-decoration:none;">distributionos.predivo.ch</a>',
     '</td></tr>',

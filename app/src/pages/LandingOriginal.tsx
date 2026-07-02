@@ -290,7 +290,7 @@ export function LandingOriginal() {
             <p className="text-xs text-[var(--color-ink-muted)]">
               &copy; {new Date().getFullYear()} Distribution OS by Predivo GmbH. All rights reserved.
             </p>
-            <p className="text-xs text-[var(--color-ink-muted)] mt-1">Swiss-made &middot; Software that Thinks Ahead</p>
+            <p className="text-xs text-[var(--color-ink-muted)] mt-1">Swiss-made</p>
           </div>
           <div className="flex items-center gap-4 text-xs text-[var(--color-ink-muted)]">
             <Link to="/pricing" className="px-2 min-h-[44px] inline-flex items-center hover:text-[var(--color-ink-body)] transition-colors">Pricing</Link>
