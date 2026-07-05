@@ -60,7 +60,7 @@ test.describe('Dashboard — Command Center Full Coverage', () => {
     await page.addInitScript(() => {
       localStorage.setItem('distribution-os-ai-config', JSON.stringify({
         apiKey: 'sk-ant-test-key',
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-5',
         maxTokens: 4096,
         proxyUrl: '',
       }))

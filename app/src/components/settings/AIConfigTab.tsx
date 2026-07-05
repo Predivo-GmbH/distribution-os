@@ -64,7 +64,7 @@ export function AIConfigTab() {
             onChange={e => setConfig(prev => ({ ...prev, model: e.target.value }))}
             className="min-h-[44px] px-3 py-2 rounded-xl border border-[var(--color-edge-outline)] bg-[var(--color-surface)] text-base md:text-sm text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-edge-focus)]"
           >
-            <option value="claude-sonnet-4-20250514">Claude Sonnet 4 (recommended)</option>
+            <option value="claude-sonnet-5">Claude Sonnet 5 (recommended)</option>
             <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (faster, cheaper)</option>
             <option value="claude-opus-4-6">Claude Opus 4.6 (most capable)</option>
           </select>

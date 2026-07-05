@@ -200,7 +200,7 @@ export async function seedAIConfig(page: Page) {
   await page.addInitScript(() => {
     const config = {
       apiKey: 'sk-ant-test-key-for-e2e',
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
       maxTokens: 4096,
       proxyUrl: '',
     }

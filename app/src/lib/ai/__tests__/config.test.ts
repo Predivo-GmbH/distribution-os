@@ -6,7 +6,7 @@ describe('AI Config', () => {
   it('returns default config when nothing stored', () => {
     const config = loadAIConfig()
     expect(config.apiKey).toBe('')
-    expect(config.model).toBe('claude-sonnet-4-20250514')
+    expect(config.model).toBe('claude-sonnet-5')
     expect(config.maxTokens).toBe(4096)
     expect(config.proxyUrl).toBe('')
   })
@@ -14,14 +14,14 @@ describe('AI Config', () => {
   it('saves and loads config', () => {
     const config: AIConfig = {
       apiKey: 'sk-test-key',
-      model: 'claude-opus-4-20250514',
+      model: 'claude-opus-4-6',
       maxTokens: 8192,
       proxyUrl: 'https://proxy.example.com',
     }
     saveAIConfig(config)
     const loaded = loadAIConfig()
     expect(loaded.apiKey).toBe('sk-test-key')
-    expect(loaded.model).toBe('claude-opus-4-20250514')
+    expect(loaded.model).toBe('claude-opus-4-6')
     expect(loaded.maxTokens).toBe(8192)
   })
 
@@ -32,7 +32,7 @@ describe('AI Config', () => {
   it('isAIConfigured returns true when API key set', () => {
     saveAIConfig({
       apiKey: 'sk-test',
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
       maxTokens: 4096,
       proxyUrl: '',
     })

@@ -13,16 +13,25 @@ export interface AIConfig {
 
 const DEFAULT_CONFIG: AIConfig = {
   apiKey: '',
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-sonnet-5',
   maxTokens: 4096,
   proxyUrl: '',
+}
+
+// Model IDs retired by Anthropic on 2026-06-15 — stored configs must be
+// remapped or every AI call 404s with "model not found"
+const RETIRED_MODELS: Record<string, string> = {
+  'claude-sonnet-4-20250514': 'claude-sonnet-5',
+  'claude-opus-4-20250514': 'claude-opus-4-6',
 }
 
 export function loadAIConfig(): AIConfig {
   try {
     const raw = localStorage.getItem(AI_CONFIG_KEY)
     if (!raw) return DEFAULT_CONFIG
-    return { ...DEFAULT_CONFIG, ...JSON.parse(raw) }
+    const config: AIConfig = { ...DEFAULT_CONFIG, ...JSON.parse(raw) }
+    if (RETIRED_MODELS[config.model]) config.model = RETIRED_MODELS[config.model]
+    return config
   } catch {
     return DEFAULT_CONFIG
   }

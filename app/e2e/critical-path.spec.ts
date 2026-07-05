@@ -157,7 +157,7 @@ test.describe('TIER 2 — call-ai', () => {
     const r = await request.post(`${SUPABASE_URL}/functions/v1/call-ai`, {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       data: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-5',
         max_tokens: 50,
         system: 'Respond with exactly: TEST_OK',
         messages: [{ role: 'user', content: 'Say the magic word' }],
@@ -180,7 +180,7 @@ test.describe('TIER 2 — call-ai', () => {
     const r = await request.post(`${SUPABASE_URL}/functions/v1/call-ai`, {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
       data: JSON.stringify({
-        model: 'claude-sonnet-4-20250514', max_tokens: 10,
+        model: 'claude-sonnet-5', max_tokens: 10,
         messages: [{ role: 'user', content: 'test' }],
       }),
       failOnStatusCode: false,
@@ -191,7 +191,7 @@ test.describe('TIER 2 — call-ai', () => {
   test('rejects missing required fields', async ({ request }) => {
     const r = await request.post(`${SUPABASE_URL}/functions/v1/call-ai`, {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      data: JSON.stringify({ model: 'claude-sonnet-4-20250514' }),
+      data: JSON.stringify({ model: 'claude-sonnet-5' }),
       failOnStatusCode: false,
     })
     expect(r.status()).toBe(400)
@@ -204,7 +204,7 @@ test.describe('TIER 2 — call-ai', () => {
     await request.post(`${SUPABASE_URL}/functions/v1/call-ai`, {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       data: JSON.stringify({
-        model: 'claude-sonnet-4-20250514', max_tokens: 10,
+        model: 'claude-sonnet-5', max_tokens: 10,
         system: 'Say OK', messages: [{ role: 'user', content: 'test' }],
       }),
     })
@@ -220,7 +220,7 @@ test.describe('TIER 2 — call-ai', () => {
     expect(r.status(), `ai_usage read failed: ${await r.text()}`).toBe(200)
     const rows = await r.json()
     expect(rows.length).toBeGreaterThan(0)
-    expect(rows[0].model).toBe('claude-sonnet-4-20250514')
+    expect(rows[0].model).toBe('claude-sonnet-5')
     expect(rows[0].input_tokens).toBeGreaterThan(0)
     await ctx.dispose()
   })
