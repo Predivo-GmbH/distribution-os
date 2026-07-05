@@ -158,7 +158,9 @@ test.describe('TIER 2 — call-ai', () => {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       data: JSON.stringify({
         model: 'claude-sonnet-5',
-        max_tokens: 50,
+        // claude-sonnet-5 runs adaptive thinking by default; thinking tokens
+        // count against max_tokens, so leave headroom for the text answer
+        max_tokens: 500,
         system: 'Respond with exactly: TEST_OK',
         messages: [{ role: 'user', content: 'Say the magic word' }],
       }),
@@ -170,8 +172,11 @@ test.describe('TIER 2 — call-ai', () => {
     expect(data.content).toBeDefined()
     expect(Array.isArray(data.content)).toBe(true)
     expect(data.content.length).toBeGreaterThan(0)
-    expect(data.content[0].type).toBe('text')
-    expect(data.content[0].text).toBeTruthy()
+    // content may lead with a thinking block — find the text block by type,
+    // same as the app does in worker-base.ts
+    const textBlock = data.content.find((b: { type: string }) => b.type === 'text')
+    expect(textBlock, 'response contains a text block').toBeDefined()
+    expect(textBlock.text).toBeTruthy()
     expect(data.usage).toBeDefined()
     expect(data.usage.input_tokens).toBeGreaterThan(0)
   })
