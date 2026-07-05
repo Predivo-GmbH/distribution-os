@@ -88,6 +88,36 @@ export interface AICallResult {
   error?: string
 }
 
+/* ------------------------------------------------------------
+   Direct-path model resolution (fleet standard 2026-07-05)
+   The call-ai edge function resolves 'auto' server-side; the
+   direct browser-to-Anthropic fallback paths must resolve it
+   here via the live /v1/models list (newest sonnet-family).
+   ------------------------------------------------------------ */
+
+let directModelCache: { id: string; at: number } | null = null
+
+async function resolveDirectModel(config: AIConfig): Promise<string> {
+  if (config.model !== 'auto') return config.model
+  if (directModelCache && Date.now() - directModelCache.at < 6 * 3600_000) {
+    return directModelCache.id
+  }
+  const endpoint = getAPIEndpoint(config)
+  const res = await fetch(`${endpoint}/v1/models?limit=100`, {
+    headers: {
+      'x-api-key': config.apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+  })
+  if (!res.ok) throw new Error(`Model list failed: ${res.status}`)
+  const ids: string[] = ((await res.json()).data ?? []).map((m: { id: string }) => m.id)
+  const id = ids.find(i => i.startsWith('claude-sonnet')) ?? ids[0]
+  if (!id) throw new Error('Model list empty')
+  directModelCache = { id, at: Date.now() }
+  return id
+}
+
 export async function callAI(options: AICallOptions): Promise<AICallResult> {
   const config = loadAIConfig()
 
@@ -104,6 +134,7 @@ export async function callAI(options: AICallOptions): Promise<AICallResult> {
   const endpoint = getAPIEndpoint(config)
 
   try {
+    const model = await resolveDirectModel(config)
     const response = await fetch(`${endpoint}/v1/messages`, {
       method: 'POST',
       headers: {
@@ -113,7 +144,7 @@ export async function callAI(options: AICallOptions): Promise<AICallResult> {
         'anthropic-dangerous-direct-browser-access': 'true',
       },
       body: JSON.stringify({
-        model: config.model,
+        model,
         max_tokens: options.maxTokens ?? config.maxTokens,
         system: options.systemPrompt,
         messages: [{ role: 'user', content: options.userPrompt }],
@@ -193,6 +224,7 @@ async function callAIDirect(config: AIConfig, options: AICallOptions): Promise<A
   const endpoint = getAPIEndpoint(config)
 
   try {
+    const model = await resolveDirectModel(config)
     const response = await fetch(`${endpoint}/v1/messages`, {
       method: 'POST',
       headers: {
@@ -202,7 +234,7 @@ async function callAIDirect(config: AIConfig, options: AICallOptions): Promise<A
         'anthropic-dangerous-direct-browser-access': 'true',
       },
       body: JSON.stringify({
-        model: config.model,
+        model,
         max_tokens: options.maxTokens ?? config.maxTokens,
         system: options.systemPrompt,
         messages: [{ role: 'user', content: options.userPrompt }],

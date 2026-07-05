@@ -2,6 +2,7 @@ import { handleCors, createJsonResponse } from '../_shared/cors.ts'
 import { getSupabaseAdmin } from '../_shared/supabaseAdmin.ts'
 import { TIER_LIMITS, type SubscriptionTier } from '../_shared/tier-map.ts'
 import { logAnthropicUsage } from '../_shared/log-usage.ts'
+import { resolveModel, substituteModel, isModelNotFound } from '../_shared/anthropic-model.ts'
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') || ''
 
@@ -36,10 +37,10 @@ Deno.serve(async (req: Request) => {
 
     const admin = getSupabaseAdmin()
 
-    const { model, max_tokens, system, messages } = await req.json()
+    const { model: requestedModel, max_tokens, system, messages } = await req.json()
 
-    if (!model || !messages) {
-      return createJsonResponse(req, { error: 'Missing required fields: model, messages' }, 400)
+    if (!messages) {
+      return createJsonResponse(req, { error: 'Missing required fields: messages' }, 400)
     }
 
     // --- Tier-based AI run limit enforcement ---
@@ -90,21 +91,41 @@ Deno.serve(async (req: Request) => {
       return createJsonResponse(req, { error: 'No API key available. Configure your key in Settings.' }, 400)
     }
 
+    // Resolve the model (fleet standard: dynamic Anthropic model resolution).
+    // 'auto' (or a missing model) resolves server-side via the AI_MODEL_SMART pin;
+    // explicit client-requested models pass through unchanged.
+    let model: string = !requestedModel || requestedModel === 'auto'
+      ? await resolveModel('smart', apiKey)
+      : requestedModel
+
     // Call Anthropic API
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: max_tokens ?? 4096,
-        system,
-        messages,
-      }),
-    })
+    const callAnthropic = (m: string) =>
+      fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: m,
+          max_tokens: max_tokens ?? 4096,
+          system,
+          messages,
+        }),
+      })
+
+    let response = await callAnthropic(model)
+
+    // Retirement fallback: on 404 model_not_found, substitute the newest live
+    // model of the same family and retry once (applies to both resolved pins
+    // and explicit client-requested models).
+    let substitutedModel: string | null = null
+    if (await isModelNotFound(response)) {
+      substitutedModel = await substituteModel(model, 'smart', apiKey)
+      model = substitutedModel
+      response = await callAnthropic(model)
+    }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
@@ -113,6 +134,10 @@ Deno.serve(async (req: Request) => {
     }
 
     const data = await response.json()
+    // Surface substitutions to the client/tests
+    if (substitutedModel) {
+      data.substituted_model = substitutedModel
+    }
     await logAnthropicUsage('Distribution-OS', 'call-ai', data)
 
     // Log usage (fire-and-forget)

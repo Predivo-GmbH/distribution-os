@@ -11,17 +11,21 @@ export interface AIConfig {
   proxyUrl: string
 }
 
+// Fleet standard (2026-07-05): no hard-coded model IDs as defaults.
+// 'auto' is resolved server-side by the call-ai edge function
+// (AI_MODEL_SMART pin + retirement fallback via /v1/models).
 const DEFAULT_CONFIG: AIConfig = {
   apiKey: '',
-  model: 'claude-sonnet-5',
+  model: 'auto',
   maxTokens: 4096,
   proxyUrl: '',
 }
 
 // Model IDs retired by Anthropic on 2026-06-15 — stored configs must be
-// remapped or every AI call 404s with "model not found"
+// remapped or every AI call 404s with "model not found". Retired defaults
+// map to 'auto' (server-side resolution); explicit opus choice is preserved.
 const RETIRED_MODELS: Record<string, string> = {
-  'claude-sonnet-4-20250514': 'claude-sonnet-5',
+  'claude-sonnet-4-20250514': 'auto',
   'claude-opus-4-20250514': 'claude-opus-4-6',
 }
 

@@ -45,7 +45,8 @@ test.describe('Settings Tabs', () => {
 
   test('AI Configuration shows model selector', async ({ page }) => {
     await page.getByRole('tab', { name: 'AI Configuration' }).click()
-    await expect(page.getByRole('option', { name: /Claude Sonnet 4/ })).toBeAttached()
+    await expect(page.getByRole('option', { name: /Auto \(recommended\)/ })).toBeAttached()
+    await expect(page.getByRole('option', { name: /Claude Sonnet 5/ })).toBeAttached()
     await expect(page.getByRole('option', { name: /Claude Haiku/ })).toBeAttached()
     await expect(page.getByRole('option', { name: /Claude Opus/ })).toBeAttached()
   })

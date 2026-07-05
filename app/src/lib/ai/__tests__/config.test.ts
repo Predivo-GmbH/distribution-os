@@ -6,9 +6,29 @@ describe('AI Config', () => {
   it('returns default config when nothing stored', () => {
     const config = loadAIConfig()
     expect(config.apiKey).toBe('')
-    expect(config.model).toBe('claude-sonnet-5')
+    expect(config.model).toBe('auto')
     expect(config.maxTokens).toBe(4096)
     expect(config.proxyUrl).toBe('')
+  })
+
+  it('remaps retired sonnet default to auto', () => {
+    saveAIConfig({
+      apiKey: 'sk-test',
+      model: 'claude-sonnet-4-20250514',
+      maxTokens: 4096,
+      proxyUrl: '',
+    })
+    expect(loadAIConfig().model).toBe('auto')
+  })
+
+  it('keeps explicit live model choices unchanged', () => {
+    saveAIConfig({
+      apiKey: 'sk-test',
+      model: 'claude-sonnet-5',
+      maxTokens: 4096,
+      proxyUrl: '',
+    })
+    expect(loadAIConfig().model).toBe('claude-sonnet-5')
   })
 
   it('saves and loads config', () => {
