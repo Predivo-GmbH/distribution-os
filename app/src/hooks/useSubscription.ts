@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { isSupabaseConfigured } from '@/lib/supabase-config'
+import { onSyncFailure } from '@/lib/storage'
 import type { SubscriptionTier } from '@/types'
 
 export const TIER_LIMITS = {
@@ -21,7 +22,7 @@ export function useSubscription() {
     import('@/lib/supabase-storage').then(sb =>
       sb.loadUserPreferences()
         .then(p => setTier(p.subscriptionTier))
-        .catch(() => {})
+        .catch(onSyncFailure('loadSubscriptionTier'))
         .finally(() => setLoading(false))
     )
   }, [])

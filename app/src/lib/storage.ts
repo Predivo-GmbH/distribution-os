@@ -8,6 +8,22 @@ import { isSupabaseConfigured } from '@/lib/supabase'
 
 const STORAGE_KEY = 'distribution-os'
 
+/**
+ * Handle a background cloud-sync failure. localStorage is the source of truth, so a failed
+ * Supabase mirror write does NOT lose data — but swallowing it silently (`.catch(() => {})`)
+ * hides cross-device divergence. This logs it (diagnosable) and counts it on window so a stuck
+ * sync can surface (e.g. an "N unsynced" indicator) instead of being invisible.
+ */
+export function onSyncFailure(operation: string) {
+  return (err: unknown) => {
+    try {
+      const w = window as unknown as { __cloudSyncFailures?: number }
+      w.__cloudSyncFailures = (w.__cloudSyncFailures ?? 0) + 1
+    } catch { /* non-browser context */ }
+    console.warn(`[cloud-sync] ${operation} failed (local data safe; cloud copy may be stale):`, err)
+  }
+}
+
 function getWeekId(date: Date = new Date()): string {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
   const dayNum = d.getUTCDay() || 7
@@ -129,7 +145,7 @@ export function addArtifact(artifact: Omit<InboxArtifact, 'id' | 'generatedAt'>)
 
   if (isSupabaseConfigured) {
     import('@/lib/supabase-storage').then(sb =>
-      sb.addInboxArtifact(artifact, localId).catch(() => {})
+      sb.addInboxArtifact(artifact, localId).catch(onSyncFailure('addInboxArtifact'))
     )
   }
 
@@ -146,7 +162,7 @@ export function updateArtifact(id: string, updates: Partial<InboxArtifact>): voi
 
   if (isSupabaseConfigured) {
     import('@/lib/supabase-storage').then(sb =>
-      sb.updateInboxArtifact(id, updates).catch(() => {})
+      sb.updateInboxArtifact(id, updates).catch(onSyncFailure('updateInboxArtifact'))
     )
   }
 }
@@ -165,7 +181,7 @@ export function removeArtifact(id: string): void {
 
   if (isSupabaseConfigured) {
     import('@/lib/supabase-storage').then(sb =>
-      sb.removeInboxArtifact(id).catch(() => {})
+      sb.removeInboxArtifact(id).catch(onSyncFailure('removeInboxArtifact'))
     )
   }
 }
@@ -199,7 +215,7 @@ export function saveKnowledgeBase(productId: string, kb: KnowledgeBase): void {
 
   if (isSupabaseConfigured) {
     import('@/lib/supabase-storage').then(sb =>
-      sb.saveKnowledgeBase(productId, kb).catch(() => {})
+      sb.saveKnowledgeBase(productId, kb).catch(onSyncFailure('saveKnowledgeBase'))
     )
   }
 }
@@ -209,7 +225,7 @@ export function removeKnowledgeBase(productId: string): void {
 
   if (isSupabaseConfigured) {
     import('@/lib/supabase-storage').then(sb =>
-      sb.removeKnowledgeBase(productId).catch(() => {})
+      sb.removeKnowledgeBase(productId).catch(onSyncFailure('removeKnowledgeBase'))
     )
   }
 }

@@ -1,6 +1,6 @@
 import { useReducer, useEffect, useRef, useCallback } from 'react'
 import type { AppState, Product, Task, WeekRecord } from '@/types'
-import { loadState, saveState, generateId, getWeekId, cleanupProductData } from '@/lib/storage'
+import { loadState, saveState, generateId, getWeekId, cleanupProductData, onSyncFailure } from '@/lib/storage'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import * as sb from '@/lib/supabase-storage'
 
@@ -133,23 +133,23 @@ export function useAppState() {
       case 'ADD_PRODUCT': {
         // Pass the locally-generated ID to prevent ID divergence
         const localProduct = stateRef.current.products[stateRef.current.products.length - 1]
-        sb.addProduct(action.payload, localProduct?.id).catch(() => {})
+        sb.addProduct(action.payload, localProduct?.id).catch(onSyncFailure('addProduct'))
         break
       }
       case 'UPDATE_PRODUCT':
-        sb.updateProduct(action.payload.id, action.payload.updates).catch(() => {})
+        sb.updateProduct(action.payload.id, action.payload.updates).catch(onSyncFailure('updateProduct'))
         break
       case 'REMOVE_PRODUCT':
-        sb.removeProduct(action.payload).catch(() => {})
-        sb.removeKnowledgeBase(action.payload).catch(() => {})
+        sb.removeProduct(action.payload).catch(onSyncFailure('removeProduct'))
+        sb.removeKnowledgeBase(action.payload).catch(onSyncFailure('removeKnowledgeBase'))
         break
       case 'TOGGLE_TASK': {
         const task = stateRef.current.tasks.find(t => t.id === action.payload)
-        if (task) sb.toggleTask(action.payload, !task.completed).catch(() => {})
+        if (task) sb.toggleTask(action.payload, !task.completed).catch(onSyncFailure('toggleTask'))
         break
       }
       case 'SET_TASKS':
-        sb.saveTasks(action.payload).catch(() => {})
+        sb.saveTasks(action.payload).catch(onSyncFailure('saveTasks'))
         break
     }
   }, [])

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import type { UserPreferences } from '@/types'
-import { loadPrefs, savePrefs } from '@/lib/storage'
+import { loadPrefs, savePrefs, onSyncFailure } from '@/lib/storage'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import * as sb from '@/lib/supabase-storage'
 
@@ -11,7 +11,7 @@ export function usePreferences() {
   // Load from Supabase on mount
   useEffect(() => {
     if (!isSupabaseConfigured) return
-    sb.loadUserPreferences().then(setPrefs).catch(() => {})
+    sb.loadUserPreferences().then(setPrefs).catch(onSyncFailure('loadUserPreferences'))
   }, [])
 
   // Apply dark mode class on mount and when it changes
@@ -35,7 +35,7 @@ export function usePreferences() {
     }
 
     if (isSupabaseConfigured) {
-      sb.saveUserPreferences(prefs).catch(() => {})
+      sb.saveUserPreferences(prefs).catch(onSyncFailure('saveUserPreferences'))
     }
   }, [prefs])
 
