@@ -11,7 +11,9 @@ on:
 
 concurrency:
   group: deploy-production
-  cancel-in-progress: true
+  # Never cancel a mid-flight FTP mirror — a cancelled mirror --delete can leave
+  # production in a half-uploaded/half-deleted state (breakage investigation §6).
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -23,7 +25,7 @@ jobs:
 
       - uses: actions/setup-node@v5
         with:
-          node-version: 24
+          node-version: 22
           cache: npm
           cache-dependency-path: app/package-lock.json
 
@@ -32,7 +34,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: node_modules
-          key: node-modules-${{ runner.os }}-node24-${{ hashFiles('package-lock.json') }}
+          key: node-modules-${{ runner.os }}-node22-${{ hashFiles('app/package-lock.json') }}
       - name: Install deps
         if: steps.node-cache.outputs.cache-hit != 'true'
         run: npm ci --legacy-peer-deps
@@ -78,33 +80,76 @@ jobs:
           echo "Site-id guard passed (remote='${REMOTE_ID:-<none>}')"
 
           # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
-          lftp -e "
-            $FTP_CONN
-            mirror --reverse --no-perms --verbose ./app/dist/assets/ /distributionos.predivo.ch/assets/;
-            quit;
-          "
+          n=0
+          until [ $n -ge 4 ]; do
+            OUT=$(lftp -e "
+              $FTP_CONN
+              mirror --reverse --no-perms --verbose ./app/dist/assets/ /distributionos.predivo.ch/assets/;
+              quit;
+            " 2>&1)
+            RC=$?
+            echo "$OUT"
+            [ $RC -eq 0 ] && break
+            echo "$OUT" | grep -qiE '530|login (incorrect|failed)' && { echo "::error::FTP auth 530 not retrying"; exit 1; }
+            n=$((n+1))
+            [ $n -ge 4 ] && { echo "::error::failed after 4"; exit 1; }
+            echo "::warning::attempt $n retry 25s"
+            sleep 25
+          done
 
           # Step 2: Upload index.html + root files (switches to new asset references)
-          lftp -e "
-            $FTP_CONN
-            put ./app/dist/.site-id -o /distributionos.predivo.ch/.site-id;
-            put ./app/dist/index.html -o /distributionos.predivo.ch/index.html;
-            put ./app/dist/.htaccess -o /distributionos.predivo.ch/.htaccess;
-            put ./app/dist/favicon.svg -o /distributionos.predivo.ch/favicon.svg;
-            put ./app/dist/favicon.ico -o /distributionos.predivo.ch/favicon.ico;
-            put ./app/dist/apple-touch-icon.png -o /distributionos.predivo.ch/apple-touch-icon.png;
-            put ./app/dist/android-chrome-192x192.png -o /distributionos.predivo.ch/android-chrome-192x192.png;
-            put ./app/dist/android-chrome-512x512.png -o /distributionos.predivo.ch/android-chrome-512x512.png;
-            put ./app/dist/og-image.png -o /distributionos.predivo.ch/og-image.png;
-            put ./app/dist/site.webmanifest -o /distributionos.predivo.ch/site.webmanifest;
-            put ./app/dist/robots.txt -o /distributionos.predivo.ch/robots.txt;
-            put ./app/dist/sitemap.xml -o /distributionos.predivo.ch/sitemap.xml;
-            quit;
-          "
+          n=0
+          until [ $n -ge 4 ]; do
+            OUT=$(lftp -e "
+              $FTP_CONN
+              put ./app/dist/.site-id -o /distributionos.predivo.ch/.site-id;
+              put ./app/dist/index.html -o /distributionos.predivo.ch/index.html;
+              put ./app/dist/.htaccess -o /distributionos.predivo.ch/.htaccess;
+              put ./app/dist/favicon.svg -o /distributionos.predivo.ch/favicon.svg;
+              put ./app/dist/favicon.ico -o /distributionos.predivo.ch/favicon.ico;
+              put ./app/dist/apple-touch-icon.png -o /distributionos.predivo.ch/apple-touch-icon.png;
+              put ./app/dist/android-chrome-192x192.png -o /distributionos.predivo.ch/android-chrome-192x192.png;
+              put ./app/dist/android-chrome-512x512.png -o /distributionos.predivo.ch/android-chrome-512x512.png;
+              put ./app/dist/og-image.png -o /distributionos.predivo.ch/og-image.png;
+              put ./app/dist/site.webmanifest -o /distributionos.predivo.ch/site.webmanifest;
+              put ./app/dist/robots.txt -o /distributionos.predivo.ch/robots.txt;
+              put ./app/dist/sitemap.xml -o /distributionos.predivo.ch/sitemap.xml;
+              quit;
+            " 2>&1)
+            RC=$?
+            echo "$OUT"
+            [ $RC -eq 0 ] && break
+            echo "$OUT" | grep -qiE '530|login (incorrect|failed)' && { echo "::error::FTP auth 530 not retrying"; exit 1; }
+            n=$((n+1))
+            [ $n -ge 4 ] && { echo "::error::failed after 4"; exit 1; }
+            echo "::warning::attempt $n retry 25s"
+            sleep 25
+          done
 
           # Step 3: Clean up stale assets no longer in the new build
-          lftp -e "
-            $FTP_CONN
-            mirror --reverse --delete --no-perms --verbose ./app/dist/assets/ /distributionos.predivo.ch/assets/;
-            quit;
-          "
+          n=0
+          until [ $n -ge 4 ]; do
+            OUT=$(lftp -e "
+              $FTP_CONN
+              mirror --reverse --delete --no-perms --verbose ./app/dist/assets/ /distributionos.predivo.ch/assets/;
+              quit;
+            " 2>&1)
+            RC=$?
+            echo "$OUT"
+            [ $RC -eq 0 ] && break
+            echo "$OUT" | grep -qiE '530|login (incorrect|failed)' && { echo "::error::FTP auth 530 not retrying"; exit 1; }
+            n=$((n+1))
+            [ $n -ge 4 ] && { echo "::error::failed after 4"; exit 1; }
+            echo "::warning::attempt $n retry 25s"
+            sleep 25
+          done
+
+      - name: Post-deploy smoke test
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "https://distributionos.predivo.ch/" || echo 000)
+          if [ "$STATUS" = "200" ]; then
+            echo "OK  https://distributionos.predivo.ch/ -> $STATUS"
+          else
+            echo "::error::Smoke test failed: https://distributionos.predivo.ch/ -> $STATUS"
+            exit 1
+          fi
