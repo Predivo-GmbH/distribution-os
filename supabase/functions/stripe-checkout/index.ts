@@ -73,6 +73,14 @@ Deno.serve(async (req: Request) => {
       customer: customerId,
       mode: 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
+      // Swiss/Liechtenstein VAT — fleet Stripe standard. Collect the address so Stripe Tax
+      // charges CH/LI buyers 8.1% VAT (inclusive) and all other countries 0%; persist it onto
+      // the existing customer; allow foreign B2B VAT-ID reverse charge. Prices must be
+      // tax_behavior=inclusive (fleet account default).
+      billing_address_collection: 'required',
+      automatic_tax: { enabled: true },
+      customer_update: { address: 'auto', name: 'auto' },
+      tax_id_collection: { enabled: true },
       success_url: `${returnUrl}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: returnUrl,
     })
