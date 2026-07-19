@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distribution-OS — Test Protocol</title>
+<style>
+  :root { --bg: #0f1117; --surface: #1a1d27; --border: #2a2d3a; --text: #e4e4e7; --muted: #71717a; --accent: #6366f1; --green: #22c55e; --red: #ef4444; --yellow: #eab308; --detail-bg: #141620; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 900px; margin: 0 auto; padding: 24px 16px 120px; }
+  h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 8px; }
+  .prereqs { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; font-size: 13px; line-height: 1.8; }
+  .prereqs h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--accent); }
+  .prereqs code { background: rgba(99,102,241,0.15); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+  .progress-bar { position: fixed; top: 0; left: 0; right: 0; height: 4px; background: var(--border); z-index: 100; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; width: 0%; }
+  .stats { position: fixed; top: 4px; right: 16px; z-index: 100; display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; }
+  .stat-pass { color: var(--green); }
+  .stat-fail { color: var(--red); }
+  .stat-skip { color: var(--yellow); }
+  .stat-total { color: var(--muted); }
+
+  .phase { margin-bottom: 32px; }
+  .phase-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; user-select: none; margin-bottom: 8px; }
+  .phase-header:hover { border-color: var(--accent); }
+  .phase-num { background: var(--accent); color: white; font-size: 12px; font-weight: 700; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .phase-title { font-weight: 600; font-size: 16px; flex: 1; }
+  .phase-badge { font-size: 12px; padding: 2px 10px; border-radius: 99px; font-weight: 600; }
+  .phase-badge.complete { background: rgba(34,197,94,0.15); color: var(--green); }
+  .phase-badge.partial { background: rgba(234,179,8,0.15); color: var(--yellow); }
+  .phase-badge.pending { background: rgba(113,113,122,0.15); color: var(--muted); }
+  .phase-chevron { color: var(--muted); transition: transform 0.2s; }
+  .phase-chevron.open { transform: rotate(90deg); }
+  .phase-body { display: none; padding: 0 4px; }
+  .phase-body.open { display: block; }
+
+  .test { display: flex; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 6px; align-items: flex-start; transition: border-color 0.2s; }
+  .test:hover { border-color: #3a3d4a; }
+  .test.pass { border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.04); }
+  .test.fail { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.04); }
+  .test.skip { border-color: rgba(234,179,8,0.3); background: rgba(234,179,8,0.04); }
+  .test-num { color: var(--muted); font-size: 12px; font-weight: 600; min-width: 24px; padding-top: 2px; }
+  .test-content { flex: 1; }
+  .test-action { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .test-expected { font-size: 13px; color: var(--muted); margin-bottom: 2px; }
+  .test-btns { display: flex; gap: 6px; flex-shrink: 0; padding-top: 1px; }
+  .test-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.15s; color: var(--text); }
+  .test-btn:hover { border-color: var(--accent); }
+  .test-btn.active-pass { background: var(--green); border-color: var(--green); }
+  .test-btn.active-fail { background: var(--red); border-color: var(--red); }
+  .test-btn.active-skip { background: var(--yellow); border-color: var(--yellow); }
+
+  .detail-toggle { font-size: 12px; color: var(--accent); cursor: pointer; margin-top: 4px; display: inline-block; user-select: none; }
+  .detail-toggle:hover { text-decoration: underline; }
+  .detail-box { display: none; margin-top: 8px; padding: 12px 14px; background: var(--detail-bg); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; line-height: 1.8; }
+  .detail-box.open { display: block; }
+  .detail-box ol { padding-left: 20px; }
+  .detail-box ol li { margin-bottom: 4px; }
+  .detail-box .tip { color: var(--accent); font-weight: 600; }
+  .detail-box .warn { color: var(--yellow); font-weight: 600; }
+  .detail-box .look { color: var(--green); font-weight: 600; }
+  .detail-box code { background: rgba(99,102,241,0.15); padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  .detail-box kbd { background: #2a2d3a; border: 1px solid #3a3d4a; border-radius: 4px; padding: 1px 6px; font-size: 11px; font-family: inherit; }
+
+  .note-input { display: none; margin-top: 8px; width: 100%; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; font-family: inherit; resize: vertical; min-height: 36px; }
+  .test.fail .note-input, .test.skip .note-input { display: block; }
+
+  .actions-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 12px 16px; display: flex; justify-content: center; gap: 12px; z-index: 100; flex-wrap: wrap; }
+  .action-btn { padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); transition: all 0.15s; }
+  .action-btn:hover { border-color: var(--accent); }
+  .action-btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+  .action-btn.primary:hover { opacity: 0.9; }
+  .action-btn.danger { color: var(--red); }
+
+  .summary-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; }
+  .summary-overlay.open { display: flex; }
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 520px; width: 90%; max-height: 80vh; overflow-y: auto; }
+  .summary-card h2 { font-size: 22px; margin-bottom: 16px; }
+  .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .summary-row:last-child { border: none; }
+  .summary-total { font-weight: 700; font-size: 16px; margin-top: 12px; padding-top: 12px; border-top: 2px solid var(--border); }
+  .close-btn { margin-top: 20px; width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+<div class="stats">
+  <span class="stat-pass" id="statPass">0 Pass</span>
+  <span class="stat-fail" id="statFail">0 Fail</span>
+  <span class="stat-skip" id="statSkip">0 Skip</span>
+  <span class="stat-total" id="statTotal">0 / 0</span>
+</div>
+
+<div class="container">
+  <h1>Distribution-OS — Manual Test Protocol</h1>
+  <p class="subtitle">Complete end-to-end testing. Click "Show steps" on any test for detailed instructions.</p>
+
+  <div class="prereqs">
+    <h3>Before You Start</h3>
+    <ol>
+      <li><strong>Use Google Chrome</strong> (latest version). All instructions reference Chrome shortcuts.</li>
+      <li><strong>Have your email inbox open</strong> in a separate tab — you'll need to check for verification codes.</li>
+      <li><strong>Password Gate code:</strong> <code>predivo2026</code> — you'll need this to access the site.</li>
+      <li><strong>Site URL:</strong> <code>https://distributionos.predivo.ch</code></li>
+      <li><strong>Estimated time:</strong> 45-60 minutes for all 14 phases.</li>
+      <li><strong>Progress is auto-saved</strong> in your browser. You can close and come back anytime.</li>
+    </ol>
+  </div>
+
+  <div id="phases"></div>
+</div>
+
+<div class="actions-bar">
+  <button class="action-btn" onclick="collapseAll()">Collapse All</button>
+  <button class="action-btn" onclick="expandAll()">Expand All</button>
+  <button class="action-btn" onclick="toggleAllDetails()">Toggle All Details</button>
+  <button class="action-btn primary" onclick="showSummary()">View Summary</button>
+  <button class="action-btn" onclick="exportResults()">Export Results</button>
+  <button class="action-btn danger" onclick="resetAll()">Reset All</button>
+</div>
+
+<div class="summary-overlay" id="summaryOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="summary-card" id="summaryCard"></div>
+</div>
+
+<script>
+const DATA = [
+  { phase: 1, title: "First Contact — Password Gate & Landing", tests: [
+    {
+      action: "Open the site in an incognito window",
+      expected: "Dark page with \"Early Access\" heading, password input, and \"Enter\" button",
+      steps: [
+        "Open Google Chrome.",
+        "Press <kbd>Ctrl+Shift+N</kbd> (Windows) or <kbd>Cmd+Shift+N</kbd> (Mac) to open a new <strong>Incognito window</strong>.",
+        "Click the address bar at the top, type <code>distributionos.predivo.ch</code> and press <kbd>Enter</kbd>.",
+        "Wait 1-3 seconds for the page to load.",
+        "<span class='look'>LOOK FOR:</span> A dark-themed page with the Distribution-OS logo (a small purple square icon with 3 horizontal bars + the text \"Distribution-OS\") centered near the top.",
+        "Below the logo: a white card containing the heading <strong>\"Early Access\"</strong>, the subtitle \"This product is in pre-launch. Enter the access code to continue.\", a password input field (placeholder text says \"Access code\"), and a purple <strong>\"Enter\"</strong> button.",
+        "The password input should already be focused (blinking cursor visible) — you can start typing immediately.",
+        "<span class='tip'>TIP:</span> If the page loads without a password gate and shows a full landing page instead, the gate may have been disabled. Mark this test as Skip."
+      ]
+    },
+    {
+      action: "Enter a wrong password",
+      expected: "Error message appears, input clears",
+      steps: [
+        "In the password input field, type <code>wrong</code> (or any random text).",
+        "Press <kbd>Enter</kbd> on your keyboard (or click the purple \"Enter\" button below the input).",
+        "<span class='look'>LOOK FOR:</span> A red error message appears below the input that says <strong>\"Incorrect code. Try again.\"</strong>",
+        "The input field should be cleared (empty) and the border of the input may turn red.",
+        "You should still be on the same page — no navigation happened."
+      ]
+    },
+    {
+      action: "Enter the correct password",
+      expected: "Gate disappears, landing page loads",
+      steps: [
+        "Type <code>predivo2026</code> in the password input field. (Type it carefully — it's case-sensitive.)",
+        "Press <kbd>Enter</kbd> on your keyboard (or click the purple \"Enter\" button).",
+        "<span class='look'>LOOK FOR:</span> The password gate card disappears and the full landing page loads within 1-2 seconds.",
+        "You should see a dark-themed landing page with a navigation bar at the top containing \"Distribution-OS\" logo on the left, and \"Log In\" / \"Get Started\" links on the right."
+      ]
+    },
+    {
+      action: "Refresh the page — gate should NOT reappear",
+      expected: "Landing page loads directly without gate",
+      steps: [
+        "Press <kbd>F5</kbd> or <kbd>Ctrl+R</kbd> to refresh the page.",
+        "<span class='look'>LOOK FOR:</span> The landing page loads directly — you should NOT see the password gate again.",
+        "The session is remembered in your browser's sessionStorage. As long as you don't close this incognito window, the gate won't reappear.",
+        "<span class='tip'>TIP:</span> If the gate reappears on refresh, that's a failure — the sessionStorage persistence isn't working."
+      ]
+    },
+    {
+      action: "Scroll through the entire landing page",
+      expected: "All sections render: hero, stats, engines, how-it-works, testimonials, FAQ, footer",
+      steps: [
+        "Starting from the top, scroll down slowly through the entire landing page.",
+        "<span class='look'>LOOK FOR these sections in order:</span>",
+        "<strong>1. Hero section:</strong> Large heading text about distribution, a subtitle, and a prominent purple \"Get Started\" button with an arrow icon.",
+        "<strong>2. Animated stats:</strong> 3-4 animated counter numbers (e.g., \"48 AI Workers\", \"6 Engines\", etc.) that count up as you scroll them into view.",
+        "<strong>3. Engine cards:</strong> 6 engine cards (Pull, Push, Bridge, Search, Equity, Persistence) — each with a colored icon, description, tags, and a metric. Cards should have colored left borders or accents.",
+        "<strong>4. How It Works:</strong> 4 numbered steps (01-04): Validate Your Idea, Build Your Brand, Activate Distribution, Scale With AI.",
+        "<strong>5. Testimonials:</strong> A horizontal scrolling marquee of quote cards from founders (Sarah Chen, Marcus Rivera, Aisha Patel, etc.).",
+        "<strong>6. FAQ section:</strong> Accordion-style questions that you can expand.",
+        "<strong>7. Footer:</strong> Copyright, links.",
+        "Check that there are <strong>no broken images</strong> (no placeholder icons), <strong>no layout jumps</strong> (sections don't suddenly shift while loading), and <strong>no horizontal scrollbar</strong> on the page."
+      ]
+    },
+    {
+      action: "Click any FAQ accordion item",
+      expected: "It expands smoothly to show the answer, clicking again collapses it",
+      steps: [
+        "Scroll down to the <strong>FAQ section</strong> (near the bottom of the page, above the footer).",
+        "You'll see several questions listed, each with a chevron (down arrow) on the right side.",
+        "Click on any question text (e.g., the first one).",
+        "<span class='look'>LOOK FOR:</span> The answer text slides open smoothly below the question. The chevron may rotate to indicate it's expanded.",
+        "Click the same question again.",
+        "<span class='look'>LOOK FOR:</span> The answer collapses smoothly. The chevron returns to its original position.",
+        "Try clicking a different question — it should also expand independently."
+      ]
+    },
+    {
+      action: "Click \"Get Started\" in the hero or nav",
+      expected: "Navigates to /signup page",
+      steps: [
+        "Scroll back to the top of the page (press <kbd>Home</kbd> key or scroll up).",
+        "Look for a <strong>\"Get Started\"</strong> link — it appears in two places: (1) in the top navigation bar on the right side, and (2) as a large purple button in the hero section.",
+        "Click either one.",
+        "<span class='look'>LOOK FOR:</span> The URL in the address bar changes to <code>distributionos.predivo.ch/signup</code>.",
+        "A signup form should appear (dark themed, with Distribution-OS logo, \"Create your account\" heading, and an email input field).",
+        "Press the browser's <strong>Back button</strong> (or <kbd>Alt+Left Arrow</kbd>) to return to the landing page."
+      ]
+    },
+    {
+      action: "Click \"Log In\" in the nav",
+      expected: "Navigates to /login page",
+      steps: [
+        "In the top navigation bar, find the <strong>\"Log In\"</strong> link (top-right area).",
+        "Click it.",
+        "<span class='look'>LOOK FOR:</span> The URL changes to <code>distributionos.predivo.ch/login</code>.",
+        "You should see a login card with: the Distribution-OS logo at the top, heading \"Welcome back\", subtitle \"Log in to your Distribution-OS account\", two tab buttons (\"Password\" and \"Email Code\"), an email input field, a password input field, a \"Forgot password?\" link, and a white \"Sign In\" button.",
+        "Press the browser's <strong>Back button</strong> to return to the landing page."
+      ]
+    },
+    {
+      action: "Navigate to the Pricing page",
+      expected: "4 tier cards visible with correct prices",
+      steps: [
+        "Click the address bar, type <code>distributionos.predivo.ch/pricing</code> and press <kbd>Enter</kbd>. (Or look for a \"Pricing\" link in the nav if visible.)",
+        "<span class='look'>LOOK FOR:</span> A page with <strong>4 pricing tier cards</strong> arranged side by side (or stacked on mobile):",
+        "<strong>Free — $0/mo:</strong> Limited features (1 product, 3 AI runs).",
+        "<strong>Starter — $19/mo:</strong> More features.",
+        "<strong>Growth — $49/mo:</strong> More features, may be highlighted as \"Most Popular\" or \"Recommended\".",
+        "<strong>Scale — $99/mo:</strong> Full features, unlimited.",
+        "Each card should show: the tier name, the price, a feature list, and a CTA button (e.g., \"Get Started\", \"Get Starter\", \"Get Growth\", \"Get Scale\").",
+        "Look for a <strong>\"Founding Member\"</strong> badge or banner visible somewhere on the page.",
+        "<span class='tip'>TIP:</span> The exact card design may vary. The key is that all 4 tiers are present with correct prices."
+      ]
+    },
+    {
+      action: "Click a paid tier CTA button",
+      expected: "Stripe checkout opens OR login prompt — both are acceptable",
+      steps: [
+        "On the Pricing page, click the CTA button on any paid tier (e.g., \"Get Starter\" on the $19 card).",
+        "<span class='look'>LOOK FOR one of these outcomes:</span>",
+        "<strong>Option A:</strong> You're redirected to a Stripe checkout page (URL starts with <code>checkout.stripe.com</code>) showing the tier name and price. This means the Stripe integration is working. Press Back to return.",
+        "<strong>Option B:</strong> A message appears saying \"Please log in first\" or you're redirected to the login page. This is correct behavior for unauthenticated users.",
+        "<strong>Either outcome is a PASS.</strong>",
+        "<span class='warn'>FAIL if:</span> You get a blank page, an error message, or a JavaScript console error."
+      ]
+    },
+  ]},
+
+  { phase: 2, title: "Account Creation (Sign Up)", tests: [
+    {
+      action: "Navigate to the Sign Up page",
+      expected: "Clean signup form with email input",
+      steps: [
+        "Click the address bar, type <code>distributionos.predivo.ch/signup</code> and press <kbd>Enter</kbd>.",
+        "<span class='look'>LOOK FOR:</span> A dark-themed page with the Distribution-OS logo centered at the top.",
+        "Below it: a card with the heading <strong>\"Create your account\"</strong> (or similar), a subtitle like \"Start distributing your SaaS in minutes\", and an email input field with a label \"Email\" and placeholder text.",
+        "There should be a submit button (e.g., \"Continue\" or \"Create Account\").",
+        "At the bottom: a link saying \"Already have an account? Log in\" or similar."
+      ]
+    },
+    {
+      action: "Enter your real email address and submit",
+      expected: "OTP step appears with 6 input boxes and \"Check your email\" message",
+      steps: [
+        "Click the email input field.",
+        "Type your <strong>real email address</strong> (one you can check right now — e.g., your Gmail, Outlook, etc.).",
+        "Click the submit button (e.g., \"Continue\" or \"Create Account\").",
+        "Wait 2-5 seconds.",
+        "<span class='look'>LOOK FOR:</span> The form changes to Step 2 — an OTP (One-Time Password) verification screen.",
+        "You should see: a message like <strong>\"We sent a 6-digit code to [your email]\"</strong>, and 6 individual input boxes arranged horizontally (each one accepts a single digit).",
+        "There should also be a \"Resend\" link/timer (e.g., \"Resend in 60s\").",
+        "<span class='warn'>FAIL if:</span> You get an error like \"Something went wrong\", or the page doesn't change at all after clicking submit."
+      ]
+    },
+    {
+      action: "Check your email inbox for the code",
+      expected: "Email from \"Distribution-OS\" with a 6-digit code",
+      steps: [
+        "Switch to your email inbox tab (or open a new tab and go to your email provider).",
+        "Look for a new email. It may take 10-30 seconds to arrive. Check your <strong>Spam/Junk folder</strong> if you don't see it in your Inbox.",
+        "<span class='look'>LOOK FOR:</span>",
+        "The sender name should be <strong>\"Distribution-OS\"</strong> (NOT \"ShipSolo\", NOT \"Supabase\").",
+        "The email subject should contain the <strong>6-digit code</strong> directly in the subject line (e.g., \"123456 is your Distribution-OS verification code\").",
+        "The email body should mention Distribution-OS branding. There should be <strong>zero mentions of \"ShipSolo\"</strong> anywhere in the email (subject, body, footer).",
+        "Copy or memorize the 6-digit code.",
+        "<span class='warn'>FAIL if:</span> No email arrives within 2 minutes, OR the email mentions \"ShipSolo\" anywhere, OR there's no code in the subject line."
+      ]
+    },
+    {
+      action: "Enter the 6-digit code in the OTP boxes",
+      expected: "Boxes auto-advance; after last digit, password setup appears",
+      steps: [
+        "Switch back to the Distribution-OS tab.",
+        "Click the first OTP box (leftmost) if it's not already focused.",
+        "Type the 6-digit code one digit at a time. After each digit, the cursor should <strong>automatically advance</strong> to the next box.",
+        "<span class='tip'>TIP:</span> You can also paste the entire 6-digit code at once — click the first box, press <kbd>Ctrl+V</kbd>. All 6 boxes should fill automatically.",
+        "<span class='look'>LOOK FOR:</span> After the 6th digit is entered, the form should automatically proceed to <strong>Step 3: Password Setup</strong>.",
+        "Step 3 shows: a \"Choose a password\" input, a \"Confirm password\" input, and a submit button.",
+        "<span class='warn'>FAIL if:</span> The boxes don't auto-advance, pasting doesn't work, or you get an \"Invalid or expired code\" error (check that you typed the right code and that less than 10 minutes have passed)."
+      ]
+    },
+    {
+      action: "Set a password and complete signup",
+      expected: "Account created, redirected to Dashboard, onboarding wizard starts",
+      steps: [
+        "In the \"Choose a password\" field, type a password of at least 6 characters (e.g., <code>TestPass123</code>).",
+        "In the \"Confirm password\" field, type the same password again.",
+        "Click the submit button (e.g., \"Create Account\" or \"Set Password\").",
+        "Wait 2-5 seconds.",
+        "<span class='look'>LOOK FOR:</span> You should be redirected to the Dashboard page (URL: <code>/dashboard</code>).",
+        "The <strong>First Mission onboarding wizard</strong> should appear — a step-by-step setup flow with \"Step 1 of 5\" or similar indication.",
+        "You should see a Welcome screen with a \"Next\" or \"Start First Mission\" button.",
+        "<span class='warn'>FAIL if:</span> You get an error, stay on the signup page, or land on a blank page.",
+        "<span class='tip'>TIP:</span> Write down the email + password you used — you'll need them later for login tests in Phase 12."
+      ]
+    },
+    {
+      action: "Verify the sign-up confirmation email",
+      expected: "Email branded as \"Distribution-OS\", zero mentions of \"ShipSolo\"",
+      steps: [
+        "Switch to your email inbox tab.",
+        "Look for any additional email from Distribution-OS (a welcome email or confirmation email).",
+        "If you received one, open it and scan the entire email: subject line, body text, and footer.",
+        "<span class='look'>LOOK FOR:</span> The sender name is \"Distribution-OS\". The content mentions Distribution-OS. There are <strong>zero mentions of \"ShipSolo\"</strong> anywhere.",
+        "<span class='tip'>TIP:</span> If no additional email was sent (just the OTP code email from step 3), mark this as Skip — not all flows send a separate welcome email."
+      ]
+    },
+  ]},
+
+  { phase: 3, title: "Onboarding — First Mission Wizard", tests: [
+    {
+      action: "First Mission wizard is visible on Dashboard",
+      expected: "Step 1: Welcome screen with Next/Start button",
+      steps: [
+        "After completing signup (Phase 2), you should already be on the Dashboard page showing the First Mission wizard.",
+        "If you're not seeing it: navigate to <code>distributionos.predivo.ch/dashboard</code>.",
+        "<span class='look'>LOOK FOR:</span> A wizard/stepper interface showing <strong>\"Step 1 of 5\"</strong> (or similar step indicator at the top).",
+        "The first step is a Welcome screen. It has a heading like \"First Mission\" or \"Welcome\", some introductory text about setting up your first product, and a button labeled <strong>\"Next\"</strong> or <strong>\"Start First Mission\"</strong>.",
+        "The left sidebar should be visible with navigation items: Dashboard, Inbox, Products, Settings, Briefing Room."
+      ]
+    },
+    {
+      action: "Click Next to go to Step 2",
+      expected: "Step 2: Product name + description form appears",
+      steps: [
+        "Click the <strong>\"Next\"</strong> or <strong>\"Start First Mission\"</strong> button.",
+        "<span class='look'>LOOK FOR:</span> The wizard advances to <strong>Step 2 of 5</strong>.",
+        "The heading says <strong>\"Name your product\"</strong>.",
+        "Below that: explanatory text: \"What SaaS product are you distributing?\"",
+        "Two input fields are visible:",
+        "1. <strong>\"Product Name\"</strong> — with placeholder text like \"e.g. Distribution OS, BelegPilot, Acme CRM\"",
+        "2. <strong>\"Short Description\"</strong> — with placeholder \"One line about what it does\"",
+        "A <strong>\"Back\"</strong> button on the left and a <strong>\"Continue\"</strong> button on the right (Continue is disabled/grayed out because name is empty)."
+      ]
+    },
+    {
+      action: "Enter a product name",
+      expected: "Name field accepts input, Continue button becomes active",
+      steps: [
+        "Click the \"Product Name\" input field.",
+        "Type a product name. Use something descriptive, e.g.: <code>My SaaS Tool</code> or <code>TaskFlow Pro</code>.",
+        "<span class='look'>LOOK FOR:</span> The text appears in the field. The <strong>\"Continue\"</strong> button should become enabled (no longer grayed out).",
+        "Also, a new element should appear below the description field: a dashed-border banner with a sparkle icon and the text <strong>\"AI Suggest — auto-fill description, stage & engines\"</strong> and a small note \"(uses 1 credit)\". This banner only appears after you type a product name."
+      ]
+    },
+    {
+      action: "Enter a product description",
+      expected: "Description field accepts input",
+      steps: [
+        "Click the \"Short Description\" input field.",
+        "Type a one-liner description, e.g.: <code>A project management tool for remote teams</code>.",
+        "<span class='look'>LOOK FOR:</span> The text appears in the field. Both fields now have content."
+      ]
+    },
+    {
+      action: "Click the AI Suggest button",
+      expected: "Loading spinner, then AI auto-fills description/stage/engines (2-10 seconds)",
+      steps: [
+        "Locate the dashed-border banner that says <strong>\"AI Suggest — auto-fill description, stage & engines\"</strong> (below the description field). It has a sparkle icon on the left.",
+        "Click this banner.",
+        "<span class='look'>LOOK FOR:</span>",
+        "1. The sparkle icon is replaced by a <strong>spinning loader</strong>, and the text changes to <strong>\"Analyzing...\"</strong>.",
+        "2. Wait 2-10 seconds. The AI is calling the backend to generate suggestions.",
+        "3. When complete: the description field may update with a more detailed AI-generated description. A small note appears below: \"AI-generated — feel free to edit\" with a sparkle icon.",
+        "<span class='warn'>FAIL if:</span> A red error message appears below the button (e.g., \"AI generation failed\"), the spinner never stops, or nothing changes after 15+ seconds. This is the CRITICAL test — the root cause fix (ANTHROPIC_API_KEY) was applied. If this fails, the API key may be wrong again.",
+        "<span class='tip'>TIP:</span> If the AI Suggest banner doesn't appear at all, make sure you have text in the Product Name field first."
+      ]
+    },
+    {
+      action: "Verify the AI-generated content makes sense",
+      expected: "Description is relevant, not gibberish",
+      steps: [
+        "Read the AI-generated description in the description field.",
+        "<span class='look'>LOOK FOR:</span> The description should be relevant to the product name you entered. For example, if you typed \"TaskFlow Pro\" — the description should mention task management, productivity, or similar concepts.",
+        "It should NOT be gibberish, unrelated text, or an error message."
+      ]
+    },
+    {
+      action: "Click Continue to go to Step 3 (Stage Select)",
+      expected: "4 stage options visible with radio buttons",
+      steps: [
+        "Click the <strong>\"Continue\"</strong> button (bottom-right).",
+        "<span class='look'>LOOK FOR:</span> The wizard advances to <strong>Step 3 of 5</strong>.",
+        "The heading says something like \"Choose your stage\" or \"Product Stage\".",
+        "You should see <strong>4 radio button options</strong>:",
+        "1. <strong>Pre-Launch</strong> — with a description about early-stage products",
+        "2. <strong>Early</strong> — with a description about recently launched products",
+        "3. <strong>Active</strong> — with a description about products with existing users",
+        "4. <strong>Scaling</strong> — with a description about growth-stage products",
+        "One of them may already be pre-selected by the AI Suggest from Step 2."
+      ]
+    },
+    {
+      action: "Select a different stage than AI suggested",
+      expected: "Selection changes, previous deselects",
+      steps: [
+        "If a stage is already selected (highlighted), click a <strong>different</strong> stage.",
+        "<span class='look'>LOOK FOR:</span> The new stage becomes selected (highlighted/checked), and the previous selection becomes deselected (un-highlighted/unchecked).",
+        "Only one stage can be selected at a time."
+      ]
+    },
+    {
+      action: "Click Continue to go to Step 4 (Engine Select)",
+      expected: "6 engine cards visible",
+      steps: [
+        "Click <strong>\"Continue\"</strong>.",
+        "<span class='look'>LOOK FOR:</span> The wizard advances to <strong>Step 4 of 5</strong>.",
+        "You should see <strong>6 engine cards</strong>:",
+        "1. <strong>Push Engine</strong> (purple) — Proactive outreach",
+        "2. <strong>Pull Engine</strong> (blue) — Attract leads, SEO, content",
+        "3. <strong>Bridge Engine</strong> (amber/yellow) — Partnerships, affiliates",
+        "4. <strong>Search Engine</strong> (green) — Discovery, directories",
+        "5. <strong>Equity Engine</strong> (red) — Community, newsletter, brand",
+        "6. <strong>Persistence Engine</strong> (cyan) — Retention, lifecycle",
+        "Each card shows the engine name, an icon, and a brief description."
+      ]
+    },
+    {
+      action: "Select a primary engine",
+      expected: "Card highlights as primary selection",
+      steps: [
+        "Click on one of the 6 engine cards to select it as your <strong>primary engine</strong>.",
+        "<span class='look'>LOOK FOR:</span> The card becomes visually highlighted — typically with a colored border, filled background, or a \"Primary\" badge.",
+        "The other cards remain in their default (unhighlighted) state."
+      ]
+    },
+    {
+      action: "Toggle 1-2 secondary engines",
+      expected: "Cards highlight differently from the primary",
+      steps: [
+        "Click on 1-2 <strong>additional</strong> engine cards (different from your primary).",
+        "<span class='look'>LOOK FOR:</span> These cards become highlighted in a <strong>different style</strong> from the primary (e.g., a lighter highlight, a \"Secondary\" badge, or a different border color).",
+        "You should now have 1 primary + 1-2 secondary engines selected."
+      ]
+    },
+    {
+      action: "Click Continue to go to Step 5 (Mission Briefing)",
+      expected: "Summary of all your selections",
+      steps: [
+        "Click <strong>\"Continue\"</strong>.",
+        "<span class='look'>LOOK FOR:</span> The wizard advances to <strong>Step 5 of 5</strong> — a summary/review screen.",
+        "The heading may say \"Mission Briefing\" or \"Review\".",
+        "You should see a summary of everything you configured:",
+        "- <strong>Product name</strong> — matches what you typed",
+        "- <strong>Description</strong> — matches (AI-generated or your manual text)",
+        "- <strong>Stage</strong> — matches your selection",
+        "- <strong>Engines</strong> — lists your primary + secondary engines",
+        "There should be a <strong>\"Launch\"</strong> or <strong>\"Create Product\"</strong> button to finalize."
+      ]
+    },
+    {
+      action: "Click Launch/Create Product",
+      expected: "Product created, Welcome Modal may appear, then Dashboard loads",
+      steps: [
+        "Click the <strong>\"Launch\"</strong> or <strong>\"Create Product\"</strong> button.",
+        "Wait 1-3 seconds.",
+        "<span class='look'>LOOK FOR:</span>",
+        "A <strong>Welcome Modal</strong> may appear — a popup congratulating you on creating your first product. If it does, read it and then click the dismiss/close button (X or \"Got it\" or \"Let's go\").",
+        "After dismissing (or if no modal appeared), you should now see the <strong>Dashboard — Command Center</strong> view with your product's weekly tasks."
+      ]
+    },
+    {
+      action: "Dismiss the Welcome Modal if shown",
+      expected: "Dashboard loads with your product visible",
+      steps: [
+        "If a Welcome Modal appeared in the previous step, click its close/dismiss button.",
+        "<span class='look'>LOOK FOR:</span> The Dashboard loads. You should see the heading <strong>\"Command Center\"</strong> and a list of weekly tasks grouped by engine.",
+        "Your product name should be visible somewhere on the page.",
+        "<span class='tip'>TIP:</span> If no Welcome Modal appeared, that's fine — mark this as Pass if the Dashboard loaded correctly from the previous step."
+      ]
+    },
+  ]},
+
+  { phase: 4, title: "Dashboard — Command Center", tests: [
+    {
+      action: "Dashboard shows Command Center with weekly tasks",
+      expected: "Task list visible, grouped by engine, with week date range",
+      steps: [
+        "You should now be on the Dashboard page (URL: <code>/dashboard</code>).",
+        "<span class='look'>LOOK FOR:</span>",
+        "1. The heading <strong>\"Command Center\"</strong> at the top of the main content area.",
+        "2. A <strong>week date range</strong> displayed near the top (e.g., \"Jun 2 – Jun 8, 2026\").",
+        "3. A list of <strong>tasks</strong> below, organized by engine section. Each section has the engine name as a header (e.g., \"Push Engine\", \"Pull Engine\").",
+        "4. Each task row shows: a checkbox on the left, the task title, and possibly a point value or engine badge.",
+        "5. There may be metric cards showing per-engine scores at the top or side."
+      ]
+    },
+    {
+      action: "Verify tasks match your selected engines",
+      expected: "Tasks shown are for the engines you selected in onboarding",
+      steps: [
+        "Look at which engine sections have tasks listed.",
+        "<span class='look'>LOOK FOR:</span> The engines you selected as primary and secondary during onboarding (Phase 3, Steps 9-11) should have tasks generated. Engines you did NOT select should either not appear or be empty.",
+        "For example, if you selected Push (primary) + Pull (secondary), you should see task sections for Push Engine and Pull Engine."
+      ]
+    },
+    {
+      action: "Check a task checkbox",
+      expected: "Task marked complete, progress bar updates",
+      steps: [
+        "Find any task in the list.",
+        "Click the <strong>checkbox</strong> on the left side of the task row.",
+        "<span class='look'>LOOK FOR:</span>",
+        "1. The checkbox fills in (checkmark appears) or the task row gets a strikethrough/dimmed style.",
+        "2. The <strong>progress bar</strong> (or score indicator) near the top of the page updates — the score/percentage should increase."
+      ]
+    },
+    {
+      action: "Uncheck the same task",
+      expected: "Task unmarked, progress bar reverts",
+      steps: [
+        "Click the same checkbox again to uncheck it.",
+        "<span class='look'>LOOK FOR:</span>",
+        "1. The checkbox returns to its empty/unchecked state.",
+        "2. The progress bar/score reverts to its previous value.",
+        "Both checking and unchecking should feel instant with no delay."
+      ]
+    },
+    {
+      action: "Use the search/filter to filter tasks",
+      expected: "Tasks filter in real-time as you type",
+      steps: [
+        "Look for a <strong>search input</strong> or filter field near the top of the task list. It may have a magnifying glass icon and placeholder text like \"Search tasks...\".",
+        "Click the search field and type a keyword that matches one of the visible tasks (look at the task titles and pick a word from one).",
+        "<span class='look'>LOOK FOR:</span> As you type, the task list filters in real-time — only tasks matching your keyword remain visible. Non-matching tasks disappear.",
+        "If no tasks match, an empty state message may appear."
+      ]
+    },
+    {
+      action: "Clear the search",
+      expected: "All tasks visible again",
+      steps: [
+        "Delete all text from the search field (select all with <kbd>Ctrl+A</kbd> then press <kbd>Delete</kbd>, or click an X/clear button if one exists).",
+        "<span class='look'>LOOK FOR:</span> All tasks reappear — the full list is restored."
+      ]
+    },
+    {
+      action: "Find a task with an AI Generate button",
+      expected: "Button visible next to at least one task",
+      steps: [
+        "Scan through the task list looking for a task that has a <strong>Generate</strong> button or <strong>AI icon</strong> (sparkle/lightning icon) next to it. Not all tasks have one — only tasks that support AI content generation.",
+        "<span class='look'>LOOK FOR:</span> A small button (often with a sparkle or wand icon) next to the task title or on the right side of the task row.",
+        "<span class='tip'>TIP:</span> If you don't see any Generate buttons, it may be because your AI configuration isn't set up yet (no API key). In that case, mark this as Skip and continue. You'll configure AI in Settings later."
+      ]
+    },
+    {
+      action: "Click the Generate button on a task",
+      expected: "Loading state, then AI content generated (3-10 seconds)",
+      steps: [
+        "Click the <strong>Generate</strong> button on one of the tasks.",
+        "<span class='look'>LOOK FOR:</span>",
+        "1. A <strong>loading/spinner state</strong> appears (the button may change to show a spinning icon or \"Generating...\" text).",
+        "2. Wait 3-10 seconds for the AI to generate content.",
+        "3. When complete: either (a) the generated content appears inline below the task, or (b) a notification/toast appears saying the content was sent to the Inbox.",
+        "<span class='warn'>FAIL if:</span> An error appears, the spinner never stops, or nothing happens after 15 seconds.",
+        "<span class='tip'>TIP:</span> If you marked the previous test as Skip (no Generate button), mark this as Skip too."
+      ]
+    },
+    {
+      action: "Navigate to the Inbox to see the generated content",
+      expected: "Generated artifact appears as a pending item",
+      steps: [
+        "In the <strong>left sidebar</strong>, click <strong>\"Inbox\"</strong>.",
+        "<span class='look'>LOOK FOR:</span> The Inbox page loads (URL: <code>/inbox</code>). If you generated content in the previous step, there should be at least one artifact/item listed.",
+        "Each artifact card shows: the title, an engine badge (color-coded), a status badge (\"Pending\"), and possibly a timestamp.",
+        "<span class='tip'>TIP:</span> If the Inbox is empty and you didn't generate content (skipped previous tests), that's expected. Mark as Skip."
+      ]
+    },
+  ]},
+
+  { phase: 5, title: "Inbox — Content Review", tests: [
+    {
+      action: "Inbox shows a pending artifact (from Phase 4 generation)",
+      expected: "Artifact card with title, engine badge, and pending status",
+      steps: [
+        "You should be on the Inbox page (<code>/inbox</code>).",
+        "<span class='look'>LOOK FOR:</span> At least one artifact card in the list.",
+        "Each card shows: the <strong>artifact title</strong> (related to the task you generated it from), an <strong>engine badge</strong> (e.g., \"Push\"), and a <strong>status badge</strong> showing \"Pending\" in a neutral color.",
+        "<span class='tip'>TIP:</span> If no artifacts exist (you skipped AI generation), you can still test the Inbox UI — check that the empty state message looks correct (e.g., \"No artifacts yet\" or similar). Then skip tests 2-9 and jump to the filter tests."
+      ]
+    },
+    {
+      action: "Click to expand an artifact",
+      expected: "Full generated content is visible",
+      steps: [
+        "Click on an artifact card to expand it.",
+        "<span class='look'>LOOK FOR:</span> The card expands or a detail panel opens, showing the <strong>full AI-generated content</strong> — typically several paragraphs of text.",
+        "The content should be relevant to the task/engine that generated it."
+      ]
+    },
+    {
+      action: "Click Approve on the artifact",
+      expected: "Status changes to \"Approved\" with a timestamp",
+      steps: [
+        "Look for an <strong>\"Approve\"</strong> button on the expanded artifact (may be a green button or a checkmark icon).",
+        "Click it.",
+        "<span class='look'>LOOK FOR:</span> The status badge changes from \"Pending\" to <strong>\"Approved\"</strong> (typically in green). A timestamp may appear showing when it was approved."
+      ]
+    },
+    {
+      action: "Generate another artifact (from Dashboard), then return to Inbox",
+      expected: "Second artifact appears in the Inbox",
+      steps: [
+        "Click <strong>\"Dashboard\"</strong> in the left sidebar to go back to the Command Center.",
+        "Find another task with a Generate button and click it. Wait for it to complete.",
+        "Click <strong>\"Inbox\"</strong> in the sidebar to return.",
+        "<span class='look'>LOOK FOR:</span> A second artifact now appears in the Inbox list alongside the first one.",
+        "<span class='tip'>TIP:</span> If no Generate buttons are available, mark this and the next test as Skip."
+      ]
+    },
+    {
+      action: "Click Edit on the new artifact, modify text, then approve",
+      expected: "Inline editor opens, edited content is saved",
+      steps: [
+        "Click on the new artifact to expand it.",
+        "Look for an <strong>\"Edit\"</strong> button (pencil icon or text label).",
+        "Click Edit.",
+        "<span class='look'>LOOK FOR:</span> The content area becomes an editable <strong>textarea</strong> where you can modify the text.",
+        "Make a small edit — add a sentence like \"TEST EDIT\" at the beginning.",
+        "Click <strong>\"Save\"</strong> or <strong>\"Approve\"</strong> to save your changes.",
+        "<span class='look'>LOOK FOR:</span> The content updates with your edit. Status changes to Approved if you clicked Approve."
+      ]
+    },
+    {
+      action: "Generate a third artifact, then dismiss it",
+      expected: "Status changes to \"Dismissed\"",
+      steps: [
+        "Generate another artifact from the Dashboard (same process as before), return to Inbox.",
+        "Find the new Pending artifact.",
+        "Click to expand it, then look for a <strong>\"Dismiss\"</strong> button.",
+        "Click Dismiss.",
+        "<span class='look'>LOOK FOR:</span> Status changes to <strong>\"Dismissed\"</strong> (typically in a muted/gray color)."
+      ]
+    },
+    {
+      action: "Delete the dismissed artifact",
+      expected: "Artifact removed from the list permanently",
+      steps: [
+        "On the dismissed artifact, look for a <strong>\"Delete\"</strong> button (trash icon or text label).",
+        "Click Delete.",
+        "A confirmation dialog may appear — if so, confirm the deletion.",
+        "<span class='look'>LOOK FOR:</span> The artifact is <strong>removed from the list entirely</strong> — it no longer appears."
+      ]
+    },
+    {
+      action: "Test the Status filter dropdown",
+      expected: "List filters to show only matching status",
+      steps: [
+        "Near the top of the Inbox page, look for filter dropdowns. There should be a <strong>Status</strong> filter (dropdown or select).",
+        "Click it and select a specific status, e.g., <strong>\"Approved\"</strong>.",
+        "<span class='look'>LOOK FOR:</span> The list updates to show only artifacts with \"Approved\" status. Other statuses are hidden."
+      ]
+    },
+    {
+      action: "Test the Engine filter dropdown",
+      expected: "List filters by engine",
+      steps: [
+        "Find the <strong>Engine</strong> filter dropdown.",
+        "Select a specific engine (e.g., \"Push\").",
+        "<span class='look'>LOOK FOR:</span> Only artifacts from that engine are shown."
+      ]
+    },
+    {
+      action: "Test the Product filter dropdown",
+      expected: "List filters by product",
+      steps: [
+        "Find the <strong>Product</strong> filter dropdown.",
+        "Select your product name.",
+        "<span class='look'>LOOK FOR:</span> The list should show only artifacts for that product (likely all of them if you only have one product)."
+      ]
+    },
+    {
+      action: "Reset all filters",
+      expected: "All remaining artifacts visible",
+      steps: [
+        "Reset each filter back to \"All\" or the default option.",
+        "<span class='look'>LOOK FOR:</span> All artifacts reappear in the list."
+      ]
+    },
+  ]},
+
+  { phase: 6, title: "Products Page", tests: [
+    {
+      action: "Navigate to the Products page",
+      expected: "Product card visible with name, stage, description, and engine badges",
+      steps: [
+        "In the left sidebar, click <strong>\"Products\"</strong>.",
+        "<span class='look'>LOOK FOR:</span> The Products page loads (URL: <code>/products</code>).",
+        "You should see at least one <strong>product card</strong> for the product you created during onboarding.",
+        "Each card shows: the <strong>product name</strong> (e.g., \"My SaaS Tool\"), a <strong>stage badge</strong> (e.g., \"Pre-Launch\" in a colored pill), a <strong>description</strong> (the one-liner), and <strong>engine badges</strong> (colored pills for each selected engine).",
+        "There should also be an <strong>\"Add Product\"</strong> button somewhere on the page (top-right or floating)."
+      ]
+    },
+    {
+      action: "Click the product card to view details",
+      expected: "Detail page with name, stage, engines, and task list",
+      steps: [
+        "Click on the product card.",
+        "<span class='look'>LOOK FOR:</span> The URL changes to <code>/products/[some-id]</code>.",
+        "The detail page shows: the <strong>product name</strong> as a heading, the <strong>stage</strong>, the <strong>engine assignments</strong> (primary + secondary), and a <strong>task list grouped by engine</strong>.",
+        "Press the browser Back button or click \"Products\" in the sidebar to return to the products list."
+      ]
+    },
+    {
+      action: "Click the Add Product button",
+      expected: "Modal opens with empty form fields",
+      steps: [
+        "On the Products list page, click the <strong>\"Add Product\"</strong> button (usually top-right, may say \"+\" or \"New Product\" or \"Add Product\").",
+        "<span class='look'>LOOK FOR:</span> A <strong>modal/dialog</strong> opens over the page.",
+        "The modal contains an empty form with fields for: Product Name, Description, Stage (radio buttons or dropdown), Engine selection (checkboxes or cards), and possibly MRR/Revenue.",
+        "There should be a \"Save\" or \"Create\" button and a close/cancel button (X or \"Cancel\")."
+      ]
+    },
+    {
+      action: "Fill the form and create a second product",
+      expected: "New product created and visible in the list",
+      steps: [
+        "Fill in the form:",
+        "- <strong>Product Name:</strong> Type <code>Test Product 2</code>",
+        "- <strong>Description:</strong> Type <code>A second product for testing</code>",
+        "- <strong>Stage:</strong> Select any stage (e.g., \"Early\")",
+        "- <strong>Engines:</strong> Select at least one engine",
+        "Click <strong>\"Save\"</strong> or <strong>\"Create\"</strong>.",
+        "<span class='look'>LOOK FOR:</span> The modal closes. The products list now shows <strong>two product cards</strong> — your original product and \"Test Product 2\".",
+        "<span class='warn'>NOTE:</span> On the <strong>Free tier</strong>, you can only have 1 product. If you get an error like \"Product limit reached\", that's actually correct behavior for the free tier. Mark as Pass with a note \"Tier limit enforced correctly\"."
+      ]
+    },
+    {
+      action: "Click Edit on a product",
+      expected: "Modal opens with pre-filled values",
+      steps: [
+        "On one of the product cards, look for an <strong>\"Edit\"</strong> button (pencil icon or text).",
+        "Click it.",
+        "<span class='look'>LOOK FOR:</span> The Add Product modal opens, but this time the fields are <strong>pre-filled</strong> with the product's existing data (name, description, stage, engines).",
+        "Change the description to something slightly different.",
+        "Click <strong>\"Save\"</strong>.",
+        "<span class='look'>LOOK FOR:</span> The modal closes and the product card updates to show the new description."
+      ]
+    },
+  ]},
+
+  { phase: 7, title: "Settings — All 8 Tabs", tests: [
+    {
+      action: "Navigate to Settings and see all 8 tabs",
+      expected: "8 horizontal tab labels visible",
+      steps: [
+        "In the left sidebar, click <strong>\"Settings\"</strong>.",
+        "<span class='look'>LOOK FOR:</span> The Settings page loads (URL: <code>/settings</code>).",
+        "Near the top, there's a horizontal <strong>tab bar</strong> with 8 tabs. They should be, left to right:",
+        "1. <strong>Products</strong>",
+        "2. <strong>Knowledge Base</strong>",
+        "3. <strong>AI Configuration</strong>",
+        "4. <strong>Integrations</strong>",
+        "5. <strong>Scheduler</strong>",
+        "6. <strong>Tasks</strong>",
+        "7. <strong>Metrics</strong>",
+        "8. <strong>General</strong>",
+        "The first tab (Products) should be active/selected by default.",
+        "<span class='tip'>TIP:</span> On smaller screens, the tab bar may scroll horizontally. Swipe/scroll left-right to see all 8 tabs."
+      ]
+    },
+    {
+      action: "Knowledge Base tab — select product and see 4 sections",
+      expected: "Product selector + Voice, ICP, Positioning, Tone sections",
+      steps: [
+        "Click the <strong>\"Knowledge Base\"</strong> tab.",
+        "<span class='look'>LOOK FOR:</span>",
+        "1. A <strong>product selector</strong> dropdown at the top (showing your product name).",
+        "2. Below it, <strong>4 sections</strong>: Voice, ICP (Ideal Customer Profile), Positioning, and Tone.",
+        "3. If the Knowledge Base hasn't been set up yet, you may see a <strong>\"Not set up\"</strong> badge.",
+        "Select your product in the dropdown if not already selected."
+      ]
+    },
+    {
+      action: "Add a Voice Example",
+      expected: "Example appears as a tag/pill below the input",
+      steps: [
+        "In the <strong>Voice</strong> section, look for an input field where you can type a voice example.",
+        "Type <code>Friendly and professional</code> and press <kbd>Enter</kbd>.",
+        "<span class='look'>LOOK FOR:</span> The text appears as a <strong>tag/pill</strong> below the input field, with an X button to remove it."
+      ]
+    },
+    {
+      action: "Remove the voice example",
+      expected: "Tag/pill removed from the list",
+      steps: [
+        "Click the <strong>X</strong> button on the voice example tag you just created.",
+        "<span class='look'>LOOK FOR:</span> The tag disappears from the list."
+      ]
+    },
+    {
+      action: "Fill ICP fields (5 fields)",
+      expected: "All fields accept text, auto-save works",
+      steps: [
+        "In the <strong>ICP Definition</strong> section, fill in these 5 fields:",
+        "- <strong>Who:</strong> Type <code>SaaS founders with 0-10 customers</code>",
+        "- <strong>Pain:</strong> Type <code>Can't figure out distribution channels</code>",
+        "- <strong>Tried Before:</strong> Type <code>Manual outreach, paid ads</code>",
+        "- <strong>Desired Outcome:</strong> Type <code>Predictable growth engine</code>",
+        "- <strong>Hangouts:</strong> Type <code>Twitter, Indie Hackers, Product Hunt</code>",
+        "<span class='look'>LOOK FOR:</span> All fields accept text. The data should <strong>auto-save</strong> (look for a brief \"Saved\" indicator or checkmark). If there's a \"Save\" button, click it."
+      ]
+    },
+    {
+      action: "Fill Positioning fields (4 fields)",
+      expected: "All fields accept text",
+      steps: [
+        "In the <strong>Positioning</strong> section, fill in:",
+        "- <strong>One-liner:</strong> Type <code>The AI co-pilot for SaaS distribution</code>",
+        "- <strong>Benefits:</strong> Type <code>Save 20hrs/week on marketing</code>",
+        "- <strong>Competitor:</strong> Type <code>Manual marketing agencies</code>",
+        "- <strong>Switch Reason:</strong> Type <code>10x faster, 10x cheaper</code>",
+        "<span class='look'>LOOK FOR:</span> All fields accept text. Data auto-saves."
+      ]
+    },
+    {
+      action: "Adjust Tone sliders/radios",
+      expected: "Tone settings change and persist",
+      steps: [
+        "In the <strong>Tone</strong> section, look for sliders or radio buttons controlling tone attributes (e.g., Formal ↔ Casual, Serious ↔ Playful, etc.).",
+        "Adjust one or two of them.",
+        "<span class='look'>LOOK FOR:</span> The slider/selection changes visually. The change should auto-save."
+      ]
+    },
+    {
+      action: "AI Configuration tab — API key and model selector",
+      expected: "Input for API key, show/hide toggle, model dropdown, save button",
+      steps: [
+        "Click the <strong>\"AI Configuration\"</strong> tab.",
+        "<span class='look'>LOOK FOR:</span>",
+        "1. An <strong>API key input field</strong> (may have a lock icon and placeholder like \"Enter your Anthropic API key\").",
+        "2. A <strong>show/hide toggle</strong> (eye icon) next to the input to reveal/hide the key.",
+        "3. A <strong>model selector</strong> dropdown with options like \"Sonnet 4\" (or \"Claude Sonnet\"), \"Haiku\", \"Opus\".",
+        "4. A <strong>\"Save\"</strong> button."
+      ]
+    },
+    {
+      action: "Enter an API key and test show/hide",
+      expected: "Key is shown/hidden when toggling, Save confirms",
+      steps: [
+        "Click the API key input field. Type a test value like <code>sk-test-key-12345</code>.",
+        "Click the <strong>show/hide toggle</strong> (eye icon).",
+        "<span class='look'>LOOK FOR:</span> The input toggles between showing dots/asterisks (hidden) and showing the actual text (visible).",
+        "Click <strong>\"Save\"</strong>.",
+        "<span class='look'>LOOK FOR:</span> A confirmation message appears (e.g., \"Saved\" toast or checkmark).",
+        "Refresh the page (<kbd>F5</kbd>) and return to the AI Configuration tab — the key should still be saved.",
+        "<span class='tip'>TIP:</span> This is a test key. For real AI functionality, you'd use a real Anthropic API key. But for testing the UI, any string works."
+      ]
+    },
+    {
+      action: "Change the model selector",
+      expected: "Selection changes between available models",
+      steps: [
+        "Click the <strong>model selector</strong> dropdown.",
+        "Change it to a different model (e.g., if it says \"Sonnet 4\", switch to \"Haiku\").",
+        "<span class='look'>LOOK FOR:</span> The dropdown updates to show the new selection. It should persist after saving."
+      ]
+    },
+    {
+      action: "Integrations tab — 4 integration cards",
+      expected: "LinkedIn, GSC, Google Ads, Email cards all showing \"Not connected\"",
+      steps: [
+        "Click the <strong>\"Integrations\"</strong> tab.",
+        "<span class='look'>LOOK FOR:</span> <strong>4 integration cards</strong>:",
+        "1. <strong>LinkedIn</strong>",
+        "2. <strong>Google Search Console (GSC)</strong>",
+        "3. <strong>Google Ads</strong>",
+        "4. <strong>Email</strong>",
+        "Each card should show a status like <strong>\"Not connected\"</strong> and have a field to enter an access token or API key."
+      ]
+    },
+    {
+      action: "Enter a test token in one integration",
+      expected: "Token accepted, auto-publish toggle appears",
+      steps: [
+        "Click the token input field on any integration card (e.g., LinkedIn).",
+        "Type a test token: <code>test-token-123</code>",
+        "<span class='look'>LOOK FOR:</span> The token is accepted. There may be an <strong>\"Auto-publish\"</strong> toggle that becomes available.",
+        "Toggle the auto-publish switch if available."
+      ]
+    },
+    {
+      action: "Scheduler tab — master toggle and worker schedule",
+      expected: "Enable/disable toggle + list of workers with cadence badges",
+      steps: [
+        "Click the <strong>\"Scheduler\"</strong> tab.",
+        "<span class='look'>LOOK FOR:</span>",
+        "1. A <strong>master enable/disable toggle</strong> at the top (switches the entire scheduler on/off).",
+        "2. A list of <strong>scheduled workers</strong> below, each with a name and <strong>cadence badge</strong> (e.g., \"Daily\", \"Weekly\").",
+        "3. A <strong>\"Save Schedule\"</strong> button."
+      ]
+    },
+    {
+      action: "Toggle the master scheduler and save",
+      expected: "State changes, \"Saved\" confirmation appears",
+      steps: [
+        "Click the <strong>master toggle</strong> to change its state (on→off or off→on).",
+        "Click <strong>\"Save Schedule\"</strong>.",
+        "<span class='look'>LOOK FOR:</span> A <strong>\"Saved\"</strong> confirmation appears (toast, banner, or checkmark)."
+      ]
+    },
+    {
+      action: "General tab — Dark Mode toggle",
+      expected: "UI switches between light and dark themes instantly",
+      steps: [
+        "Click the <strong>\"General\"</strong> tab (the 8th/last tab).",
+        "<span class='look'>LOOK FOR:</span> The General tab has 3-4 sections:",
+        "- <strong>Appearance:</strong> Dark Mode toggle + Week Starts On selector",
+        "- <strong>Data Management:</strong> Export Data + Reset All Data buttons",
+        "- <strong>Account:</strong> Sign Out button",
+        "- <strong>About:</strong> Version info",
+        "Click the <strong>Dark Mode toggle</strong> (a switch/slider next to \"Dark Mode\").",
+        "<span class='look'>LOOK FOR:</span> The entire UI instantly switches to the opposite theme (dark→light or light→dark). All colors, backgrounds, and text should change.",
+        "Click it again to toggle back."
+      ]
+    },
+    {
+      action: "Change \"Week Starts On\" setting",
+      expected: "Selection changes and persists after refresh",
+      steps: [
+        "In the Appearance section, find the <strong>\"Week Starts On\"</strong> dropdown (currently shows \"Monday\").",
+        "Click it and select <strong>\"Sunday\"</strong>.",
+        "Refresh the page (<kbd>F5</kbd>), navigate back to Settings → General tab.",
+        "<span class='look'>LOOK FOR:</span> The dropdown still shows <strong>\"Sunday\"</strong> — the setting persisted.",
+        "Change it back to \"Monday\" if desired."
+      ]
+    },
+    {
+      action: "Click Export Data",
+      expected: "JSON file downloads",
+      steps: [
+        "In the Data Management section, click the <strong>\"Export\"</strong> button (next to \"Export Data\").",
+        "<span class='look'>LOOK FOR:</span> A JSON file downloads to your computer. The filename should be something like <code>distribution-os-export-2026-06-08.json</code>.",
+        "Open the downloaded file in a text editor. It should contain your products, tasks, and settings in JSON format.",
+        "<span class='tip'>TIP:</span> Check your Downloads folder if you don't see the download prompt."
+      ]
+    },
+  ]},
+
+  { phase: 8, title: "AI-Powered Pages (Validate, Brief, Playbooks, Proposals, Build Kit, Audit, Analyze)", tests: [
+    {
+      action: "Navigate to /validate — Idea Validation Pipeline",
+      expected: "Product selector + 3 worker panels (Market Researcher, Competitor Analyst, Distribution Specialist)",
+      steps: [
+        "Click the address bar, type <code>distributionos.predivo.ch/validate</code> and press <kbd>Enter</kbd>.",
+        "<span class='look'>LOOK FOR:</span>",
+        "1. A <strong>product selector</strong> dropdown at the top showing your product.",
+        "2. <strong>3 worker panels</strong> below: Market Researcher, Competitor Analyst, Distribution Specialist.",
+        "Each panel has a heading, description, and a \"Run\" or \"Generate\" button."
+      ]
+    },
+    {
+      action: "Run the Market Researcher worker",
+      expected: "Loading → AI result appears within 3-10 seconds",
+      steps: [
+        "Select your product in the dropdown if not already selected.",
+        "Click the <strong>\"Run\"</strong> button on the <strong>Market Researcher</strong> panel.",
+        "<span class='look'>LOOK FOR:</span> A loading spinner or progress indicator appears. Wait 3-10 seconds.",
+        "The panel fills with AI-generated <strong>market research content</strong> — competitive landscape, market size, target segments, etc.",
+        "<span class='warn'>FAIL if:</span> Error message appears or nothing happens after 15 seconds."
+      ]
+    },
+    {
+      action: "Run the Competitor Analyst worker",
+      expected: "AI competitor analysis appears",
+      steps: [
+        "Click <strong>\"Run\"</strong> on the <strong>Competitor Analyst</strong> panel.",
+        "<span class='look'>LOOK FOR:</span> Loading → AI-generated competitor analysis. Should mention specific competitor categories or gaps."
+      ]
+    },
+    {
+      action: "Run the Distribution Specialist worker",
+      expected: "AI distribution strategy appears",
+      steps: [
+        "Click <strong>\"Run\"</strong> on the <strong>Distribution Specialist</strong> panel.",
+        "<span class='look'>LOOK FOR:</span> Loading → AI-generated distribution strategy. Should recommend channels and tactics."
+      ]
+    },
+    {
+      action: "Navigate to /brief — Offer Builder",
+      expected: "Product selector + Product Definer + Offer Designer workers",
+      steps: [
+        "Navigate to <code>distributionos.predivo.ch/brief</code>.",
+        "<span class='look'>LOOK FOR:</span> A page with product selector and <strong>2 worker panels</strong>: Product Definer and Offer Designer.",
+        "Run each one by clicking their Run buttons. Both should generate AI content."
+      ]
+    },
+    {
+      action: "Navigate to /playbooks — Engine Playbooks",
+      expected: "Product selector + Get Advice button + per-engine generators",
+      steps: [
+        "Navigate to <code>distributionos.predivo.ch/playbooks</code>.",
+        "<span class='look'>LOOK FOR:</span>",
+        "1. A product selector dropdown.",
+        "2. A <strong>\"Get Advice\"</strong> button that triggers the Engine Advisor AI worker.",
+        "3. Per-engine sections where you can generate playbooks for individual engines.",
+        "Click <strong>\"Get Advice\"</strong>. Wait for the AI recommendation to appear.",
+        "Then try generating a playbook for one specific engine."
+      ]
+    },
+    {
+      action: "Navigate to /proposals — Proposals & Content",
+      expected: "4 tabs: Proposal, Content Calendar, Video Scripts, Outreach DMs",
+      steps: [
+        "Navigate to <code>distributionos.predivo.ch/proposals</code>.",
+        "<span class='look'>LOOK FOR:</span> A page with <strong>4 tabs</strong>:",
+        "1. <strong>Proposal</strong> — paste a sales transcript and generate a proposal.",
+        "2. <strong>Content Calendar</strong> — generate a 7-day content plan.",
+        "3. <strong>Video Scripts</strong> — generate short/medium/long video scripts.",
+        "4. <strong>Outreach DMs</strong> — generate LinkedIn/Twitter/Email sequences.",
+        "Try the Content Calendar tab: click it, then click Generate. A 7-day calendar should appear."
+      ]
+    },
+    {
+      action: "Test Copy or Download on any AI result",
+      expected: "Content copied to clipboard or file downloads",
+      steps: [
+        "On any page where AI content has been generated, look for <strong>\"Copy\"</strong> or <strong>\"Download\"</strong> buttons.",
+        "Click <strong>Copy</strong>.",
+        "<span class='look'>LOOK FOR:</span> A confirmation (e.g., \"Copied!\" tooltip) and the content is now in your clipboard — paste it somewhere to verify (<kbd>Ctrl+V</kbd> in a text field).",
+        "If a Download button exists, click it and verify a file downloads."
+      ]
+    },
+    {
+      action: "Navigate to /build-kit — Design Build Kit",
+      expected: "5-step wizard",
+      steps: [
+        "Navigate to <code>distributionos.predivo.ch/build-kit</code>.",
+        "<span class='look'>LOOK FOR:</span> A 5-step wizard interface:",
+        "Step 1: Add reference URLs. Step 2: Brand Analyzer. Step 3: Token Extractor. Step 4: Brand Book Generator. Step 5: Consistency Checker.",
+        "Try Step 1: add a URL like <code>https://example.com</code> and verify it appears in a list. You should be able to add up to 5 URLs and remove them with an X button."
+      ]
+    },
+    {
+      action: "Navigate to /audit — 8-Domain Audit",
+      expected: "Product selector + context textarea + 8 domain panels + Run Full Audit button",
+      steps: [
+        "Navigate to <code>distributionos.predivo.ch/audit</code>.",
+        "<span class='look'>LOOK FOR:</span>",
+        "1. A <strong>product selector</strong> dropdown.",
+        "2. A <strong>context textarea</strong> where you can paste repo/project context for the AI.",
+        "3. <strong>8 domain panels</strong> (Security, SEO, Performance, Code Quality, Accessibility, etc.).",
+        "4. A <strong>\"Run Full Audit\"</strong> button.",
+        "5. An <strong>\"Export\"</strong> button.",
+        "Click \"Run Full Audit\" if you want to test it (takes 15-30 seconds, runs all 8 domains in parallel)."
+      ]
+    },
+    {
+      action: "Navigate to /analyze — Site Analysis",
+      expected: "URL input + 2 tabs (Deep Analysis, Quick Score)",
+      steps: [
+        "Navigate to <code>distributionos.predivo.ch/analyze</code>.",
+        "<span class='look'>LOOK FOR:</span>",
+        "1. A <strong>URL input field</strong> at the top.",
+        "2. <strong>2 tabs</strong>: \"Deep Analysis\" and \"Quick Score\".",
+        "On the Quick Score tab: enter any URL (e.g., <code>https://example.com</code>) and click Run. A 17-item conversion checklist audit should appear."
+      ]
+    },
+  ]},
+
+  { phase: 9, title: "Schedule & Operations", tests: [
+    {
+      action: "Navigate to /schedule",
+      expected: "3 tabs: Daily Routine, Weekly Automations, Activity Monitor",
+      steps: [
+        "Navigate to <code>distributionos.predivo.ch/schedule</code>.",
+        "<span class='look'>LOOK FOR:</span> A page with <strong>3 tabs</strong>:",
+        "1. <strong>Daily Routine</strong>",
+        "2. <strong>Weekly Automations</strong>",
+        "3. <strong>Activity Monitor</strong>"
+      ]
+    },
+    {
+      action: "Expand a Daily Routine time block",
+      expected: "4 blocks visible: Market Pulse, Build, Content, Outreach",
+      steps: [
+        "On the Daily Routine tab (should be active by default), look for <strong>4 expandable time blocks</strong>:",
+        "1. <strong>Market Pulse</strong> — morning routine",
+        "2. <strong>Build</strong> — core work block",
+        "3. <strong>Content</strong> — content creation",
+        "4. <strong>Outreach</strong> — distribution/marketing",
+        "Click on one to expand it.",
+        "<span class='look'>LOOK FOR:</span> Details expand below the heading — suggested activities and time allocation."
+      ]
+    },
+    {
+      action: "Weekly Automations tab",
+      expected: "Shows scheduled workers from your configuration",
+      steps: [
+        "Click the <strong>\"Weekly Automations\"</strong> tab.",
+        "<span class='look'>LOOK FOR:</span> A list of workers that are scheduled to run automatically, based on your Scheduler configuration.",
+        "Each entry may show: the worker name, its cadence (daily/weekly), and next run time."
+      ]
+    },
+    {
+      action: "Activity Monitor tab",
+      expected: "Shows recent run records (may be empty)",
+      steps: [
+        "Click the <strong>\"Activity Monitor\"</strong> tab.",
+        "<span class='look'>LOOK FOR:</span> A list of recent worker execution records with pass/fail icons.",
+        "If no workers have run yet, you may see an empty state message — that's fine for a new account."
+      ]
+    },
+  ]},
+
+  { phase: 10, title: "Launch Checklist & Briefing Room", tests: [
+    {
+      action: "Navigate to /setup — Launch Checklist",
+      expected: "7 categories with progress bar",
+      steps: [
+        "Navigate to <code>distributionos.predivo.ch/setup</code>.",
+        "<span class='look'>LOOK FOR:</span>",
+        "1. A <strong>progress bar</strong> at the top showing overall completion (starts at 0%).",
+        "2. <strong>7 categories</strong> of checklist items below (e.g., Product Setup, Knowledge Base, AI Config, etc.).",
+        "Each category is collapsible/expandable with individual checkbox items inside."
+      ]
+    },
+    {
+      action: "Check a few checklist items",
+      expected: "Checkmarks persist, progress bar updates",
+      steps: [
+        "Expand a category by clicking its header.",
+        "Check 2-3 items by clicking their checkboxes.",
+        "<span class='look'>LOOK FOR:</span> Checkmarks appear. The <strong>progress bar</strong> at the top updates its percentage.",
+        "Refresh the page (<kbd>F5</kbd>).",
+        "<span class='look'>LOOK FOR:</span> The checkmarks are still there — they persisted."
+      ]
+    },
+    {
+      action: "Navigate to /briefing — Briefing Room",
+      expected: "5 tabs: Overview, Engines, Stages, Scoring, Workflow & Glossary",
+      steps: [
+        "In the left sidebar, click <strong>\"Briefing Room\"</strong> (or navigate to <code>/briefing</code>).",
+        "<span class='look'>LOOK FOR:</span> A page with <strong>5 tabs</strong>:",
+        "1. <strong>Overview</strong>",
+        "2. <strong>Engines</strong>",
+        "3. <strong>Stages</strong>",
+        "4. <strong>Scoring</strong>",
+        "5. <strong>Workflow & Glossary</strong>"
+      ]
+    },
+    {
+      action: "Click through all 5 tabs",
+      expected: "Each loads content — engine cards expand, stage panels show details",
+      steps: [
+        "Click each tab one by one:",
+        "<strong>Overview:</strong> Should show \"Why does this exist?\" content explaining Distribution-OS.",
+        "<strong>Engines:</strong> Should show 6 engine cards. Click one to expand it — you should see: tagline, what/why/when/examples/metrics.",
+        "<strong>Stages:</strong> Should show 4 product stages (Pre-Launch, Early, Active, Scaling) with detail panels.",
+        "<strong>Scoring:</strong> Should show the scoring methodology and metric cards.",
+        "<strong>Workflow & Glossary:</strong> Should show a weekly workflow and a glossary of terms.",
+        "<span class='look'>LOOK FOR:</span> Each tab loads its content without errors. No blank tabs. No console errors."
+      ]
+    },
+  ]},
+
+  { phase: 11, title: "Stripe Billing", tests: [
+    {
+      action: "Navigate to /pricing while logged in",
+      expected: "4 tier cards visible, your current tier may be highlighted",
+      steps: [
+        "Navigate to <code>distributionos.predivo.ch/pricing</code>.",
+        "<span class='look'>LOOK FOR:</span> The same 4 pricing cards as in Phase 1 (Free $0, Starter $19, Growth $49, Scale $99).",
+        "Your current tier (likely \"Free\") may be highlighted differently, e.g., with a \"Current Plan\" badge."
+      ]
+    },
+    {
+      action: "Click upgrade on a paid tier",
+      expected: "Stripe checkout opens (do NOT complete payment — cancel)",
+      steps: [
+        "Click the CTA button on a paid tier, e.g., <strong>\"Get Starter\"</strong> on the $19 card.",
+        "<span class='look'>LOOK FOR:</span> A new tab or redirect to <strong>Stripe Checkout</strong> (URL starts with <code>checkout.stripe.com</code>).",
+        "The checkout page should show the correct tier name and price.",
+        "<span class='warn'>IMPORTANT:</span> Do <strong>NOT</strong> complete the payment — this is a real Stripe checkout with real charges.",
+        "Click the back arrow or close the tab to return to the app."
+      ]
+    },
+    {
+      action: "Return to the app after canceling",
+      expected: "App loads normally, no error",
+      steps: [
+        "After closing the Stripe checkout, navigate back to <code>distributionos.predivo.ch/dashboard</code>.",
+        "<span class='look'>LOOK FOR:</span> The Dashboard loads normally. No error message, no blank page."
+      ]
+    },
+  ]},
+
+  { phase: 12, title: "Auth Flows", tests: [
+    {
+      action: "Sign out via Settings → General",
+      expected: "Session cleared, redirected to /login",
+      steps: [
+        "Navigate to <strong>Settings</strong> (sidebar) → click the <strong>\"General\"</strong> tab (8th/last tab).",
+        "Scroll down to the <strong>Account</strong> section.",
+        "Click the red-bordered <strong>\"Sign Out\"</strong> button.",
+        "<span class='look'>LOOK FOR:</span> You are redirected to the <strong>login page</strong> (URL: <code>/login</code>). The page shows the \"Welcome back\" login form."
+      ]
+    },
+    {
+      action: "Try accessing /dashboard directly while logged out",
+      expected: "Redirected to /login",
+      steps: [
+        "In the address bar, type <code>distributionos.predivo.ch/dashboard</code> and press <kbd>Enter</kbd>.",
+        "<span class='look'>LOOK FOR:</span> You are <strong>redirected to /login</strong> (the login page loads instead of the dashboard). Protected routes should not be accessible without authentication."
+      ]
+    },
+    {
+      action: "Log in with email + password",
+      expected: "Dashboard loads with all data intact",
+      steps: [
+        "On the login page, the <strong>\"Password\"</strong> tab should be active (it's the default).",
+        "In the <strong>Email</strong> field (with mail icon), type the email address you used to sign up in Phase 2.",
+        "In the <strong>Password</strong> field (with lock icon), type the password you set in Phase 2.",
+        "Click the white <strong>\"Sign In\"</strong> button.",
+        "<span class='look'>LOOK FOR:</span> You are redirected to the Dashboard. Your product, tasks, and all data are still there — nothing was lost during sign-out/sign-in.",
+        "<span class='warn'>FAIL if:</span> \"Invalid email or password\" error (double-check you're using the correct credentials from Phase 2)."
+      ]
+    },
+    {
+      action: "Sign out, then test password reset flow",
+      expected: "Email form renders at /reset-password",
+      steps: [
+        "Sign out again (Settings → General → Sign Out).",
+        "On the login page, click the <strong>\"Forgot password?\"</strong> link (small text between the Password label and the password input field).",
+        "<span class='look'>LOOK FOR:</span> You navigate to <code>/reset-password</code>. An email input form renders with a \"Send Reset Link\" or similar button."
+      ]
+    },
+    {
+      action: "Submit password reset email",
+      expected: "\"Check your email\" message, email from \"Distribution-OS\"",
+      steps: [
+        "Enter your email address in the reset form.",
+        "Click the submit button.",
+        "<span class='look'>LOOK FOR:</span> A confirmation message like \"Check your email for a reset link.\"",
+        "Switch to your email inbox. Look for a password reset email.",
+        "The email should be from <strong>\"Distribution-OS\"</strong> (NOT \"ShipSolo\"). It should contain a link to reset your password.",
+        "<span class='warn'>NOTE:</span> The reset link may not work in the incognito window if it requires session state. If it works: click it, set a new password, and verify you can log in with the new password. If the link doesn't work perfectly, that's understandable for a test — the important thing is that the email was sent and branded correctly."
+      ]
+    },
+    {
+      action: "Test the Email Code login tab",
+      expected: "6-digit OTP input appears, code received by email",
+      steps: [
+        "Navigate to <code>/login</code>.",
+        "Click the <strong>\"Email Code\"</strong> tab (right tab in the tab switcher at the top of the login card).",
+        "<span class='look'>LOOK FOR:</span> The form changes to show just an email field and a <strong>\"Send Login Code\"</strong> button.",
+        "Enter your email address. Click <strong>\"Send Login Code\"</strong>.",
+        "<span class='look'>LOOK FOR:</span> The view changes to show: \"We sent a 6-digit code to [your email]\", 6 OTP input boxes, a Resend timer, and a \"Back to email\" link.",
+        "Check your email for the code. Enter the 6-digit code in the OTP boxes.",
+        "<span class='look'>LOOK FOR:</span> After entering the last digit, you are logged in and redirected to the Dashboard."
+      ]
+    },
+  ]},
+
+  { phase: 13, title: "Data Persistence", tests: [
+    {
+      action: "Close the browser entirely and reopen",
+      expected: "N/A — preparation step",
+      steps: [
+        "Close ALL Chrome windows completely (incognito windows lose data, so use a regular window for this test).",
+        "<span class='warn'>IMPORTANT:</span> If you've been testing in an <strong>incognito window</strong>, sign in first in a <strong>regular browser window</strong> before doing this test. Incognito windows don't persist data between sessions.",
+        "Wait a few seconds, then reopen Chrome."
+      ]
+    },
+    {
+      action: "Go to the site, pass the gate, log in",
+      expected: "All data still intact: product, tasks, artifacts, KB, settings",
+      steps: [
+        "Navigate to <code>distributionos.predivo.ch</code>.",
+        "Enter the password gate code (<code>predivo2026</code>) if prompted.",
+        "Log in with your email and password.",
+        "<span class='look'>LOOK FOR:</span> The Dashboard loads. Check that:",
+        "1. Your <strong>product</strong> is still there (correct name and description).",
+        "2. The <strong>weekly tasks</strong> are still listed.",
+        "3. Navigate to <strong>Inbox</strong> — your artifacts (approved/dismissed states) are still there.",
+        "4. Navigate to <strong>Settings → Knowledge Base</strong> — your ICP, Positioning, Voice, and Tone data are still saved.",
+        "5. Navigate to <strong>Settings → General</strong> — Dark Mode and Week Starts On settings are the same as before."
+      ]
+    },
+    {
+      action: "Verify task completion states persisted",
+      expected: "Checked/unchecked tasks match what you left them as",
+      steps: [
+        "On the Dashboard, check if any tasks you checked in Phase 4 are still checked.",
+        "<span class='look'>LOOK FOR:</span> The check/uncheck state matches what you left it as. If you checked a task and then unchecked it (both in Phase 4), it should be unchecked."
+      ]
+    },
+  ]},
+
+  { phase: 14, title: "Edge Cases & Error Handling", tests: [
+    {
+      action: "Try adding a product with empty name",
+      expected: "Validation prevents submission — button disabled or error shown",
+      steps: [
+        "Navigate to <strong>Products</strong> page (sidebar).",
+        "Click <strong>\"Add Product\"</strong> to open the modal.",
+        "Leave the <strong>Product Name</strong> field completely empty.",
+        "Try to click the <strong>\"Save\"</strong> or <strong>\"Create\"</strong> button.",
+        "<span class='look'>LOOK FOR:</span> The button should be <strong>disabled</strong> (grayed out, not clickable) OR clicking it shows a validation error like \"Name is required\".",
+        "Close the modal."
+      ]
+    },
+    {
+      action: "Navigate to a non-existent URL",
+      expected: "Redirects to /dashboard — not a 404 or blank page",
+      steps: [
+        "In the address bar, type <code>distributionos.predivo.ch/nonexistent-page</code> and press <kbd>Enter</kbd>.",
+        "<span class='look'>LOOK FOR:</span> You are <strong>redirected to /dashboard</strong> (the catch-all route redirects unknown routes). You should NOT see a 404 error page or a blank white page."
+      ]
+    },
+    {
+      action: "Check the browser console for JavaScript errors",
+      expected: "No red errors on any page",
+      steps: [
+        "Press <kbd>F12</kbd> to open Chrome Developer Tools.",
+        "Click the <strong>\"Console\"</strong> tab in the DevTools panel.",
+        "Navigate through several pages: Dashboard, Inbox, Products, Settings.",
+        "<span class='look'>LOOK FOR:</span> The console should have <strong>no red error messages</strong>. Yellow warnings are okay. Red errors indicate bugs.",
+        "Close DevTools when done (<kbd>F12</kbd> again)."
+      ]
+    },
+    {
+      action: "Test mobile responsiveness (375px width)",
+      expected: "Layout adjusts, sidebar collapses, all content accessible",
+      steps: [
+        "Press <kbd>F12</kbd> to open Chrome Developer Tools.",
+        "Click the <strong>device toggle toolbar</strong> button (looks like a phone+tablet icon, top-left of DevTools, or press <kbd>Ctrl+Shift+M</kbd>).",
+        "In the device dropdown at the top of the page, select <strong>\"iPhone 12 Pro\"</strong> (or manually set width to <strong>375px</strong>).",
+        "<span class='look'>LOOK FOR:</span>",
+        "1. The sidebar should be <strong>collapsed/hidden</strong> (replaced by a hamburger menu icon).",
+        "2. All content should fit within the viewport — <strong>no horizontal scrollbar</strong>.",
+        "3. Text should be readable, buttons should be tappable size.",
+        "4. Navigate to a few pages using the hamburger menu to verify the mobile nav works.",
+        "Turn off responsive mode when done (click the device toggle button again)."
+      ]
+    },
+    {
+      action: "Reset All Data (Settings → General → Reset)",
+      expected: "Confirmation dialog, then everything cleared, onboarding restarts",
+      steps: [
+        "Navigate to <strong>Settings → General</strong> tab.",
+        "In the <strong>Data Management</strong> section, find the red <strong>\"Reset\"</strong> button (next to \"Reset All Data\").",
+        "Click it.",
+        "<span class='look'>LOOK FOR:</span> A <strong>browser confirmation dialog</strong> appears asking: \"Are you sure you want to reset all data? This will permanently delete all products, tasks, and history. This action cannot be undone.\"",
+        "Click <strong>\"OK\"</strong> to confirm (or \"Cancel\" if you want to keep your data).",
+        "If you confirmed: the app resets. You should be taken back to the Dashboard where the <strong>First Mission onboarding wizard</strong> starts again (Step 1 of 5).",
+        "<span class='warn'>WARNING:</span> This permanently deletes all products, tasks, and history. Only do this if you're done testing and want to verify the reset feature works."
+      ]
+    },
+  ]},
+];
+
+const STORAGE_KEY = 'dist-os-test-results';
+let results = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+let allDetailsOpen = false;
+
+function saveResults() { localStorage.setItem(STORAGE_KEY, JSON.stringify(results)); }
+function getTestId(pi, ti) { return `p${pi}t${ti}`; }
+function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function render() {
+  const el = document.getElementById('phases');
+  let testIdx = 0;
+  el.innerHTML = DATA.map((phase, pi) => {
+    const phaseTests = phase.tests.map((t, ti) => {
+      testIdx++;
+      const id = getTestId(pi, ti);
+      const state = results[id]?.state || '';
+      const note = results[id]?.note || '';
+      const stepsHtml = t.steps ? `<div class="detail-toggle" onclick="toggleDetail('detail-${id}')">Show steps</div>
+        <div class="detail-box" id="detail-${id}">
+          <ol>${t.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+        </div>` : '';
+      return `<div class="test ${state}" id="test-${id}">
+        <div class="test-num">${testIdx}</div>
+        <div class="test-content">
+          <div class="test-action">${t.action}</div>
+          <div class="test-expected">Expected: ${t.expected}</div>
+          ${stepsHtml}
+          <textarea class="note-input" placeholder="What went wrong?" oninput="setNote('${id}',this.value)">${note}</textarea>
+        </div>
+        <div class="test-btns">
+          <button class="test-btn ${state==='pass'?'active-pass':''}" onclick="setState('${id}','pass')" title="Pass">&#10003;</button>
+          <button class="test-btn ${state==='fail'?'active-fail':''}" onclick="setState('${id}','fail')" title="Fail">&#10007;</button>
+          <button class="test-btn ${state==='skip'?'active-skip':''}" onclick="setState('${id}','skip')" title="Skip">&#8212;</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    const phaseCounts = getPhaseCount(pi);
+    const badgeClass = phaseCounts.done === phase.tests.length ? 'complete' : phaseCounts.done > 0 ? 'partial' : 'pending';
+    const badgeText = phaseCounts.done === phase.tests.length ? 'Done' : phaseCounts.done > 0 ? `${phaseCounts.done}/${phase.tests.length}` : 'Pending';
+
+    return `<div class="phase">
+      <div class="phase-header" onclick="togglePhase(${pi})">
+        <div class="phase-num">${phase.phase}</div>
+        <div class="phase-title">${phase.title}</div>
+        <span class="phase-badge ${badgeClass}">${badgeText}</span>
+        <span class="phase-chevron" id="chevron-${pi}">&#9654;</span>
+      </div>
+      <div class="phase-body" id="phase-${pi}">${phaseTests}</div>
+    </div>`;
+  }).join('');
+  updateStats();
+}
+
+function getPhaseCount(pi) {
+  let done = 0;
+  DATA[pi].tests.forEach((_, ti) => {
+    if (results[getTestId(pi, ti)]?.state) done++;
+  });
+  return { done, total: DATA[pi].tests.length };
+}
+
+function setState(id, state) {
+  // remember open phases
+  const openPhases = [];
+  document.querySelectorAll('.phase-body.open').forEach(el => openPhases.push(el.id.replace('phase-', '')));
+
+  if (results[id]?.state === state) {
+    delete results[id];
+  } else {
+    results[id] = { state, note: results[id]?.note || '' };
+  }
+  saveResults();
+  render();
+
+  // re-open phases
+  openPhases.forEach(idx => {
+    document.getElementById(`phase-${idx}`)?.classList.add('open');
+    document.getElementById(`chevron-${idx}`)?.classList.add('open');
+  });
+}
+
+function setNote(id, note) {
+  if (!results[id]) results[id] = { state: 'fail' };
+  results[id].note = note;
+  saveResults();
+}
+
+function togglePhase(pi) {
+  const body = document.getElementById(`phase-${pi}`);
+  const chev = document.getElementById(`chevron-${pi}`);
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+function toggleDetail(id) {
+  const el = document.getElementById(id);
+  const toggle = el.previousElementSibling;
+  el.classList.toggle('open');
+  toggle.textContent = el.classList.contains('open') ? 'Hide steps' : 'Show steps';
+}
+
+function toggleAllDetails() {
+  allDetailsOpen = !allDetailsOpen;
+  document.querySelectorAll('.detail-box').forEach(el => {
+    if (allDetailsOpen) el.classList.add('open'); else el.classList.remove('open');
+  });
+  document.querySelectorAll('.detail-toggle').forEach(el => {
+    el.textContent = allDetailsOpen ? 'Hide steps' : 'Show steps';
+  });
+}
+
+function collapseAll() {
+  document.querySelectorAll('.phase-body').forEach(e => e.classList.remove('open'));
+  document.querySelectorAll('.phase-chevron').forEach(e => e.classList.remove('open'));
+}
+
+function expandAll() {
+  document.querySelectorAll('.phase-body').forEach(e => e.classList.add('open'));
+  document.querySelectorAll('.phase-chevron').forEach(e => e.classList.add('open'));
+}
+
+function updateStats() {
+  let pass = 0, fail = 0, skip = 0, total = 0;
+  DATA.forEach(p => total += p.tests.length);
+  Object.values(results).forEach(r => {
+    if (r.state === 'pass') pass++;
+    if (r.state === 'fail') fail++;
+    if (r.state === 'skip') skip++;
+  });
+  document.getElementById('statPass').textContent = `${pass} Pass`;
+  document.getElementById('statFail').textContent = `${fail} Fail`;
+  document.getElementById('statSkip').textContent = `${skip} Skip`;
+  document.getElementById('statTotal').textContent = `${pass+fail+skip} / ${total}`;
+  document.getElementById('progressFill').style.width = `${((pass+fail+skip)/total)*100}%`;
+}
+
+function showSummary() {
+  let pass = 0, fail = 0, skip = 0, total = 0;
+  DATA.forEach(p => total += p.tests.length);
+  Object.values(results).forEach(r => {
+    if (r.state === 'pass') pass++;
+    if (r.state === 'fail') fail++;
+    if (r.state === 'skip') skip++;
+  });
+
+  let failList = '';
+  let testIdx = 0;
+  DATA.forEach((phase, pi) => {
+    phase.tests.forEach((t, ti) => {
+      testIdx++;
+      const r = results[getTestId(pi, ti)];
+      if (r?.state === 'fail') {
+        failList += `<div class="summary-row" style="color:var(--red)">
+          <span>#${testIdx}: ${t.action}</span>
+          <span>${r.note || 'No note'}</span>
+        </div>`;
+      }
+    });
+  });
+
+  const phaseRows = DATA.map((phase, pi) => {
+    let pp = 0, ff = 0, ss = 0;
+    phase.tests.forEach((_, ti) => {
+      const s = results[getTestId(pi, ti)]?.state;
+      if (s === 'pass') pp++;
+      if (s === 'fail') ff++;
+      if (s === 'skip') ss++;
+    });
+    return `<div class="summary-row">
+      <span>${phase.phase}. ${phase.title}</span>
+      <span><span class="stat-pass">${pp}P</span> <span class="stat-fail">${ff}F</span> <span class="stat-skip">${ss}S</span> / ${phase.tests.length}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('summaryCard').innerHTML = `
+    <h2>Test Results Summary</h2>
+    ${phaseRows}
+    <div class="summary-row summary-total">
+      <span>TOTAL</span>
+      <span><span class="stat-pass">${pass} Pass</span> &nbsp; <span class="stat-fail">${fail} Fail</span> &nbsp; <span class="stat-skip">${skip} Skip</span> &nbsp; / ${total}</span>
+    </div>
+    ${failList ? '<h3 style="margin-top:20px;margin-bottom:8px;color:var(--red)">Failed Tests</h3>' + failList : ''}
+    <button class="close-btn" onclick="document.getElementById('summaryOverlay').classList.remove('open')">Close</button>
+  `;
+  document.getElementById('summaryOverlay').classList.add('open');
+}
+
+function exportResults() {
+  let text = 'Distribution-OS Test Results\n' + '='.repeat(40) + '\n\n';
+  let testIdx = 0;
+  DATA.forEach((phase, pi) => {
+    text += `Phase ${phase.phase}: ${phase.title}\n` + '-'.repeat(30) + '\n';
+    phase.tests.forEach((t, ti) => {
+      testIdx++;
+      const r = results[getTestId(pi, ti)];
+      const state = r?.state ? r.state.toUpperCase() : 'UNTESTED';
+      text += `  #${testIdx} [${state}] ${t.action}\n`;
+      if (r?.note) text += `     Note: ${r.note}\n`;
+    });
+    text += '\n';
+  });
+  const blob = new Blob([text], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'distribution-os-test-results.txt';
+  a.click();
+}
+
+function resetAll() {
+  if (confirm('Reset all test results? This cannot be undone.')) {
+    results = {};
+    saveResults();
+    render();
+  }
+}
+
+render();
+// Auto-expand first incomplete phase
+for (let pi = 0; pi < DATA.length; pi++) {
+  const c = getPhaseCount(pi);
+  if (c.done < c.total) { togglePhase(pi); break; }
+}
+</script>
+</body>
+</html>
