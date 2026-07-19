@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=Space+Grotesk:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed": "#000000",
+                    "outline": "#757487",
+                    "on-secondary-container": "#d9c8ff",
+                    "on-primary-fixed-variant": "#0e009d",
+                    "surface-container-high": "#1d1e32",
+                    "primary": "#a3a6ff",
+                    "on-tertiary": "#005464",
+                    "on-error": "#490013",
+                    "primary-fixed": "#9396ff",
+                    "inverse-surface": "#fcf8ff",
+                    "surface-bright": "#2a2a42",
+                    "on-tertiary-fixed": "#003640",
+                    "primary-fixed-dim": "#8387ff",
+                    "on-primary-container": "#0a0081",
+                    "surface-tint": "#a3a6ff",
+                    "tertiary": "#8ce7ff",
+                    "on-secondary-fixed-variant": "#5f28c8",
+                    "surface-container-low": "#121223",
+                    "on-tertiary-fixed-variant": "#005564",
+                    "on-surface-variant": "#aba9be",
+                    "surface-container": "#18182a",
+                    "tertiary-fixed-dim": "#40ceed",
+                    "surface-variant": "#24243a",
+                    "on-primary": "#0f00a4",
+                    "inverse-on-surface": "#545366",
+                    "surface": "#0d0d1c",
+                    "primary-dim": "#6063ee",
+                    "secondary-dim": "#8455ef",
+                    "error-dim": "#d73357",
+                    "on-tertiary-container": "#004b58",
+                    "inverse-primary": "#494bd7",
+                    "tertiary-dim": "#40ceed",
+                    "secondary": "#ac8aff",
+                    "secondary-fixed-dim": "#ceb9ff",
+                    "primary-container": "#9396ff",
+                    "on-background": "#e6e3fa",
+                    "outline-variant": "#474658",
+                    "on-secondary": "#280067",
+                    "error-container": "#a70138",
+                    "error": "#ff6e84",
+                    "tertiary-fixed": "#53ddfc",
+                    "secondary-container": "#5516be",
+                    "secondary-fixed": "#dac9ff",
+                    "on-surface": "#e6e3fa",
+                    "surface-container-lowest": "#000000",
+                    "surface-container-highest": "#24243a",
+                    "background": "#0d0d1c",
+                    "surface-dim": "#0d0d1c",
+                    "on-error-container": "#ffb2b9",
+                    "tertiary-container": "#53ddfc",
+                    "on-secondary-fixed": "#40009b"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "display": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Space Grotesk"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #0d0d1c; }
+        .glass-panel {
+            background: rgba(24, 24, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(71, 70, 88, 0.4);
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at top center, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-on-background antialiased overflow-x-hidden">
+<!-- TopAppBar -->
+<nav class="sticky top-0 w-full z-50 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-800/50 shadow-2xl">
+<div class="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-indigo-500 dark:text-indigo-400" data-icon="rocket_launch">rocket_launch</span>
+<span class="text-xl font-bold bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent font-inter antialiased tracking-tight">Distribution-OS</span>
+</div>
+<button class="bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-5 py-2 rounded-lg text-sm font-semibold active:scale-95 transition-transform hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]">
+                Launch Now
+            </button>
+</div>
+</nav>
+<main class="relative">
+<!-- Hero Section -->
+<section class="relative pt-12 pb-20 px-6 hero-gradient">
+<div class="max-w-xl mx-auto text-center space-y-6">
+<div class="inline-flex items-center px-3 py-1 rounded-full bg-secondary-container/30 border border-secondary/20 text-xs font-label text-tertiary tracking-wider">
+<span class="mr-2">✨</span> NOW POWERED BY GEN-2 AI
+                </div>
+<h1 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.1] text-on-background">
+                    Stop guessing. <br/>
+<span class="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">Start distributing.</span>
+</h1>
+<p class="text-on-surface-variant text-lg leading-relaxed max-w-sm mx-auto">
+                    Scale your SaaS with 48 AI workers across 6 proprietary distribution engines. Pure momentum, zero manual labor.
+                </p>
+<div class="flex flex-col gap-4 pt-4">
+<button class="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 font-bold text-lg shadow-[0_0_30px_rgba(79,70,229,0.3)] active:scale-[0.98] transition-all">
+                        Start Free
+                    </button>
+<p class="text-[10px] text-outline font-label uppercase tracking-[0.2em]">No credit card required • Instant access</p>
+</div>
+</div>
+<!-- Hero Image/Visual -->
+<div class="mt-16 relative">
+<div class="absolute -inset-4 bg-indigo-500/10 blur-3xl rounded-full"></div>
+<div class="glass-panel rounded-2xl overflow-hidden shadow-2xl relative">
+<img alt="Distribution Dashboard Preview" class="w-full h-auto opacity-80" data-alt="Abstract 3D visualization of digital network nodes and glowing purple data streams on a dark tech background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAc51B711A0YgWqBIsBSHL1O71Ts5XekZtKIidAlnZFv86KGjKleeIHHjguJm0NzUnrG8n4Fip2pFD59PYDWrnKZQuys9Ythrh5GyJFAiX4SIX9PNxj4nm7XsWevI0PAh4o53FyNnHawKDj7rwH5XDS1v0U0_1leZ4KlBxy-3fvXlZhD2yhw1DZsh145BAcx57fi89QM51abk7XhPfCXEPEKqsLWugD5dtOpql4gv69CozJmQ2jodGQu7MVz6xH7uuZUMAeHsmGBfUr"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+</div>
+</div>
+</section>
+<!-- Engines & Workers Section (Mobile Stack) -->
+<section class="py-20 px-6 bg-surface-container-low">
+<div class="max-w-xl mx-auto space-y-12">
+<div class="space-y-2">
+<h2 class="text-3xl font-bold tracking-tight">The 6 Power Engines</h2>
+<p class="text-on-surface-variant">48 specialized AI agents working 24/7 to scale your presence.</p>
+</div>
+<div class="grid gap-4">
+<!-- Engine Card 1 -->
+<div class="glass-panel p-6 rounded-2xl flex flex-col gap-4 border-l-4 border-l-indigo-500">
+<div class="flex justify-between items-start">
+<div class="p-2 rounded-lg bg-indigo-500/10">
+<span class="material-symbols-outlined text-indigo-400" data-icon="share">share</span>
+</div>
+<span class="text-[10px] font-label text-outline bg-surface-variant px-2 py-1 rounded">8 WORKERS</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-white">Social Velocity</h3>
+<p class="text-sm text-on-surface-variant mt-1">Automated viral loops across X, LinkedIn, and Threads using predictive sentiment.</p>
+</div>
+</div>
+<!-- Engine Card 2 -->
+<div class="glass-panel p-6 rounded-2xl flex flex-col gap-4 border-l-4 border-l-cyan-500">
+<div class="flex justify-between items-start">
+<div class="p-2 rounded-lg bg-cyan-500/10">
+<span class="material-symbols-outlined text-cyan-400" data-icon="search_insights">search_insights</span>
+</div>
+<span class="text-[10px] font-label text-outline bg-surface-variant px-2 py-1 rounded">12 WORKERS</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-white">SEO Dominance</h3>
+<p class="text-sm text-on-surface-variant mt-1">High-intent keyword clusters and programatic content generation that actually ranks.</p>
+</div>
+</div>
+<!-- Engine Card 3 -->
+<div class="glass-panel p-6 rounded-2xl flex flex-col gap-4 border-l-4 border-l-violet-500">
+<div class="flex justify-between items-start">
+<div class="p-2 rounded-lg bg-violet-500/10">
+<span class="material-symbols-outlined text-violet-400" data-icon="hub">hub</span>
+</div>
+<span class="text-[10px] font-label text-outline bg-surface-variant px-2 py-1 rounded">6 WORKERS</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-white">Directory Blitz</h3>
+<p class="text-sm text-on-surface-variant mt-1">Instant submission and tracking across 200+ SaaS directories and launch pads.</p>
+</div>
+</div>
+<button class="text-indigo-400 font-label text-sm flex items-center justify-center gap-2 mt-4 hover:gap-3 transition-all">
+                        View all 6 engines and 48 workers <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Final CTA Section -->
+<section class="py-24 px-6 relative overflow-hidden">
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary-dim/20 blur-[120px] rounded-full"></div>
+<div class="max-w-xl mx-auto relative z-10 glass-panel p-8 rounded-[2rem] text-center border-indigo-500/30">
+<h2 class="text-3xl font-extrabold mb-4 tracking-tight">Ready to multiply yourself?</h2>
+<p class="text-on-surface-variant mb-8 leading-relaxed">
+                    Join 2,400+ solo founders who use Distribution-OS to handle their entire distribution stack.
+                </p>
+<div class="space-y-4">
+<button class="w-full py-4 rounded-xl bg-white text-slate-950 font-black text-lg hover:bg-slate-100 transition-colors">
+                        Launch Distribution-OS Free
+                    </button>
+<div class="flex items-center justify-center gap-4 text-outline text-xs">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span> Cancel anytime</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span> No setup fee</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="dark:bg-slate-950 w-full py-12 border-t border-slate-900">
+<div class="flex flex-col md:flex-row items-center justify-between px-8 max-w-7xl mx-auto gap-8">
+<div class="flex flex-col items-center md:items-start gap-4">
+<span class="text-lg font-black text-slate-100">Distribution-OS</span>
+<p class="font-inter text-sm leading-relaxed text-slate-500 text-center md:text-left">© 2024 Distribution-OS. Built for momentum.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="text-slate-500 hover:text-cyan-400 transition-colors font-inter text-sm" href="#">Product</a>
+<a class="text-slate-500 hover:text-cyan-400 transition-colors font-inter text-sm" href="#">Features</a>
+<a class="text-slate-500 hover:text-cyan-400 transition-colors font-inter text-sm" href="#">Pricing</a>
+<a class="text-slate-500 hover:text-cyan-400 transition-colors font-inter text-sm" href="#">Privacy</a>
+<a class="text-slate-500 hover:text-cyan-400 transition-colors font-inter text-sm" href="#">Terms</a>
+</div>
+</div>
+</footer>
+</body></html>

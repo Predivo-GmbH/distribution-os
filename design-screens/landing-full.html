@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Space+Grotesk:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#000000",
+                        "outline-variant": "#474658",
+                        "surface-variant": "#24243a",
+                        "surface": "#0d0d1c",
+                        "error-container": "#a70138",
+                        "surface-container": "#18182a",
+                        "primary": "#a3a6ff",
+                        "on-tertiary": "#005464",
+                        "tertiary-dim": "#40ceed",
+                        "secondary-fixed": "#dac9ff",
+                        "on-tertiary-fixed-variant": "#005564",
+                        "tertiary-container": "#53ddfc",
+                        "on-secondary": "#280067",
+                        "inverse-surface": "#fcf8ff",
+                        "secondary": "#ac8aff",
+                        "on-background": "#e6e3fa",
+                        "on-primary-container": "#0a0081",
+                        "secondary-fixed-dim": "#ceb9ff",
+                        "primary-fixed-dim": "#8387ff",
+                        "on-secondary-fixed-variant": "#5f28c8",
+                        "inverse-on-surface": "#545366",
+                        "surface-bright": "#2a2a42",
+                        "primary-dim": "#6063ee",
+                        "secondary-dim": "#8455ef",
+                        "on-secondary-container": "#d9c8ff",
+                        "on-primary": "#0f00a4",
+                        "error": "#ff6e84",
+                        "surface-container-highest": "#24243a",
+                        "outline": "#757487",
+                        "tertiary": "#8ce7ff",
+                        "error-dim": "#d73357",
+                        "tertiary-fixed": "#53ddfc",
+                        "secondary-container": "#5516be",
+                        "primary-container": "#9396ff",
+                        "on-surface": "#e6e3fa",
+                        "on-primary-fixed-variant": "#0e009d",
+                        "surface-dim": "#0d0d1c",
+                        "on-primary-fixed": "#000000",
+                        "background": "#0d0d1c",
+                        "surface-tint": "#a3a6ff",
+                        "surface-container-low": "#121223",
+                        "on-tertiary-container": "#004b58",
+                        "inverse-primary": "#494bd7",
+                        "tertiary-fixed-dim": "#40ceed",
+                        "on-surface-variant": "#aba9be",
+                        "surface-container-high": "#1d1e32",
+                        "on-tertiary-fixed": "#003640",
+                        "on-secondary-fixed": "#40009b",
+                        "primary-fixed": "#9396ff",
+                        "on-error-container": "#ffb2b9",
+                        "on-error": "#490013"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "display": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .hero-gradient-text {
+            background: linear-gradient(to right, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glass-card {
+            background: rgba(24, 24, 42, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-background selection:bg-primary/30">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#0f0f1a]/80 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-indigo-500/10 font-['Inter'] antialiased tracking-tight">
+<div class="flex justify-between items-center max-w-7xl mx-auto px-6 h-20">
+<div class="text-2xl font-bold tracking-tighter text-white bg-clip-text bg-gradient-to-r from-indigo-500 to-violet-500">
+                Distribution-OS
+            </div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-indigo-400 font-semibold border-b-2 border-indigo-500 pb-1" href="#">Features</a>
+<a class="text-slate-400 font-medium hover:text-white transition-colors" href="#">Engines</a>
+<a class="text-slate-400 font-medium hover:text-white transition-colors" href="#">Pricing</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-400 font-medium hover:text-white transition-colors px-4 py-2 hover:opacity-80 active:scale-95 transform transition-transform">Log In</button>
+<button class="bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-semibold px-6 py-2.5 rounded-xl hover:opacity-80 active:scale-95 transform transition-transform shadow-lg shadow-indigo-500/20">Get Started</button>
+</div>
+</div>
+</nav>
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="relative pt-24 pb-32 overflow-hidden">
+<!-- Decorative Elements -->
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/10 blur-[120px] rounded-full -z-10 pointer-events-none"></div>
+<div class="max-w-7xl mx-auto px-6 text-center">
+<!-- Badge Pill -->
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-label mb-8">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+                    48 AI Workers • 6 Engines • One Dashboard
+                </div>
+<!-- Headline -->
+<h1 class="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-tight mb-8">
+                    Stop guessing.<br/>
+                    Start <span class="hero-gradient-text">distributing.</span>
+</h1>
+<!-- Subtitle -->
+<p class="max-w-2xl mx-auto text-lg md:text-xl text-on-surface-variant leading-relaxed mb-12">
+                    Distribution-OS gives solo SaaS founders 48 AI workers across 6 proven distribution engines. Validate ideas, build brands, create content, and scale — all from one command center.
+                </p>
+<!-- CTAs -->
+<div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+<button class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold text-lg hover:shadow-[0_0_25px_rgba(99,102,241,0.5)] transition-all duration-300 active:scale-95">
+                        Start Free →
+                    </button>
+<button class="w-full sm:w-auto px-8 py-4 rounded-xl border border-outline-variant text-on-surface font-semibold text-lg hover:bg-white/5 transition-all duration-300 active:scale-95">
+                        See How It Works
+                    </button>
+</div>
+<!-- Trust line -->
+<div class="text-outline text-sm font-label uppercase tracking-widest flex items-center justify-center gap-4">
+<span>Free forever</span>
+<span class="h-1 w-1 rounded-full bg-outline-variant"></span>
+<span>No credit card</span>
+<span class="h-1 w-1 rounded-full bg-outline-variant"></span>
+<span>Setup in 2 minutes</span>
+</div>
+</div>
+</section>
+<!-- Social Proof Bar -->
+<section class="max-w-7xl mx-auto px-6 pb-24">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="glass-card p-6 rounded-2xl flex flex-col gap-4 group hover:border-primary/40 transition-all duration-300">
+<div class="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">precision_manufacturing</span>
+</div>
+<div>
+<h3 class="text-white font-bold text-lg mb-1">48 AI Workers</h3>
+<p class="text-outline text-sm">Automating your growth</p>
+</div>
+</div>
+<div class="glass-card p-6 rounded-2xl flex flex-col gap-4 group hover:border-primary/40 transition-all duration-300">
+<div class="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-400">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">hub</span>
+</div>
+<div>
+<h3 class="text-white font-bold text-lg mb-1">6 Engines</h3>
+<p class="text-outline text-sm">Proven distribution channels</p>
+</div>
+</div>
+<div class="glass-card p-6 rounded-2xl flex flex-col gap-4 group hover:border-primary/40 transition-all duration-300">
+<div class="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+</div>
+<div>
+<h3 class="text-white font-bold text-lg mb-1">10+ Playbooks</h3>
+<p class="text-outline text-sm">Ready-to-use strategies</p>
+</div>
+</div>
+<div class="glass-card p-6 rounded-2xl flex flex-col gap-4 group hover:border-primary/40 transition-all duration-300">
+<div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person_pin</span>
+</div>
+<div>
+<h3 class="text-white font-bold text-lg mb-1">Solo Founders</h3>
+<p class="text-outline text-sm">Built exactly for you</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Feature Grid (The Bento) -->
+<section class="max-w-7xl mx-auto px-6 py-24 border-t border-white/5">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 auto-rows-[280px]">
+<!-- Main Engine Feature -->
+<div class="lg:col-span-8 lg:row-span-2 glass-card rounded-3xl p-8 relative overflow-hidden group">
+<div class="relative z-10">
+<span class="text-primary font-label text-xs uppercase tracking-widest mb-4 block">Central Command</span>
+<h3 class="text-3xl font-bold text-white mb-4">Master Distribution in One View</h3>
+<p class="text-on-surface-variant max-w-md">Control your content engine, community outreach, and SEO pipeline from a single unified interface designed for velocity.</p>
+</div>
+<div class="absolute bottom-0 right-0 w-3/4 h-3/4 opacity-40 group-hover:opacity-60 transition-opacity">
+<img class="w-full h-full object-cover object-top rounded-tl-3xl border-t border-l border-white/10" data-alt="abstract tech interface showing data visualizations and analytics dashboard in a dark premium aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKk1ZWHms2RFbP6Dq91qj4I3zL_leRX4U7QXyUZN7gozzHlL9TYYxUkHo_SC_dKWIl1vXkCnV3wxLMARuZiSv_zk8ecQOO7_cT1lMavVOX_iYE7fOR2Rrn2_Lhf21wxYx8yqQIhM3naSbjrDaon78ntV0dSCcMWUBi9Ypsqm4NelV_bYmyyJAHw6Y1vFFprD4uJ5fefIFovvxtZkMXlb9NKCihjT9z-JfYIQtSJXdiRrUEGOrdI8qiE_XUMeHg3mnix2Q_eHxw6QVL"/>
+</div>
+</div>
+<!-- Secondary Small Feature -->
+<div class="lg:col-span-4 lg:row-span-1 glass-card rounded-3xl p-6 flex flex-col justify-end group">
+<div class="mb-auto w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400">
+<span class="material-symbols-outlined">rocket_launch</span>
+</div>
+<h4 class="text-xl font-bold text-white mb-2">Instant Launch</h4>
+<p class="text-on-surface-variant text-sm">Deploy agents to X, LinkedIn, and IndieHackers in 60 seconds.</p>
+</div>
+<!-- Secondary Small Feature 2 -->
+<div class="lg:col-span-4 lg:row-span-1 glass-card rounded-3xl p-6 flex flex-col justify-end group border-primary/20 bg-primary/5">
+<div class="mb-auto w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">psychology_alt</span>
+</div>
+<h4 class="text-xl font-bold text-white mb-2">Cognitive Automation</h4>
+<p class="text-on-surface-variant text-sm">AI that learns your voice and mimics your unique founders style.</p>
+</div>
+<!-- Wide Bottom Feature -->
+<div class="lg:col-span-12 lg:row-span-1 glass-card rounded-3xl p-8 flex flex-col md:flex-row items-center gap-8 overflow-hidden">
+<div class="md:w-1/2">
+<h3 class="text-2xl font-bold text-white mb-2">The Solo Founder's Edge</h3>
+<p class="text-on-surface-variant">We've automated the tedious 90% of distribution, so you can focus on the 10% that actually builds your product.</p>
+</div>
+<div class="md:w-1/2 flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+<div class="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white text-sm whitespace-nowrap">Auto-Posting</div>
+<div class="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white text-sm whitespace-nowrap">Engagement AI</div>
+<div class="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white text-sm whitespace-nowrap">Trend Scouting</div>
+<div class="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white text-sm whitespace-nowrap">Lead Mining</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="max-w-7xl mx-auto px-6 py-24 text-center">
+<div class="glass-card rounded-[2rem] p-12 lg:p-24 relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-violet-500/10 -z-10"></div>
+<h2 class="text-4xl md:text-6xl font-black text-white mb-8 tracking-tight">Ready to multiply yourself?</h2>
+<p class="text-xl text-on-surface-variant max-w-2xl mx-auto mb-12">
+                    Join 2,000+ solo founders who use Distribution-OS to dominate their niche while they sleep.
+                </p>
+<button class="px-12 py-5 rounded-2xl bg-white text-[#0f0f1a] font-black text-xl hover:bg-slate-100 transition-colors shadow-2xl shadow-white/10 active:scale-95">
+                    Claim Your 48 AI Workers
+                </button>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-slate-800/50 bg-[#0f0f1a] font-['Inter'] text-sm leading-relaxed">
+<div class="max-w-7xl mx-auto px-6 py-16 flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex flex-col gap-4 items-center md:items-start">
+<div class="text-xl font-black text-white">Distribution-OS</div>
+<p class="text-slate-500 text-center md:text-left">© 2024 Distribution-OS AI. All rights reserved.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-x-8 gap-y-4">
+<a class="text-slate-500 hover:text-cyan-400 transition-colors duration-200" href="#">Features</a>
+<a class="text-slate-500 hover:text-cyan-400 transition-colors duration-200" href="#">Engines</a>
+<a class="text-slate-500 hover:text-cyan-400 transition-colors duration-200" href="#">Pricing</a>
+<a class="text-slate-500 hover:text-cyan-400 transition-colors duration-200" href="#">Documentation</a>
+<a class="text-slate-500 hover:text-cyan-400 transition-colors duration-200" href="#">Privacy Policy</a>
+<a class="text-slate-500 hover:text-cyan-400 transition-colors duration-200" href="#">Terms of Service</a>
+</div>
+<div class="flex items-center gap-4">
+<a class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all" href="#">
+<span class="material-symbols-outlined">public</span>
+</a>
+<a class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all" href="#">
+<span class="material-symbols-outlined">mail</span>
+</a>
+</div>
+</div>
+</footer>
+</body></html>
