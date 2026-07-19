@@ -1,4 +1,5 @@
 import { handleCors, createJsonResponse } from '../_shared/cors.ts'
+import { getSupabaseAdmin } from '../_shared/supabaseAdmin.ts'
 import { logAnthropicUsage } from '../_shared/log-usage.ts'
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') || ''
@@ -17,15 +18,14 @@ Deno.serve(async (req: Request) => {
       return createJsonResponse(req, { error: 'Missing authorization' }, 401)
     }
 
-    // Decode JWT directly — no auth API call
-    const token = authHeader.replace('Bearer ', '')
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      if (!payload.sub) throw new Error('no sub')
-      if (payload.exp && payload.exp * 1000 < Date.now()) {
-        return createJsonResponse(req, { error: 'Token expired' }, 401)
-      }
-    } catch {
+    // Verify the JWT signature server-side. A prior version decoded the token
+    // without verification, so a forged JWT could pass auth and drain the
+    // Anthropic key; getUser() validates the signature + expiry.
+    const admin = getSupabaseAdmin()
+    const { data: { user }, error: authError } = await admin.auth.getUser(
+      authHeader.replace('Bearer ', ''),
+    )
+    if (authError || !user) {
       return createJsonResponse(req, { error: 'Invalid token' }, 401)
     }
 

@@ -15,27 +15,22 @@ Deno.serve(async (req: Request) => {
       return createJsonResponse(req, { error: 'Method not allowed' }, 405)
     }
 
-    // Authenticate user — decode JWT directly to avoid auth API rate limits
+    // Authenticate user — verify the JWT signature server-side. A prior version
+    // decoded the token without verification, so a forged JWT could pass auth and
+    // drain the Anthropic key; getUser() validates the signature + expiry.
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       return createJsonResponse(req, { error: 'Missing authorization' }, 401)
     }
 
-    const token = authHeader.replace('Bearer ', '')
-    let userId: string
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      userId = payload.sub
-      if (!userId) throw new Error('no sub claim')
-      // Check expiry
-      if (payload.exp && payload.exp * 1000 < Date.now()) {
-        return createJsonResponse(req, { error: 'Token expired' }, 401)
-      }
-    } catch {
+    const admin = getSupabaseAdmin()
+    const { data: { user }, error: authError } = await admin.auth.getUser(
+      authHeader.replace('Bearer ', ''),
+    )
+    if (authError || !user) {
       return createJsonResponse(req, { error: 'Invalid token' }, 401)
     }
-
-    const admin = getSupabaseAdmin()
+    const userId = user.id
 
     const { model: requestedModel, max_tokens, system, messages } = await req.json()
 
