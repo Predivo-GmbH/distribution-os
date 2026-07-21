@@ -25,7 +25,9 @@ const E2E_USER_ID = '6ffcc8aa-7518-44d0-ac1c-db4a1651ad90'
 const BASE_URL = process.env.BASE_URL || 'https://distributionos.predivo.ch'
 
 const EDGE_FUNCTIONS = [
-  'ai-proxy', 'call-ai', 'send-auth-email',
+  // 'ai-proxy' deleted 2026-07-21: orphaned duplicate of call-ai with no quota
+  // enforcement and verify_jwt=false — a forged JWT returned 200 (verified live).
+  'call-ai', 'send-auth-email',
   'stripe-checkout', 'stripe-portal', 'stripe-webhook',
 ]
 

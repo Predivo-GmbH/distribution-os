@@ -328,7 +328,7 @@
 
 | ID | Feature | E2E Test | Status |
 |----|---------|----------|--------|
-| INF-001 | Edge function `ai-proxy` — reachable, not returning 500 | `critical-path.spec.ts:"ai-proxy is reachable"` | COVERED |
+| INF-001 | Edge function `ai-proxy` — **REMOVED 2026-07-21**. Orphaned duplicate of `call-ai`: no tier/quota check, no model allowlist, `verify_jwt=false`, and a forged unsigned JWT returned HTTP 200 (verified live). Deleted from the project and the repo; all AI traffic goes through `call-ai`. | n/a — function no longer exists | REMOVED |
 | INF-002 | Edge function `call-ai` — reachable, not returning 500 | `critical-path.spec.ts:"call-ai is reachable"` | COVERED |
 | INF-003 | Edge function `send-auth-email` — reachable, not returning 500 | `critical-path.spec.ts:"send-auth-email is reachable"` | COVERED |
 | INF-004 | Edge function `stripe-checkout` — reachable, not returning 500 | `critical-path.spec.ts:"stripe-checkout is reachable"` | COVERED |

@@ -189,6 +189,10 @@ async function callAIViaProxy(config: AIConfig, options: AICallOptions): Promise
       // If edge function is throttled (429) or unavailable, fall back to direct API
       const isThrottled = error.message?.includes('429') || error.message?.includes('throttle')
       if (isThrottled) {
+        // This path skips call-ai, and therefore skips BOTH quota enforcement and
+        // usage logging. It runs on the user's own BYOK key, never the fleet key —
+        // but it must never be silent, or spend disappears from the API dashboard.
+        console.warn('[ai] call-ai throttled — falling back to direct API: quota and usage logging are BYPASSED for this call.')
         return callAIDirect(config, options)
       }
       return { success: false, content: '', error: error.message || 'Edge function error' }
@@ -209,7 +213,9 @@ async function callAIViaProxy(config: AIConfig, options: AICallOptions): Promise
 
     return { success: true, content: text }
   } catch {
-    // On any network failure, attempt direct API fallback
+    // On any network failure, attempt direct API fallback. Same caveat as above:
+    // quota and usage logging are bypassed, so say so rather than failing silently.
+    console.warn('[ai] call-ai unreachable — falling back to direct API: quota and usage logging are BYPASSED for this call.')
     return callAIDirect(config, options)
   }
 }
