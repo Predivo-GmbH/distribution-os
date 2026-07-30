@@ -131,6 +131,12 @@ export async function callAI(options: AICallOptions): Promise<AICallResult> {
     return { success: false, content: '', error: 'API key not configured. Go to Settings > AI Configuration.' }
   }
 
+  // The direct browser path is Anthropic-shaped only. Kimi/OpenAI keys must go through the
+  // call-ai edge function (which speaks each provider's API) — never call them here.
+  if (config.provider !== 'anthropic') {
+    return { success: false, content: '', error: `Direct fallback supports Anthropic only. Your ${config.provider} key runs through the server proxy — configure Supabase, or switch to an Anthropic key for local dev.` }
+  }
+
   const endpoint = getAPIEndpoint(config)
 
   try {
@@ -225,6 +231,10 @@ async function callAIDirect(config: AIConfig, options: AICallOptions): Promise<A
   const apiKey = config.apiKey
   if (!apiKey) {
     return { success: false, content: '', error: 'AI service temporarily unavailable. Add your own API key in Settings to use AI features directly.' }
+  }
+  // Anthropic-shaped path only — Kimi/OpenAI cannot be called from the browser here.
+  if (config.provider !== 'anthropic') {
+    return { success: false, content: '', error: `AI service temporarily unavailable. The direct fallback supports Anthropic only, not ${config.provider}.` }
   }
 
   const endpoint = getAPIEndpoint(config)

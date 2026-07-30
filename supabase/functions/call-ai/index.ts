@@ -2,7 +2,7 @@ import { handleCors, createJsonResponse } from '../_shared/cors.ts'
 import { getSupabaseAdmin } from '../_shared/supabaseAdmin.ts'
 import { TIER_LIMITS, type SubscriptionTier } from '../_shared/tier-map.ts'
 import { logAnthropicUsage } from '../_shared/log-usage.ts'
-import { resolveModel, substituteModel, isModelNotFound } from '../_shared/anthropic-model.ts'
+import { callByo, BYO_PROVIDERS, type ByoProvider } from '../_shared/byo-provider.ts'
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') || ''
 
@@ -38,115 +38,109 @@ Deno.serve(async (req: Request) => {
       return createJsonResponse(req, { error: 'Missing required fields: messages' }, 400)
     }
 
-    // --- Tier-based AI run limit enforcement ---
-    const { data: prefs } = await admin
-      .from('user_preferences')
-      .select('subscription_tier')
-      .eq('user_id', userId)
-      .single()
-
-    const tier: SubscriptionTier = (prefs?.subscription_tier as SubscriptionTier) ?? 'free'
-    const limit = TIER_LIMITS[tier]?.aiRunsPerMonth ?? TIER_LIMITS.free.aiRunsPerMonth
-
-    if (limit !== Infinity) {
-      const now = new Date()
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-      const { count, error: countError } = await admin
-        .from('ai_usage')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .gte('created_at', monthStart)
-
-      if (countError) {
-        return createJsonResponse(req, { error: `Quota check failed: ${countError.message}` }, 500)
-      }
-
-      if ((count ?? 0) >= limit) {
-        return createJsonResponse(req, {
-          error: `Monthly AI run limit reached (${count}/${limit}). Upgrade your plan for more runs.`,
-          code: 'QUOTA_EXCEEDED',
-          usage: { used: count, limit },
-        }, 429)
-      }
-    }
-
-    // Check for user's own API key (BYOK)
-    let apiKey = ANTHROPIC_API_KEY
+    // --- Resolve key + provider ---
+    // BYO: the user's own key (any of Anthropic / Kimi / OpenAI). The stored `provider`
+    // decides the API shape — a key prefix alone can't tell OpenAI (`sk-…`) from Kimi (`sk-…`).
+    // Fleet fallback: our Anthropic key when the user hasn't brought one.
     const { data: keyRow } = await admin
       .from('user_api_keys')
-      .select('api_key')
+      .select('api_key, provider')
       .eq('user_id', userId)
       .single()
 
-    if (keyRow?.api_key) {
-      apiKey = keyRow.api_key
-    }
+    const isByo = Boolean(keyRow?.api_key)
+    const apiKey: string = isByo ? keyRow!.api_key : ANTHROPIC_API_KEY
+    const provider: ByoProvider = isByo && BYO_PROVIDERS.includes(keyRow!.provider as ByoProvider)
+      ? (keyRow!.provider as ByoProvider)
+      : 'anthropic'
 
     if (!apiKey) {
       return createJsonResponse(req, { error: 'No API key available. Configure your key in Settings.' }, 400)
     }
 
-    // Resolve the model (fleet standard: dynamic Anthropic model resolution).
-    // 'auto' (or a missing model) resolves server-side via the AI_MODEL_SMART pin;
-    // explicit client-requested models pass through unchanged.
-    let model: string = !requestedModel || requestedModel === 'auto'
-      ? await resolveModel('smart', apiKey)
-      : requestedModel
+    // --- Tier-based AI run limit ---
+    // Enforced ONLY on the fleet key. A BYO user pays for their own calls on their own key,
+    // so they aren't capped by the plan's aiRunsPerMonth.
+    if (!isByo) {
+      const { data: prefs } = await admin
+        .from('user_preferences')
+        .select('subscription_tier')
+        .eq('user_id', userId)
+        .single()
 
-    // Call Anthropic API
-    const callAnthropic = (m: string) =>
-      fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
+      const tier: SubscriptionTier = (prefs?.subscription_tier as SubscriptionTier) ?? 'free'
+      const limit = TIER_LIMITS[tier]?.aiRunsPerMonth ?? TIER_LIMITS.free.aiRunsPerMonth
+
+      if (limit !== Infinity) {
+        const now = new Date()
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+        const { count, error: countError } = await admin
+          .from('ai_usage')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .gte('created_at', monthStart)
+
+        if (countError) {
+          return createJsonResponse(req, { error: `Quota check failed: ${countError.message}` }, 500)
+        }
+
+        if ((count ?? 0) >= limit) {
+          return createJsonResponse(req, {
+            error: `Monthly AI run limit reached (${count}/${limit}). Upgrade your plan, or add your own API key in Settings for unlimited runs.`,
+            code: 'QUOTA_EXCEEDED',
+            usage: { used: count, limit },
+          }, 429)
+        }
+      }
+    }
+
+    // --- Call the resolved provider (Anthropic / Kimi / OpenAI) ---
+    // call-ai resolves the 'smart' tier; 'auto'/missing model resolves server-side per provider,
+    // an explicit client model passes through. OpenAI's different request/response shape is
+    // normalised inside the adapter so the response envelope below is provider-agnostic.
+    const result = await callByo(provider, apiKey, {
+      tier: 'smart',
+      requestedModel,
+      maxTokens: max_tokens ?? 4096,
+      system,
+      messages,
+    })
+
+    if (!result.ok) {
+      return createJsonResponse(req, { error: result.error ?? 'AI provider error' }, result.status)
+    }
+
+    // --- Per-provider usage metering ---
+    // Always record the user's own usage (powers their monthly quota + per-provider view).
+    // Awaited: Supabase kills pending fetches when the function returns, and the quota count
+    // reads this table, so a fire-and-forget insert could be dropped.
+    await admin.from('ai_usage').insert({
+      user_id: userId,
+      provider,
+      model: result.model,
+      input_tokens: result.usage.input_tokens,
+      output_tokens: result.usage.output_tokens,
+    })
+
+    // Only fleet-key spend belongs on the BackOffice cost dashboard. BYO spend is the user's —
+    // logging it there would misattribute cost we don't pay.
+    if (!isByo) {
+      await logAnthropicUsage('Distribution-OS', 'call-ai', {
+        model: result.model,
+        usage: {
+          input_tokens: result.usage.input_tokens,
+          output_tokens: result.usage.output_tokens,
         },
-        body: JSON.stringify({
-          model: m,
-          max_tokens: max_tokens ?? 4096,
-          system,
-          messages,
-        }),
       })
-
-    let response = await callAnthropic(model)
-
-    // Retirement fallback: on 404 model_not_found, substitute the newest live
-    // model of the same family and retry once (applies to both resolved pins
-    // and explicit client-requested models).
-    let substitutedModel: string | null = null
-    if (await isModelNotFound(response)) {
-      substitutedModel = await substituteModel(model, 'smart', apiKey)
-      model = substitutedModel
-      response = await callAnthropic(model)
     }
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      const msg = (errorData as { error?: { message?: string } }).error?.message || `Anthropic API error ${response.status}`
-      return createJsonResponse(req, { error: msg }, response.status)
-    }
-
-    const data = await response.json()
-    // Surface substitutions to the client/tests
-    if (substitutedModel) {
-      data.substituted_model = substitutedModel
-    }
-    await logAnthropicUsage('Distribution-OS', 'call-ai', data)
-
-    // Log usage (fire-and-forget)
-    const usage = (data as { usage?: { input_tokens?: number; output_tokens?: number } }).usage
-    if (usage) {
-      admin.from('ai_usage').insert({
-        user_id: userId,
-        model,
-        input_tokens: usage.input_tokens ?? 0,
-        output_tokens: usage.output_tokens ?? 0,
-      }).then(() => {})
-    }
-
-    return createJsonResponse(req, data)
+    // Normalised envelope the frontend expects (reads content[].text) — same for every provider.
+    return createJsonResponse(req, {
+      content: [{ type: 'text', text: result.text }],
+      model: result.model,
+      provider,
+      usage: result.usage,
+    })
   } catch (err) {
     return new Response(JSON.stringify({ error: `Internal error: ${err instanceof Error ? err.message : String(err)}` }), {
       status: 500,

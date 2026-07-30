@@ -274,6 +274,55 @@ export interface Database {
         }
         Relationships: []
       }
+      user_api_keys: {
+        Row: {
+          user_id: string
+          api_key: string
+          provider: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          api_key: string
+          provider?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          api_key?: string
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_usage: {
+        Row: {
+          id: string
+          user_id: string
+          provider: string | null
+          model: string
+          input_tokens: number
+          output_tokens: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          provider?: string | null
+          model: string
+          input_tokens?: number
+          output_tokens?: number
+          created_at?: string
+        }
+        Update: {
+          provider?: string | null
+          model?: string
+          input_tokens?: number
+          output_tokens?: number
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
