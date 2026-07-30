@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from '../_shared/supabaseAdmin.ts'
 import { TIER_LIMITS, type SubscriptionTier } from '../_shared/tier-map.ts'
 import { logAnthropicUsage } from '../_shared/log-usage.ts'
 import { callByo, BYO_PROVIDERS, type ByoProvider } from '../_shared/byo-provider.ts'
+import { decryptSecret } from '../_shared/crypto.ts'
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') || ''
 
@@ -48,8 +49,10 @@ Deno.serve(async (req: Request) => {
       .eq('user_id', userId)
       .single()
 
+    // BYO keys are stored encrypted (AES-GCM); decryptSecret passes plaintext through for
+    // any legacy row written before at-rest encryption landed.
     const isByo = Boolean(keyRow?.api_key)
-    const apiKey: string = isByo ? keyRow!.api_key : ANTHROPIC_API_KEY
+    const apiKey: string = isByo ? await decryptSecret(keyRow!.api_key) : ANTHROPIC_API_KEY
     const provider: ByoProvider = isByo && BYO_PROVIDERS.includes(keyRow!.provider as ByoProvider)
       ? (keyRow!.provider as ByoProvider)
       : 'anthropic'

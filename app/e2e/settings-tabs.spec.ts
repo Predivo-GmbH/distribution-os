@@ -38,17 +38,26 @@ test.describe('Settings Tabs', () => {
 
   test('AI Configuration tab renders', async ({ page }) => {
     await page.getByRole('tab', { name: 'AI Configuration' }).click()
-    await expect(page.getByRole('heading', { name: 'Anthropic API' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'AI Provider' })).toBeVisible()
+    // Default provider is Anthropic, so the key placeholder is the sk-ant- hint.
     await expect(page.getByPlaceholder('sk-ant-...')).toBeVisible()
-    await expect(page.getByText('Enter your Anthropic API key')).toBeVisible()
+    await expect(page.getByText('Choose a provider and enter your API key')).toBeVisible()
   })
 
-  test('AI Configuration shows model selector', async ({ page }) => {
+  test('AI Configuration shows the multi-provider selector (Anthropic / Kimi / OpenAI)', async ({ page }) => {
     await page.getByRole('tab', { name: 'AI Configuration' }).click()
-    await expect(page.getByRole('option', { name: /Auto \(recommended\)/ })).toBeAttached()
-    await expect(page.getByRole('option', { name: /Claude Sonnet 5/ })).toBeAttached()
-    await expect(page.getByRole('option', { name: /Claude Haiku/ })).toBeAttached()
-    await expect(page.getByRole('option', { name: /Claude Opus/ })).toBeAttached()
+    await expect(page.getByRole('option', { name: /Anthropic \(Claude\)/ })).toBeAttached()
+    await expect(page.getByRole('option', { name: /Kimi \(Moonshot\)/ })).toBeAttached()
+    await expect(page.getByRole('option', { name: /OpenAI \(GPT\)/ })).toBeAttached()
+    // Model is now a provider-agnostic free-text field defaulting to 'auto'.
+    await expect(page.getByPlaceholder('auto')).toBeVisible()
+  })
+
+  test('AI Configuration warns when the key does not match the selected provider', async ({ page }) => {
+    await page.getByRole('tab', { name: 'AI Configuration' }).click()
+    // Provider defaults to Anthropic; a non-"sk-ant-" key must trigger the conflict warning.
+    await page.getByPlaceholder('sk-ant-...').fill('sk-not-an-anthropic-key')
+    await expect(page.getByText('An Anthropic key should start with "sk-ant-".')).toBeVisible()
   })
 
   test('Integrations tab renders all 4 integration cards', async ({ page }) => {

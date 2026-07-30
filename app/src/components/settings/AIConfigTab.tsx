@@ -30,21 +30,19 @@ export function AIConfigTab() {
 
     saveAIConfig(config)
 
-    // Persist the key + provider to the DB so the call-ai edge function can use it.
-    // RLS ("Users manage own API key") lets the signed-in user upsert their own row.
+    // Persist the key + provider through the save-api-key edge function, which ENCRYPTS the
+    // key at rest (AES-GCM). We no longer write user_api_keys directly — RLS blocks that so a
+    // plaintext key can't bypass encryption.
     if (isSupabaseConfigured && config.apiKey) {
       setSaving(true)
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (user) {
-          const { error: dbError } = await supabase
-            .from('user_api_keys')
-            .upsert({ user_id: user.id, api_key: config.apiKey, provider: config.provider })
-          if (dbError) {
-            setError(`Saved locally, but syncing to the server failed: ${dbError.message}`)
-            setSaving(false)
-            return
-          }
+        const { data, error: fnError } = await supabase.functions.invoke('save-api-key', {
+          body: { api_key: config.apiKey, provider: config.provider },
+        })
+        if (fnError || data?.error) {
+          setError(`Saved locally, but syncing to the server failed: ${data?.error || fnError?.message}`)
+          setSaving(false)
+          return
         }
       } catch (e) {
         setError(`Saved locally, but syncing to the server failed: ${e instanceof Error ? e.message : 'unknown error'}`)
