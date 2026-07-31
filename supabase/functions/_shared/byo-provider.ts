@@ -1,22 +1,23 @@
 /**
  * Distribution-OS — bring-your-own-key multi-provider router for `call-ai` (Task C, 2026-07-30).
  *
- * The user supplies their OWN Anthropic or Kimi key; the stored `provider`
- * (user_api_keys.provider) decides which credential/model to use. (OpenAI was removed
- * 2026-07-31 — the fleet is off OpenAI.)
+ * The user supplies their OWN Anthropic / Kimi / OpenAI key; the stored `provider`
+ * (user_api_keys.provider) decides which API shape to use. BYO = the USER pays for their
+ * own calls on their own key, so offering OpenAI here costs the fleet nothing.
  *
  * How this differs from _shared/anthropic-model.ts: that layer runs the FLEET key with
  * env-configured anthropic<->kimi failover. THIS runs the CALLER's key and never fails
  * over across providers — one BYO key = one provider (you can't fail over to a provider
- * the user didn't give you a key for). Anthropic and Moonshot(Kimi) both speak the
- * /v1/messages shape, so the adapter stays simple.
+ * the user didn't give you a key for). Anthropic and Moonshot(Kimi) share the /v1/messages
+ * shape; OpenAI uses /v1/chat/completions with a different request AND response — that
+ * mismatch is the entire reason this adapter exists.
  */
 
 const ANTHROPIC_VERSION = '2023-06-01'
 
-export type ByoProvider = 'anthropic' | 'kimi'
+export type ByoProvider = 'anthropic' | 'kimi' | 'openai'
 export type ModelTier = 'fast' | 'smart'
-export const BYO_PROVIDERS: readonly ByoProvider[] = ['anthropic', 'kimi']
+export const BYO_PROVIDERS: readonly ByoProvider[] = ['anthropic', 'kimi', 'openai']
 
 export interface ByoRequest {
   tier: ModelTier
@@ -100,6 +101,33 @@ export const SHAPES: Record<ByoProvider, Shape> = {
       output: json?.usage?.output_tokens ?? 0,
     }),
     isUsableModel: () => true,
+  },
+  openai: {
+    messagesUrl: 'https://api.openai.com/v1/chat/completions',
+    modelsUrl: 'https://api.openai.com/v1/models',
+    headers: (key) => ({ Authorization: `Bearer ${key}`, 'content-type': 'application/json' }),
+    pinEnv: { fast: 'OPENAI_MODEL_FAST', smart: 'OPENAI_MODEL_SMART' },
+    family: { fast: 'gpt', smart: 'gpt' },
+    buildBody: (model, req) => ({
+      model,
+      // max_completion_tokens is the forward-compatible field; o-series / gpt-5 reject max_tokens.
+      max_completion_tokens: req.maxTokens,
+      // OpenAI has no top-level `system`; it goes in as the first message.
+      messages: [
+        ...(req.system ? [{ role: 'system', content: req.system }] : []),
+        ...req.messages,
+      ],
+    }),
+    parse: (json: any) => ({
+      text: json?.choices?.[0]?.message?.content ?? '',
+      model: json?.model ?? '',
+      input: json?.usage?.prompt_tokens ?? 0,
+      output: json?.usage?.completion_tokens ?? 0,
+    }),
+    // Keep only chat-capable models when resolving `auto` (drop embeddings/audio/image/etc).
+    isUsableModel: (id) =>
+      id.startsWith('gpt') &&
+      !/(embedding|whisper|tts|audio|realtime|transcribe|image|dall-e|moderation|search|instruct)/.test(id),
   },
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
