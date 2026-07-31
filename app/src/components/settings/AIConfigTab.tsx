@@ -4,7 +4,7 @@ import type { AIConfig, AIProvider } from '@/lib/ai/config'
 import { loadAIConfig, saveAIConfig, isAIConfigured, PROVIDER_META, providerConflict, detectProvider } from '@/lib/ai/config'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 
-const PROVIDERS: AIProvider[] = ['anthropic', 'kimi', 'openai']
+const PROVIDERS: AIProvider[] = ['anthropic', 'kimi']
 
 export function AIConfigTab() {
   const [config, setConfig] = useState<AIConfig>(loadAIConfig())

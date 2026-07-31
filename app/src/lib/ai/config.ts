@@ -4,14 +4,13 @@
 
 const AI_CONFIG_KEY = 'distribution-os-ai-config'
 
-// Bring-your-own-key providers. Anthropic + Kimi share the Messages API shape;
-// OpenAI uses Chat Completions. The call-ai edge function routes on this value.
-export type AIProvider = 'anthropic' | 'kimi' | 'openai'
+// Bring-your-own-key providers. Anthropic + Kimi both speak the Messages API shape.
+// The call-ai edge function routes on this value. (OpenAI removed 2026-07-31.)
+export type AIProvider = 'anthropic' | 'kimi'
 
 export const PROVIDER_META: Record<AIProvider, { label: string; keyPlaceholder: string; keyHint: string }> = {
   anthropic: { label: 'Anthropic (Claude)', keyPlaceholder: 'sk-ant-...', keyHint: 'Anthropic keys start with "sk-ant-".' },
   kimi: { label: 'Kimi (Moonshot)', keyPlaceholder: 'sk-...', keyHint: 'Get a key at platform.moonshot.ai.' },
-  openai: { label: 'OpenAI (GPT)', keyPlaceholder: 'sk-...', keyHint: 'Get a key at platform.openai.com.' },
 }
 
 export interface AIConfig {

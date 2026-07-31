@@ -44,11 +44,12 @@ test.describe('Settings Tabs', () => {
     await expect(page.getByText('Choose a provider and enter your API key')).toBeVisible()
   })
 
-  test('AI Configuration shows the multi-provider selector (Anthropic / Kimi / OpenAI)', async ({ page }) => {
+  test('AI Configuration shows the multi-provider selector (Anthropic / Kimi)', async ({ page }) => {
     await page.getByRole('tab', { name: 'AI Configuration' }).click()
     await expect(page.getByRole('option', { name: /Anthropic \(Claude\)/ })).toBeAttached()
     await expect(page.getByRole('option', { name: /Kimi \(Moonshot\)/ })).toBeAttached()
-    await expect(page.getByRole('option', { name: /OpenAI \(GPT\)/ })).toBeAttached()
+    // OpenAI removed 2026-07-31 — must NOT be offered.
+    await expect(page.getByRole('option', { name: /OpenAI/ })).toHaveCount(0)
     // Model is now a provider-agnostic free-text field defaulting to 'auto'.
     await expect(page.getByPlaceholder('auto')).toBeVisible()
   })

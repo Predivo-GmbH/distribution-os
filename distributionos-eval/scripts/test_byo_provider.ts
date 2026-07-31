@@ -36,43 +36,13 @@ const req: ByoRequest = {
 
 console.log('detectProvider')
 eq('sk-ant- → anthropic', detectProvider('sk-ant-abc123'), 'anthropic')
-eq('sk-proj- → null (ambiguous)', detectProvider('sk-proj-abc'), null)
-eq('sk- (moonshot/openai) → null', detectProvider('sk-abcdef'), null)
+eq('sk- (moonshot) → null (ambiguous)', detectProvider('sk-abcdef'), null)
 
 console.log('providerConflict')
 falsy('anthropic + sk-ant- ok', providerConflict('anthropic', 'sk-ant-x'))
 truthy('anthropic + sk- flagged', providerConflict('anthropic', 'sk-x'))
-truthy('openai + sk-ant- flagged', providerConflict('openai', 'sk-ant-x'))
-falsy('openai + sk- ok', providerConflict('openai', 'sk-proj-x'))
+truthy('kimi + sk-ant- flagged', providerConflict('kimi', 'sk-ant-x'))
 falsy('kimi + sk- ok', providerConflict('kimi', 'sk-x'))
-
-console.log('OpenAI buildBody (Chat Completions shape)')
-const oaBody = SHAPES.openai.buildBody('gpt-4o', req) as Record<string, unknown>
-eq('model set', oaBody.model, 'gpt-4o')
-eq('uses max_completion_tokens', oaBody.max_completion_tokens, 4096)
-eq('no top-level max_tokens', oaBody.max_tokens, undefined)
-eq('no top-level system', oaBody.system, undefined)
-eq('system folded as first message', oaBody.messages, [
-  { role: 'system', content: 'You are helpful.' },
-  { role: 'user', content: 'Hello' },
-])
-
-console.log('OpenAI parse (Chat Completions response)')
-const oaParsed = SHAPES.openai.parse({
-  model: 'gpt-4o-2024-11-20',
-  choices: [{ message: { role: 'assistant', content: 'Hi there' } }],
-  usage: { prompt_tokens: 12, completion_tokens: 8 },
-})
-eq('text from choices[0].message.content', oaParsed.text, 'Hi there')
-eq('model', oaParsed.model, 'gpt-4o-2024-11-20')
-eq('prompt_tokens → input', oaParsed.input, 12)
-eq('completion_tokens → output', oaParsed.output, 8)
-
-console.log('OpenAI isUsableModel (auto resolution filter)')
-truthy('gpt-4o usable', SHAPES.openai.isUsableModel('gpt-4o'))
-falsy('text-embedding-3-large not usable', SHAPES.openai.isUsableModel('text-embedding-3-large') || null)
-falsy('gpt-4o-transcribe not usable', SHAPES.openai.isUsableModel('gpt-4o-transcribe') || null)
-falsy('gpt-3.5-turbo-instruct not usable', SHAPES.openai.isUsableModel('gpt-3.5-turbo-instruct') || null)
 
 console.log('Anthropic buildBody (Messages shape)')
 const anBody = SHAPES.anthropic.buildBody('claude-sonnet-x', req) as Record<string, unknown>
