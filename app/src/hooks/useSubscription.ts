@@ -4,7 +4,7 @@ import { onSyncFailure } from '@/lib/storage'
 import type { SubscriptionTier } from '@/types'
 
 export const TIER_LIMITS = {
-  free: { maxProducts: 1, aiRunsPerMonth: 25 },
+  free: { maxProducts: 1, aiRunsPerMonth: 3 },
   starter: { maxProducts: 2, aiRunsPerMonth: 15 },
   growth: { maxProducts: 5, aiRunsPerMonth: 50 },
   scale: { maxProducts: Infinity, aiRunsPerMonth: Infinity },

@@ -4,7 +4,7 @@ import { Logo } from '@/components/shared/Logo'
 import { APP_NAME } from '@/lib/app-config'
 
 const TIERS = [
-  { name: 'Free', price: '$0', period: '/forever', desc: 'Get started with zero risk', features: ['1 product', 'All 6 engines', 'All playbooks', 'Analytics dashboard', 'Bring your own AI key'], cta: 'Start Free', highlighted: false },
+  { name: 'Free', price: '$0', period: '/forever', desc: 'Get started with zero risk', features: ['1 product', '3 AI runs/month included', 'All 6 engines', 'All playbooks', 'Analytics dashboard', 'Bring your own AI key'], cta: 'Start Free', highlighted: false },
   { name: 'Starter', price: '$19', period: '/month', desc: 'For early-stage founders', features: ['Everything in Free', '2 products', '15 AI runs/month included'], cta: 'Get Starter', highlighted: false },
   { name: 'Growth', price: '$49', period: '/month', desc: 'For serious distribution', features: ['Everything in Free', '5 products', '50 AI runs/month included'], cta: 'Get Growth', highlighted: true, badge: 'Recommended' },
   { name: 'Scale', price: '$99', period: '/month', desc: 'Unlimited everything', features: ['Everything in Free', 'Unlimited products', 'Unlimited AI runs included'], cta: 'Get Scale', highlighted: false },
