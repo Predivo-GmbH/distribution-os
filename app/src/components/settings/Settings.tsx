@@ -12,6 +12,7 @@ import { APP_NAME } from '@/lib/app-config'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { SchedulerTab } from './SchedulerTab'
 import { IntegrationsTab } from './IntegrationsTab'
+import { BillingTab } from './BillingTab'
 
 interface Props {
   state: AppState
@@ -21,7 +22,7 @@ interface Props {
   onWeekStartChange: (day: UserPreferences['weekStartDay']) => void
 }
 
-type Tab = 'products' | 'knowledge-base' | 'ai-config' | 'integrations' | 'scheduler' | 'tasks' | 'metrics' | 'general'
+type Tab = 'products' | 'knowledge-base' | 'ai-config' | 'integrations' | 'scheduler' | 'tasks' | 'metrics' | 'billing' | 'general'
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'products', label: 'Products' },
@@ -31,6 +32,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'scheduler', label: 'Scheduler' },
   { id: 'tasks', label: 'Tasks' },
   { id: 'metrics', label: 'Metrics' },
+  { id: 'billing', label: 'Billing' },
   { id: 'general', label: 'General' },
 ]
 
@@ -88,6 +90,7 @@ export function Settings({ state, dispatch, prefs, onDarkModeChange, onWeekStart
       {activeTab === 'scheduler' && <div role="tabpanel" id="settings-tabpanel-scheduler" aria-labelledby="settings-tab-scheduler"><SchedulerTab /></div>}
       {activeTab === 'tasks' && <div role="tabpanel" id="settings-tabpanel-tasks" aria-labelledby="settings-tab-tasks"><TasksTab /></div>}
       {activeTab === 'metrics' && <div role="tabpanel" id="settings-tabpanel-metrics" aria-labelledby="settings-tab-metrics"><MetricsTab state={state} /></div>}
+      {activeTab === 'billing' && <div role="tabpanel" id="settings-tabpanel-billing" aria-labelledby="settings-tab-billing"><BillingTab /></div>}
       {activeTab === 'general' && (
         <div role="tabpanel" id="settings-tabpanel-general" aria-labelledby="settings-tab-general">
           <GeneralTab

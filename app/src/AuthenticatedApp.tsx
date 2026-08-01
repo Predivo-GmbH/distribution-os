@@ -1,5 +1,6 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { consumeIntendedPlan, startCheckout } from '@/lib/billing'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { WelcomeModal } from '@/components/onboarding/WelcomeModal'
@@ -34,6 +35,17 @@ const AnalyzePage = lazy(() => import('@/components/analyze/AnalyzePage').then(m
  */
 export function AuthenticatedApp() {
   const { state, dispatch } = useAppState()
+
+  // A visitor who picked a paid tier on the public pricing page while logged
+  // out lands here right after signup — resume their checkout immediately.
+  useEffect(() => {
+    const intended = consumeIntendedPlan()
+    if (!intended) return
+    startCheckout(intended)
+      .then(url => { window.location.href = url })
+      .catch(() => { /* stay in the app; upgrade remains available in Settings → Billing */ })
+  }, [])
+
   const { prefs, setDarkMode, setWeekStartDay } = usePreferences()
   const { user, signOut } = useAuth()
   const hasProducts = state.products.length > 0

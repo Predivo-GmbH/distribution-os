@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Check } from 'lucide-react'
+import { TierCtaButton } from '@/components/shared/TierCtaButton'
 import { Logo } from '@/components/shared/Logo'
 import { APP_NAME } from '@/lib/app-config'
 
@@ -66,16 +67,15 @@ export function Pricing() {
                 <span className="text-4xl font-black text-white">{price}</span>
                 <span className="text-sm text-slate-500">{period}</span>
               </div>
-              <Link
-                to="/signup"
+              <TierCtaButton
+                tierName={name}
+                label={cta}
                 className={`w-full py-3 min-h-[44px] rounded-xl text-center text-sm font-semibold transition-all duration-300 mb-6 block ${
                   highlighted
                     ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]'
                     : 'border border-slate-700 text-slate-300 hover:bg-white/[0.04] hover:border-slate-600'
                 }`}
-              >
-                {cta}
-              </Link>
+              />
               <ul className="space-y-3 flex-1">
                 {features.map(f => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-slate-400">

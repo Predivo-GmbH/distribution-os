@@ -31,7 +31,8 @@ Deno.serve(async (req: Request) => {
     const { returnUrl } = await req.json()
 
     const appUrl = Deno.env.get('APP_URL') || 'https://distributionos.predivo.ch'
-    const allowedOrigins = [appUrl, 'http://localhost:5173']
+    const stagingUrl = Deno.env.get('STAGING_APP_URL') || 'https://staging.distributionos.predivo.ch'
+    const allowedOrigins = [appUrl, stagingUrl, 'http://localhost:5173', 'http://localhost:4173']
     try {
       const parsed = new URL(returnUrl)
       if (!allowedOrigins.includes(parsed.origin)) {
