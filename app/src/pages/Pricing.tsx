@@ -1,16 +1,13 @@
 import { Link } from 'react-router-dom'
-import { Check, Star } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { Logo } from '@/components/shared/Logo'
 import { APP_NAME } from '@/lib/app-config'
 
-const FOUNDING_TOTAL = 100
-const FOUNDING_CLAIMED = 47
-
 const TIERS = [
-  { name: 'Free', price: '$0', period: '/forever', desc: 'Get started with zero risk', features: ['1 product', 'All 6 engines', 'Analytics dashboard', 'Community support', '3 AI runs/month', 'Basic playbooks'], cta: 'Start Free', highlighted: false },
-  { name: 'Starter', price: '$19', period: '/month', desc: 'For early-stage founders', features: ['2 products', '15 AI runs/month', 'All playbooks', 'Email support', 'Export reports', 'Competitor tracking'], cta: 'Get Starter', highlighted: false },
-  { name: 'Growth', price: '$49', period: '/month', desc: 'For serious distribution', features: ['5 products', '50 AI runs/month', 'Advanced analytics', 'Priority support (< 4h)', 'All integrations', 'Custom workflows', 'A/B testing', '30-day money-back guarantee'], cta: 'Get Growth', highlighted: true, badge: 'Most Popular' },
-  { name: 'Scale', price: '$99', period: '/month', desc: 'Unlimited everything', features: ['Unlimited products', 'Unlimited AI runs', 'Custom integrations', 'Dedicated support', 'API access', 'White-label reports', 'Team sharing'], cta: 'Get Scale', highlighted: false },
+  { name: 'Free', price: '$0', period: '/forever', desc: 'Get started with zero risk', features: ['1 product', 'All 6 engines', 'All playbooks', 'Analytics dashboard', 'Bring your own AI key'], cta: 'Start Free', highlighted: false },
+  { name: 'Starter', price: '$19', period: '/month', desc: 'For early-stage founders', features: ['Everything in Free', '2 products', '15 AI runs/month included'], cta: 'Get Starter', highlighted: false },
+  { name: 'Growth', price: '$49', period: '/month', desc: 'For serious distribution', features: ['Everything in Free', '5 products', '50 AI runs/month included'], cta: 'Get Growth', highlighted: true, badge: 'Recommended' },
+  { name: 'Scale', price: '$99', period: '/month', desc: 'Unlimited everything', features: ['Everything in Free', 'Unlimited products', 'Unlimited AI runs included'], cta: 'Get Scale', highlighted: false },
 ]
 
 export function Pricing() {
@@ -39,28 +36,6 @@ export function Pricing() {
 
       {/* Pricing */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-24">
-        {/* Founding Member Badge */}
-        <div className="max-w-xl mx-auto mb-8">
-          <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.04] p-5 sm:p-6 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[100px] bg-amber-500/[0.06] blur-[60px] rounded-full pointer-events-none" />
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-[11px] font-bold uppercase tracking-wider mb-3">
-              <Star size={12} className="fill-amber-400 text-amber-400" />
-              Founding Member Pricing
-            </div>
-            <p className="text-white font-semibold text-sm mb-1">Lock in launch prices forever</p>
-            <p className="text-slate-400 text-xs mb-4">First {FOUNDING_TOTAL} members keep their price — even when we raise it.</p>
-            <div className="max-w-xs mx-auto">
-              <div className="flex justify-between text-xs mb-1.5">
-                <span className="text-amber-300 font-medium">{FOUNDING_CLAIMED} claimed</span>
-                <span className="text-slate-500">{FOUNDING_TOTAL - FOUNDING_CLAIMED} spots left</span>
-              </div>
-              <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-1000" style={{ width: `${(FOUNDING_CLAIMED / FOUNDING_TOTAL) * 100}%` }} />
-              </div>
-            </div>
-          </div>
-        </div>
-
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white text-center tracking-tight mb-4">
           Simple pricing.{' '}
           <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">Scale when ready.</span>

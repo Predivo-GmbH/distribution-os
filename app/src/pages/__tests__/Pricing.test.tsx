@@ -33,9 +33,9 @@ describe('Pricing Page', () => {
     expect(screen.getByText('$99')).toBeInTheDocument()
   })
 
-  it('marks Growth as most popular', () => {
+  it('marks Growth as the recommended tier', () => {
     renderPricing()
-    expect(screen.getByText('Most Popular')).toBeInTheDocument()
+    expect(screen.getByText('Recommended')).toBeInTheDocument()
   })
 
   it('has signup CTA links', () => {

@@ -96,10 +96,10 @@ describe('Landing Page', () => {
     expect(screen.getByText(/Got/)).toBeInTheDocument()
   })
 
-  it('renders testimonials', () => {
+  it('renders no fabricated social proof (testimonials removed 2026-08-01)', () => {
     renderLanding()
-    expect(screen.getAllByText('Sarah Chen').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getAllByText('Marcus Rivera').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getAllByText('Aisha Patel').length).toBeGreaterThanOrEqual(1)
+    expect(screen.queryByText('Sarah Chen')).not.toBeInTheDocument()
+    expect(screen.queryByText(/Trusted by Solo Founders/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/claimed/)).not.toBeInTheDocument()
   })
 })
