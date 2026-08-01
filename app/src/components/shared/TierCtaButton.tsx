@@ -28,7 +28,7 @@ export function TierCtaButton({ tierName, label, className }: Props) {
     setFailed(false)
     try {
       if (await hasSession()) {
-        window.location.href = await startCheckout(tier)
+        window.location.assign(await startCheckout(tier))
       } else {
         rememberIntendedPlan(tier)
         navigate('/signup')

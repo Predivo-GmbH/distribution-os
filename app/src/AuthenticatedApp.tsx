@@ -42,7 +42,7 @@ export function AuthenticatedApp() {
     const intended = consumeIntendedPlan()
     if (!intended) return
     startCheckout(intended)
-      .then(url => { window.location.href = url })
+      .then(url => { window.location.assign(url) })
       .catch(() => { /* stay in the app; upgrade remains available in Settings → Billing */ })
   }, [])
 

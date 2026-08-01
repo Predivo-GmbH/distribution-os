@@ -24,7 +24,7 @@ export function BillingTab() {
     setBusy(t)
     setError(null)
     try {
-      window.location.href = await startCheckout(t)
+      window.location.assign(await startCheckout(t))
     } catch {
       setError('Could not start checkout. Please try again.')
       setBusy(null)
@@ -35,7 +35,7 @@ export function BillingTab() {
     setBusy('portal')
     setError(null)
     try {
-      window.location.href = await openBillingPortal()
+      window.location.assign(await openBillingPortal())
     } catch {
       setError('Could not open the billing portal. Please try again.')
       setBusy(null)
