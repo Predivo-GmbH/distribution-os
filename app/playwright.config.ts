@@ -1,5 +1,10 @@
 import { defineConfig, devices } from '@playwright/test'
 
+// When E2E_STAGING_URL is set the suite runs against the LIVE staging
+// deployment (basic-auth protected, no local dev server) instead of a
+// local vite instance. Used by deploy-staging.yml's e2e-staging job.
+const stagingUrl = process.env.E2E_STAGING_URL
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -8,8 +13,16 @@ export default defineConfig({
   workers: process.env.CI ? 2 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:5183',
+    baseURL: stagingUrl ?? 'http://localhost:5183',
     trace: 'on-first-retry',
+    ...(stagingUrl
+      ? {
+          httpCredentials: {
+            username: process.env.E2E_STAGING_USER ?? 'staging',
+            password: process.env.E2E_STAGING_PASS ?? '',
+          },
+        }
+      : {}),
   },
   projects: [
     {
@@ -26,10 +39,14 @@ export default defineConfig({
       testMatch: /accessibility\.spec\.ts/,
     },
   ],
-  webServer: {
-    command: 'npx vite --mode test --port 5183',
-    url: 'http://localhost:5183',
-    reuseExistingServer: !process.env.CI,
-    timeout: 30000,
-  },
+  ...(stagingUrl
+    ? {}
+    : {
+        webServer: {
+          command: 'npx vite --mode test --port 5183',
+          url: 'http://localhost:5183',
+          reuseExistingServer: !process.env.CI,
+          timeout: 30000,
+        },
+      }),
 })
