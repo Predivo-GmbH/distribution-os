@@ -491,7 +491,10 @@ export function Landing() {
                   <ChevronDown size={16} aria-hidden="true" className={`text-slate-500 shrink-0 ml-3 transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 <div className={`grid transition-all duration-200 ${openFaq === i ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-                  <div className="overflow-hidden">
+                  {/* `invisible` when closed: the 0fr grid row clips the answer but the
+                      clipped node still has a box — screen readers and visibility checks
+                      would treat it as shown without an explicit visibility:hidden. */}
+                  <div className={`overflow-hidden ${openFaq === i ? '' : 'invisible'}`}>
                     <div className="px-6 pb-5 text-sm text-slate-400 leading-relaxed">{a}</div>
                   </div>
                 </div>
