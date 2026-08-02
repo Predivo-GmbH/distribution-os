@@ -1,0 +1,170 @@
+name: Deploy to Staging
+
+# Staging environment for staging.distributionos.predivo.ch — review changes
+# (incl. E2E) BEFORE they reach production. Modeled on the fleet pattern
+# (ScoutCopilot deploy-staging + BackOffice self-healing .htpasswd).
+#
+# Trigger: push to the `staging` branch (or manual dispatch). Production is a
+# SEPARATE workflow (deploy.yml, on `master`) and is never touched by this one.
+#
+# Protection: deployed .htaccess prepends HTTP Basic auth; the .htpasswd itself
+# is SELF-HEALING — uploaded from the STAGING_HTPASSWD_LINE secret on every
+# deploy — plus X-Robots-Tag noindex and a disallow-all robots.txt. The
+# in-app PasswordGate is disabled on staging builds (basic auth replaces it,
+# and the E2E suite needs the pages reachable).
+
+on:
+  push:
+    branches: [staging]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+env:
+  STAGING_URL: https://staging.distributionos.predivo.ch
+  STAGING_DOCROOT: staging.distributionos.predivo.ch
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        working-directory: app
+        run: npm ci
+
+      - name: Lint + unit tests
+        working-directory: app
+        run: |
+          npm run lint
+          npx vitest run
+
+      - name: Build for staging
+        working-directory: app
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
+          VITE_PASSWORD_GATE_DISABLED: 'true'
+        run: npm run build
+
+      - name: Prepare staging .htaccess + robots (basic auth, noindex)
+        run: |
+          # Keep the production .htaccess (headers/cache/SPA behaviour) and
+          # prepend the staging gate so Apache config errors surface here too.
+          {
+            echo 'AuthType Basic'
+            echo 'AuthName "Distribution-OS Staging"'
+            echo "AuthUserFile /var/www/vhosts/predivo.ch/${STAGING_DOCROOT}/.htpasswd"
+            echo 'Require valid-user'
+            echo ''
+            echo '<IfModule mod_headers.c>'
+            echo 'Header set X-Robots-Tag "noindex, nofollow"'
+            echo '</IfModule>'
+            echo ''
+            cat app/dist/.htaccess 2>/dev/null || true
+          } > /tmp/staging.htaccess
+          mv /tmp/staging.htaccess app/dist/.htaccess
+          printf 'User-agent: *\nDisallow: /\n' > app/dist/robots.txt
+          echo 'distributionos-staging' > app/dist/.site-id
+
+      - name: Deploy staging via FTPS (self-healing .htpasswd)
+        env:
+          HTPASSWD_LINE: ${{ secrets.STAGING_HTPASSWD_LINE }}
+        run: |
+          set +e
+          sudo apt-get install -y lftp >/dev/null
+          FTP_CONN="set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no; set ftp:passive-mode yes; set ftp:prefer-epsv no; set net:timeout 30; set net:max-retries 4; set net:persist-retries 4; set net:reconnect-interval-base 8; set mirror:parallel-transfer-count 4; open -u ${{ secrets.FTP_USER }},${{ secrets.FTP_PASS }} ${{ secrets.FTP_HOST }};"
+
+          # The docroot is created by Plesk when the subdomain exists — refuse
+          # to deploy into a missing/unexpected target.
+          LISTING=$(lftp -e "${FTP_CONN} cls -1 /; quit" 2>/dev/null)
+          if ! echo "$LISTING" | grep -qx "${STAGING_DOCROOT}"; then
+            echo "::error::DEPLOY ABORTED — /${STAGING_DOCROOT}/ does not exist on the FTP server. Create the subdomain in Plesk first."
+            exit 1
+          fi
+
+          printf '%s\n' "$HTPASSWD_LINE" > /tmp/.htpasswd
+          for i in 1 2 3; do
+            OUT=$(lftp -e "
+              $FTP_CONN
+              put /tmp/.htpasswd -o /${STAGING_DOCROOT}/.htpasswd;
+              mirror --reverse --delete --no-perms --verbose --exclude .htpasswd --exclude cgi-bin/ ./app/dist/ /${STAGING_DOCROOT}/;
+              bye" 2>&1)
+            CODE=$?
+            echo "$OUT" | tail -5
+            [ $CODE -eq 0 ] && break
+            echo "$OUT" | grep -qiE '530|login (incorrect|failed)' && { echo "::error::FTP auth failed (530), not retrying"; exit 1; }
+            echo "lftp attempt $i failed (exit $CODE) — retrying"
+            sleep 10
+          done
+          exit $CODE
+
+      - name: Staging alive smoke
+        run: |
+          for i in $(seq 1 8); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.STAGING_HTPASSWD_USER }}:${{ secrets.STAGING_HTPASSWD_PASS }}" "$STAGING_URL" --max-time 30 || echo 000)
+            echo "attempt $i: HTTP $STATUS"
+            [ "$STATUS" = "200" ] && exit 0
+            sleep 8
+          done
+          echo "::error::Staging did not come up (last HTTP $STATUS)"
+          exit 1
+
+  e2e-staging:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        working-directory: app
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('app/package-lock.json') }}
+
+      - name: Install Playwright
+        working-directory: app
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E against live staging (smoke + public pages + critical path)
+        working-directory: app
+        env:
+          E2E_STAGING_URL: ${{ env.STAGING_URL }}
+          E2E_STAGING_USER: ${{ secrets.STAGING_HTPASSWD_USER }}
+          E2E_STAGING_PASS: ${{ secrets.STAGING_HTPASSWD_PASS }}
+          BASE_URL: ${{ env.STAGING_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+        run: npx playwright test e2e/smoke.spec.ts e2e/public-pages.spec.ts e2e/critical-path.spec.ts --project=chromium
