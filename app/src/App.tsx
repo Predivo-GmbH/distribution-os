@@ -12,6 +12,9 @@ const SignUp = lazy(() => import('@/pages/SignUp').then(m => ({ default: m.SignU
 const ResetPassword = lazy(() => import('@/pages/ResetPassword').then(m => ({ default: m.ResetPassword })))
 const Pricing = lazy(() => import('@/pages/Pricing').then(m => ({ default: m.Pricing })))
 const AuthVerify = lazy(() => import('@/pages/AuthVerify').then(m => ({ default: m.AuthVerify })))
+const TermsPage = lazy(() => import('@/pages/legal/TermsPage').then(m => ({ default: m.TermsPage })))
+const PrivacyPage = lazy(() => import('@/pages/legal/PrivacyPage').then(m => ({ default: m.PrivacyPage })))
+const ImprintPage = lazy(() => import('@/pages/legal/ImprintPage').then(m => ({ default: m.ImprintPage })))
 
 /* Authenticated app shell — lazy-loaded so the Supabase SDK (165 KB)
    and app-state hooks are NOT on the public page critical path. */
@@ -74,6 +77,11 @@ export default function App() {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/auth/verify" element={<AuthVerify />} />
         </Route>
+
+        {/* Legal — reachable to everyone, logged in or not */}
+        <Route path="/terms" element={<Suspense fallback={<LoadingSpinner fullPage />}><TermsPage /></Suspense>} />
+        <Route path="/privacy" element={<Suspense fallback={<LoadingSpinner fullPage />}><PrivacyPage /></Suspense>} />
+        <Route path="/imprint" element={<Suspense fallback={<LoadingSpinner fullPage />}><ImprintPage /></Suspense>} />
 
         {/* Protected routes — AuthenticatedApp loads Supabase + app state */}
         <Route element={<ProtectedRoutes />}>

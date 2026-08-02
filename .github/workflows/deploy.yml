@@ -64,6 +64,9 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
+          # Launched 2026-08-02: disable the pre-launch Early-Access gate in production.
+          # The gate component/tests remain; flip to remove this line to re-enable.
+          VITE_PASSWORD_GATE_DISABLED: 'true'
 
       - name: Deploy via FTP (zero-downtime)
         run: |

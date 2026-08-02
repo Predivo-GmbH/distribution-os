@@ -71,4 +71,21 @@ test.describe('Public Pages — Landing & Pricing', () => {
     // Either sidebar is hidden on mobile or still visible but styled differently — both are valid responsive behavior
     expect(true).toBeTruthy() // Layout renders without crash
   })
+
+  // PUB-005: legal pages render (launch-critical — footer links must resolve, not 404 into login)
+  for (const { path, heading } of [
+    { path: '/terms', heading: 'Terms of Service' },
+    { path: '/privacy', heading: 'Privacy Policy' },
+    { path: '/imprint', heading: 'Imprint' },
+  ]) {
+    test(`PUB-005: ${path} renders its legal content`, async ({ page }) => {
+      await unlockGate(page)
+      await page.goto(path)
+      await expect(page.getByRole('heading', { name: heading, level: 1 })).toBeVisible()
+      // Swiss operator identity must be present on every legal page
+      await expect(page.getByText('Predivo GmbH').first()).toBeVisible()
+      // Must NOT have fallen through to the login screen
+      await expect(page).toHaveURL(new RegExp(`${path}$`))
+    })
+  }
 })
