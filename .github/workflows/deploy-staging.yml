@@ -57,8 +57,11 @@ jobs:
       - name: Build for staging
         working-directory: app
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          # Isolated staging backend (project jckctrtkstejolddqzlk) — the deployed
+          # staging site talks to the STAGING Supabase, never prod. Client-safe
+          # publishable key only.
+          VITE_SUPABASE_URL: ${{ secrets.STAGING_VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.STAGING_VITE_SUPABASE_ANON_KEY }}
           VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
           VITE_PASSWORD_GATE_DISABLED: 'true'
         run: npm run build
@@ -93,7 +96,7 @@ jobs:
 
           # The docroot is created by Plesk when the subdomain exists — refuse
           # to deploy into a missing/unexpected target.
-          LISTING=$(lftp -e "${FTP_CONN} cls -1 /; quit" 2>/dev/null)
+          LISTING=$(timeout 90 lftp -e "${FTP_CONN} cls -1 /; quit" 2>/dev/null)
           if ! echo "$LISTING" | grep -qE "(^|/)${STAGING_DOCROOT}/?$"; then
             echo "::error::DEPLOY ABORTED — /${STAGING_DOCROOT}/ does not exist on the FTP server. Create the subdomain in Plesk first."
             exit 1
@@ -101,7 +104,7 @@ jobs:
 
           printf '%s\n' "$HTPASSWD_LINE" > /tmp/.htpasswd
           for i in 1 2 3; do
-            OUT=$(lftp -e "
+            OUT=$(timeout 420 lftp -e "
               $FTP_CONN
               put /tmp/.htpasswd -o /${STAGING_DOCROOT}/.htpasswd;
               mirror --reverse --delete --no-perms --verbose --exclude .htpasswd --exclude cgi-bin/ ./app/dist/ /${STAGING_DOCROOT}/;
@@ -155,16 +158,17 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
 
-      - name: E2E against live staging (smoke + public pages + critical path)
+      # Frontend-artifact gate ONLY — validates the deployed staging site renders
+      # and routes (all public routes + the launch-critical legal pages). These
+      # specs make ZERO backend calls, so a staging deploy never writes to any
+      # database. The backend-integration suite (critical-path.spec.ts, which
+      # does CRUD + Stripe + ai_usage writes) runs in test.yml against the real
+      # backend — running it here too would only duplicate that AND pollute prod.
+      - name: E2E against live staging (frontend: smoke + public pages)
         working-directory: app
         env:
           E2E_STAGING_URL: ${{ env.STAGING_URL }}
           E2E_STAGING_USER: ${{ secrets.STAGING_HTPASSWD_USER }}
           E2E_STAGING_PASS: ${{ secrets.STAGING_HTPASSWD_PASS }}
           BASE_URL: ${{ env.STAGING_URL }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
-          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
-        run: npx playwright test e2e/smoke.spec.ts e2e/public-pages.spec.ts e2e/critical-path.spec.ts --project=chromium
+        run: npx playwright test e2e/smoke.spec.ts e2e/public-pages.spec.ts --project=chromium

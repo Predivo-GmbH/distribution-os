@@ -78,7 +78,7 @@ jobs:
 
           echo "distributionos" > ./app/dist/.site-id
 
-          REMOTE_ID=$(lftp -e "${FTP_CONN} cat /distributionos.predivo.ch/.site-id; quit" 2>/dev/null || echo "")
+          REMOTE_ID=$(timeout 90 lftp -e "${FTP_CONN} cat /distributionos.predivo.ch/.site-id; quit" 2>/dev/null || echo "")
           if [ -n "$REMOTE_ID" ] && [ "$REMOTE_ID" != "distributionos" ]; then
             echo "::error::DEPLOY ABORTED — remote .site-id is '$REMOTE_ID', expected 'distributionos'. Wrong FTP target!"
             exit 1
@@ -88,7 +88,7 @@ jobs:
           # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
           n=0
           until [ $n -ge 4 ]; do
-            OUT=$(lftp -e "
+            OUT=$(timeout 420 lftp -e "
               $FTP_CONN
               mirror --reverse --no-perms --verbose ./app/dist/assets/ /distributionos.predivo.ch/assets/;
               quit;
@@ -106,7 +106,7 @@ jobs:
           # Step 2: Upload index.html + root files (switches to new asset references)
           n=0
           until [ $n -ge 4 ]; do
-            OUT=$(lftp -e "
+            OUT=$(timeout 420 lftp -e "
               $FTP_CONN
               put ./app/dist/.site-id -o /distributionos.predivo.ch/.site-id;
               put ./app/dist/index.html -o /distributionos.predivo.ch/index.html;
@@ -135,7 +135,7 @@ jobs:
           # Step 3: Clean up stale assets no longer in the new build
           n=0
           until [ $n -ge 4 ]; do
-            OUT=$(lftp -e "
+            OUT=$(timeout 420 lftp -e "
               $FTP_CONN
               mirror --reverse --delete --no-perms --verbose ./app/dist/assets/ /distributionos.predivo.ch/assets/;
               quit;
