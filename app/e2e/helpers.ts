@@ -1,8 +1,16 @@
 import { type Page } from '@playwright/test'
 
 // supabase-js stores its session under `sb-<project-ref>-auth-token`, where the
-// ref is derived from VITE_SUPABASE_URL in .env.test. Must stay in sync with it.
-const AUTH_STORAGE_KEY = 'sb-jxjpbmkgmuunpayqgbsx-auth-token'
+// ref is derived from the app's configured VITE_SUPABASE_URL. To stay in sync
+// whether the E2E runs against the local test build (prod ref, .env.test) or a
+// deployed staging build on a different Supabase project, derive the ref from
+// E2E_SUPABASE_URL when set; otherwise fall back to the local prod ref.
+function projectRef(): string {
+  const url = process.env.E2E_SUPABASE_URL || process.env.VITE_SUPABASE_URL || ''
+  const m = url.match(/https?:\/\/([a-z0-9]+)\.supabase\.co/i)
+  return m ? m[1] : 'jxjpbmkgmuunpayqgbsx'
+}
+const AUTH_STORAGE_KEY = `sb-${projectRef()}-auth-token`
 
 // Fake Supabase auth session for tests — matches VITE_SUPABASE_URL in .env.test
 const FAKE_SESSION = {
