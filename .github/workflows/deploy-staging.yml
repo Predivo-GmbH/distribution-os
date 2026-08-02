@@ -94,7 +94,7 @@ jobs:
           # The docroot is created by Plesk when the subdomain exists — refuse
           # to deploy into a missing/unexpected target.
           LISTING=$(lftp -e "${FTP_CONN} cls -1 /; quit" 2>/dev/null)
-          if ! echo "$LISTING" | grep -qx "${STAGING_DOCROOT}"; then
+          if ! echo "$LISTING" | grep -qE "(^|/)${STAGING_DOCROOT}/?$"; then
             echo "::error::DEPLOY ABORTED — /${STAGING_DOCROOT}/ does not exist on the FTP server. Create the subdomain in Plesk first."
             exit 1
           fi
