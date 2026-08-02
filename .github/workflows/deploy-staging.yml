@@ -57,11 +57,15 @@ jobs:
       - name: Build for staging
         working-directory: app
         env:
-          # Isolated staging backend (project jckctrtkstejolddqzlk) — the deployed
-          # staging site talks to the STAGING Supabase, never prod. Client-safe
-          # publishable key only.
-          VITE_SUPABASE_URL: ${{ secrets.STAGING_VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.STAGING_VITE_SUPABASE_ANON_KEY }}
+          # Staging site uses the prod Supabase project (fleet standard, same as
+          # ScoutCopilot staging). This is safe because the staging GATE below runs
+          # only frontend specs that make ZERO backend writes; the backend-mutating
+          # suite (critical-path) runs in test.yml against prod, not here. The
+          # dedicated staging project (jckctrtkstejolddqzlk) is provisioned and
+          # ready if full backend isolation is pursued later — it needs the E2E
+          # fake-session helper to stop hardcoding the prod project ref first.
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
           VITE_PASSWORD_GATE_DISABLED: 'true'
         run: npm run build
