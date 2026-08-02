@@ -164,7 +164,7 @@ jobs:
       # database. The backend-integration suite (critical-path.spec.ts, which
       # does CRUD + Stripe + ai_usage writes) runs in test.yml against the real
       # backend — running it here too would only duplicate that AND pollute prod.
-      - name: E2E against live staging (frontend: smoke + public pages)
+      - name: "E2E against live staging (frontend: smoke + public pages)"
         working-directory: app
         env:
           E2E_STAGING_URL: ${{ env.STAGING_URL }}
