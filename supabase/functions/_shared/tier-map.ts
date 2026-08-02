@@ -20,9 +20,15 @@ if (starterPriceId) PRICE_TO_TIER[starterPriceId] = 'starter'
 if (growthPriceId) PRICE_TO_TIER[growthPriceId] = 'growth'
 if (scalePriceId) PRICE_TO_TIER[scalePriceId] = 'scale'
 
+/** Reverse map so the frontend can request a tier by NAME and the price ID never leaves the server. */
+export const TIER_TO_PRICE: Partial<Record<SubscriptionTier, string>> = {}
+if (starterPriceId) TIER_TO_PRICE.starter = starterPriceId
+if (growthPriceId) TIER_TO_PRICE.growth = growthPriceId
+if (scalePriceId) TIER_TO_PRICE.scale = scalePriceId
+
 /** Tier limits — must stay in sync with app/src/hooks/useSubscription.ts */
 export const TIER_LIMITS: Record<SubscriptionTier, { maxProducts: number; aiRunsPerMonth: number }> = {
-  free:    { maxProducts: 1,        aiRunsPerMonth: 25 },
+  free:    { maxProducts: 1,        aiRunsPerMonth: 3 },
   starter: { maxProducts: 2,        aiRunsPerMonth: 15 },
   growth:  { maxProducts: 5,        aiRunsPerMonth: 50 },
   scale:   { maxProducts: Infinity, aiRunsPerMonth: Infinity },

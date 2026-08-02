@@ -33,15 +33,16 @@ describe('Pricing Page', () => {
     expect(screen.getByText('$99')).toBeInTheDocument()
   })
 
-  it('marks Growth as most popular', () => {
+  it('marks Growth as the recommended tier', () => {
     renderPricing()
-    expect(screen.getByText('Most Popular')).toBeInTheDocument()
+    expect(screen.getByText('Recommended')).toBeInTheDocument()
   })
 
-  it('has signup CTA links', () => {
+  it('has a CTA per tier (buttons wired to checkout since 2026-08-01)', () => {
     renderPricing()
-    const signupLinks = screen.getAllByRole('link', { name: /get started|start free|get starter|get growth|get scale/i })
-    expect(signupLinks.length).toBeGreaterThanOrEqual(4)
+    const tierCtas = screen.getAllByRole('button', { name: /start free|get starter|get growth|get scale/i })
+    expect(tierCtas.length).toBe(4)
+    expect(screen.getAllByRole('link', { name: /get started/i }).length).toBeGreaterThanOrEqual(1)
   })
 
   it('renders footer with navigation back home', () => {

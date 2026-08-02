@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect, useRef, type RefObject } from 'react'
-import { ArrowRight, ChevronDown, Check, Star, Zap, Target, Users, Search, Heart, RefreshCw, Sparkles, BarChart3, Palette, Shield, FileText, TrendingUp, Globe, Menu, X } from 'lucide-react'
+import { ArrowRight, ChevronDown, Check, Zap, Target, Users, Search, Heart, RefreshCw, Sparkles, BarChart3, Palette, Shield, FileText, TrendingUp, Globe, Menu, X } from 'lucide-react'
+import { TierCtaButton } from '@/components/shared/TierCtaButton'
 import { Logo } from '@/components/shared/Logo'
 import { APP_NAME } from '@/lib/app-config'
 
@@ -57,12 +58,12 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
 
 /* ── Data ── */
 const ENGINES = [
-  { name: 'Pull Engine', color: '#3b82f6', icon: Target, workers: 8, desc: 'Attract leads through SEO, content marketing, and inbound strategies', tags: ['SEO', 'Blog', 'Content'], example: 'Writes SEO blog posts targeting your ICP keywords, audits on-page ranking factors, and generates content calendars', metric: '3x organic traffic in 60 days' },
-  { name: 'Push Engine', color: '#8b5cf6', icon: Zap, workers: 10, desc: 'Proactive outreach via email, social media, and paid distribution', tags: ['Email', 'Social', 'Ads'], example: 'Crafts personalized cold emails, schedules social posts across platforms, and optimizes ad copy for each audience', metric: '47% avg reply rate' },
-  { name: 'Bridge Engine', color: '#f59e0b', icon: Users, workers: 6, desc: 'Partnership, affiliate, and referral growth programs', tags: ['Affiliates', 'Referrals', 'Co-marketing'], example: 'Identifies potential partners in your niche, drafts co-marketing proposals, and manages referral incentive campaigns', metric: '12 partnerships/month' },
-  { name: 'Search Engine', color: '#10b981', icon: Search, workers: 8, desc: 'Optimize discovery through search and marketplace visibility', tags: ['App Stores', 'Directories', 'Discovery'], example: 'Submits your product to 50+ directories, writes app store descriptions, and tracks ranking positions weekly', metric: '50+ directory listings' },
-  { name: 'Equity Engine', color: '#ef4444', icon: Heart, workers: 8, desc: 'Build owned audiences, communities, and lasting brand equity', tags: ['Community', 'Newsletter', 'Brand'], example: 'Grows your newsletter with lead magnets, moderates community discussions, and creates brand storytelling content', metric: '2k subscribers in 8 weeks' },
-  { name: 'Persistence Engine', color: '#06b6d4', icon: RefreshCw, workers: 8, desc: 'Retention, re-engagement, and lifecycle automation', tags: ['Retention', 'Lifecycle', 'Win-back'], example: 'Triggers win-back sequences for churned users, personalizes onboarding drips, and scores engagement health', metric: '35% churn reduction' },
+  { name: 'Pull Engine', color: '#3b82f6', icon: Target, workers: 8, desc: 'Attract leads through SEO, content marketing, and inbound strategies', tags: ['SEO', 'Blog', 'Content'], example: 'Writes SEO blog posts targeting your ICP keywords, audits on-page ranking factors, and generates content calendars' },
+  { name: 'Push Engine', color: '#8b5cf6', icon: Zap, workers: 10, desc: 'Proactive outreach via email, social media, and paid distribution', tags: ['Email', 'Social', 'Ads'], example: 'Crafts personalized cold emails, schedules social posts across platforms, and optimizes ad copy for each audience' },
+  { name: 'Bridge Engine', color: '#f59e0b', icon: Users, workers: 6, desc: 'Partnership, affiliate, and referral growth programs', tags: ['Affiliates', 'Referrals', 'Co-marketing'], example: 'Identifies potential partners in your niche, drafts co-marketing proposals, and manages referral incentive campaigns' },
+  { name: 'Search Engine', color: '#10b981', icon: Search, workers: 8, desc: 'Optimize discovery through search and marketplace visibility', tags: ['App Stores', 'Directories', 'Discovery'], example: 'Submits your product to 50+ directories, writes app store descriptions, and tracks ranking positions weekly' },
+  { name: 'Equity Engine', color: '#ef4444', icon: Heart, workers: 8, desc: 'Build owned audiences, communities, and lasting brand equity', tags: ['Community', 'Newsletter', 'Brand'], example: 'Grows your newsletter with lead magnets, moderates community discussions, and creates brand storytelling content' },
+  { name: 'Persistence Engine', color: '#06b6d4', icon: RefreshCw, workers: 8, desc: 'Retention, re-engagement, and lifecycle automation', tags: ['Retention', 'Lifecycle', 'Win-back'], example: 'Triggers win-back sequences for churned users, personalizes onboarding drips, and scores engagement health' },
 ]
 
 const STEPS = [
@@ -72,27 +73,18 @@ const STEPS = [
   { num: '04', title: 'Scale With AI', desc: '48 workers execute daily — content, outreach, analytics — while you focus on product', output: 'Watch tasks complete in your live dashboard', icon: Shield },
 ]
 
-const TESTIMONIALS = [
-  { quote: 'Distribution-OS replaced my entire marketing team. I went from 0 to 500 users in 6 weeks using just the Push and Pull engines.', name: 'Sarah Chen', role: 'Founder, DataFlow', initials: 'SC' },
-  { quote: 'The AI workers write better outreach than I ever could. My reply rates tripled after switching from manual DMs.', name: 'Marcus Rivera', role: 'Founder, DevStack', initials: 'MR' },
-  { quote: 'I was spending 20 hours a week on distribution. Now it\'s 2 hours. Distribution-OS handles the rest while I sleep.', name: 'Aisha Patel', role: 'Founder, MailBridge', initials: 'AP' },
-  { quote: 'The Search Engine alone got us listed on 40+ directories in a week. Organic traffic doubled the next month.', name: 'James Wu', role: 'Founder, APIStack', initials: 'JW' },
-  { quote: 'Finally, a tool that understands solo founder constraints. Every playbook is actionable, not theoretical.', name: 'Elena Voss', role: 'Founder, FormCraft', initials: 'EV' },
-  { quote: 'The Persistence Engine saved 35% of our churning users with automated win-back sequences. ROI was immediate.', name: 'Raj Mehta', role: 'Founder, CloudSync', initials: 'RM' },
-]
-
 const TIERS = [
-  { name: 'Free', price: '$0', period: '/forever', desc: 'Get started with zero risk', features: ['1 product', 'All 6 engines', 'Analytics dashboard', 'Community support', '3 AI runs/month', 'Basic playbooks'], cta: 'Start Free', highlighted: false },
-  { name: 'Starter', price: '$19', period: '/month', desc: 'For early-stage founders', features: ['2 products', '15 AI runs/month', 'All playbooks', 'Email support', 'Export reports', 'Competitor tracking'], cta: 'Get Starter', highlighted: false },
-  { name: 'Growth', price: '$49', period: '/month', desc: 'For serious distribution', features: ['5 products', '50 AI runs/month', 'Advanced analytics', 'Priority support (< 4h)', 'All integrations', 'Custom workflows', 'A/B testing', '30-day money-back guarantee'], cta: 'Get Growth', highlighted: true, badge: 'Most Popular' },
-  { name: 'Scale', price: '$99', period: '/month', desc: 'Unlimited everything', features: ['Unlimited products', 'Unlimited AI runs', 'Custom integrations', 'Dedicated support', 'API access', 'White-label reports', 'Team sharing'], cta: 'Get Scale', highlighted: false },
+  { name: 'Free', price: '$0', period: '/forever', desc: 'Get started with zero risk', features: ['1 product', '3 AI runs/month included', 'All 6 engines', 'All playbooks', 'Analytics dashboard', 'Bring your own AI key'], cta: 'Start Free', highlighted: false },
+  { name: 'Starter', price: '$19', period: '/month', desc: 'For early-stage founders', features: ['Everything in Free', '2 products', '15 AI runs/month included'], cta: 'Get Starter', highlighted: false },
+  { name: 'Growth', price: '$49', period: '/month', desc: 'For serious distribution', features: ['Everything in Free', '5 products', '50 AI runs/month included'], cta: 'Get Growth', highlighted: true, badge: 'Recommended' },
+  { name: 'Scale', price: '$99', period: '/month', desc: 'Unlimited everything', features: ['Everything in Free', 'Unlimited products', 'Unlimited AI runs included'], cta: 'Get Scale', highlighted: false },
 ]
 
 const FAQS = [
   { q: 'What exactly are AI workers?', a: 'Each worker is a specialized AI agent trained for a specific distribution task — writing content, analyzing competitors, generating outreach, scoring audits, and more. You get 48 workers across 6 distribution engines.' },
   { q: 'Do I need technical skills?', a: 'Not at all. Distribution-OS is built for non-technical solo founders. Add your product details, and the AI handles strategy, content, and execution.' },
   { q: 'How is this different from ChatGPT?', a: 'ChatGPT is a general assistant. Distribution-OS is a distribution-specific operating system with structured workflows, playbooks, and engines designed specifically to grow your SaaS.' },
-  { q: 'Can I cancel anytime?', a: 'Yes. No contracts, no lock-in. Cancel with one click from your settings page. Your data stays available for 30 days after cancellation.' },
+  { q: 'Can I cancel anytime?', a: 'Yes. No contracts, no lock-in. Your data stays available for 30 days after cancellation.' },
   { q: 'What distribution channels does it cover?', a: 'Six engines: Pull (SEO/content), Push (social/email), Bridge (partnerships), Search (marketplace), Equity (community), and Persistence (retention). Each engine has specialized AI workers.' },
   { q: 'Is my data safe?', a: 'Your data is encrypted at rest and in transit. We use Supabase with row-level security. API keys are proxied through our servers and never stored in your browser.' },
 ]
@@ -139,37 +131,6 @@ function DashboardMockup() {
   )
 }
 
-/* ── Founding Member Badge ── */
-const FOUNDING_TOTAL = 100
-const FOUNDING_CLAIMED = 47 // Update periodically
-
-function FoundingBadge() {
-  const remaining = FOUNDING_TOTAL - FOUNDING_CLAIMED
-  const pct = (FOUNDING_CLAIMED / FOUNDING_TOTAL) * 100
-  return (
-    <Reveal className="max-w-xl mx-auto mb-8">
-      <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.04] p-5 sm:p-6 text-center relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[100px] bg-amber-500/[0.06] blur-[60px] rounded-full pointer-events-none" />
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-[11px] font-bold uppercase tracking-wider mb-3">
-          <Star size={12} className="fill-amber-400 text-amber-400" />
-          Founding Member Pricing
-        </div>
-        <p className="text-white font-semibold text-sm mb-1">Lock in launch prices forever</p>
-        <p className="text-slate-400 text-xs mb-4">First {FOUNDING_TOTAL} members keep their price — even when we raise it.</p>
-        <div className="max-w-xs mx-auto">
-          <div className="flex justify-between text-xs mb-1.5">
-            <span className="text-amber-300 font-medium">{FOUNDING_CLAIMED} claimed</span>
-            <span className="text-slate-500">{remaining} spots left</span>
-          </div>
-          <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-1000" style={{ width: `${pct}%` }} />
-          </div>
-        </div>
-      </div>
-    </Reveal>
-  )
-}
-
 /* ── Inline CTA ── */
 function InlineCta({ text, trust }: { text: string; trust?: string }) {
   return (
@@ -179,32 +140,6 @@ function InlineCta({ text, trust }: { text: string; trust?: string }) {
       </Link>
       {trust && <p className="text-slate-400 text-xs mt-3">{trust}</p>}
     </Reveal>
-  )
-}
-
-/* ── Marquee column for testimonials (CSS animation) ── */
-function MarqueeColumn({ testimonials, speed = 25, className = '' }: { testimonials: typeof TESTIMONIALS; speed?: number; className?: string }) {
-  const doubled = [...testimonials, ...testimonials]
-  return (
-    <div className={`overflow-hidden ${className}`}>
-      <div className="flex flex-col gap-4 animate-marquee" style={{ animationDuration: `${speed}s` }}>
-        {doubled.map(({ quote, name, role, initials }, i) => (
-          <div key={`${name}-${i}`} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 hover:bg-white/[0.04] transition-colors duration-300">
-            <div className="flex gap-1 mb-3">
-              {[...Array(5)].map((_, j) => <Star key={j} size={12} className="text-amber-400 fill-amber-400" />)}
-            </div>
-            <p className="text-slate-300 text-sm leading-relaxed mb-4">&ldquo;{quote}&rdquo;</p>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white text-xs font-bold">{initials}</div>
-              <div>
-                <p className="text-white text-sm font-semibold">{name}</p>
-                <p className="text-slate-500 text-xs">{role}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
   )
 }
 
@@ -431,7 +366,7 @@ export function Landing() {
           </Reveal>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {ENGINES.map(({ name, color, icon: Icon, workers, desc, tags, metric }, i) => (
+            {ENGINES.map(({ name, color, icon: Icon, workers, desc, tags }, i) => (
               <Reveal key={name} delay={i * 60}>
                 <SpotlightCard spotlightColor={`${color}25`} className="rounded-xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-white/[0.01] p-6 transition-all duration-300 hover:border-white/[0.12] h-full">
                   <div className="relative z-10">
@@ -443,7 +378,6 @@ export function Landing() {
                       </div>
                     </div>
                     <p className="text-slate-400 text-sm leading-relaxed mb-3">{desc}</p>
-                    {metric && <p className="text-sm font-bold mb-3" style={{ color }}>{metric}</p>}
                     <div className="flex gap-1.5 flex-wrap">
                       {tags.map(tag => <span key={tag} className="px-2.5 py-0.5 rounded-full text-[11px] border border-white/[0.06] bg-white/[0.02] text-slate-500">{tag}</span>)}
                     </div>
@@ -485,30 +419,8 @@ export function Landing() {
           </div>
         </section>
 
-        {/* ── TESTIMONIALS — Scrolling marquee columns ── */}
-        <section className="py-16 sm:py-20 border-t border-white/[0.04] overflow-hidden">
-          <Reveal>
-            <div className="text-center mb-10 px-4">
-              <p className="text-amber-400 text-sm font-semibold uppercase tracking-wider mb-3">Testimonials</p>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
-                Trusted by Solo Founders{' '}<span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Worldwide</span>
-              </h2>
-            </div>
-          </Reveal>
-          <div className="flex justify-center gap-4 max-w-5xl mx-auto px-4 max-h-[500px]" style={{
-            maskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)',
-            WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)',
-          }}>
-            <MarqueeColumn testimonials={TESTIMONIALS.slice(0, 3)} speed={20} className="w-full sm:w-80" />
-            <MarqueeColumn testimonials={TESTIMONIALS.slice(3, 6)} speed={28} className="w-80 hidden md:block" />
-            <MarqueeColumn testimonials={[...TESTIMONIALS.slice(2, 5)]} speed={24} className="w-80 hidden lg:block" />
-          </div>
-          <InlineCta text="Join Them — Start Free" trust="Free forever, cancel anytime" />
-        </section>
-
         {/* ── PRICING — Inverted featured tier ── */}
         <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20 border-t border-white/[0.04]">
-          <FoundingBadge />
           <Reveal>
             <div className="text-center mb-10">
               <p className="text-indigo-400 text-sm font-semibold uppercase tracking-wider mb-3">Pricing</p>
@@ -536,11 +448,11 @@ export function Landing() {
                     <span className="text-4xl font-black text-white">{price}</span>
                     <span className="text-sm text-slate-500">{period}</span>
                   </div>
-                  <Link to="/signup" className={`w-full py-3 min-h-[44px] rounded-xl text-center text-sm font-semibold transition-all duration-300 mb-6 block ${
+                  <TierCtaButton tierName={name} label={cta} className={`w-full py-3 min-h-[44px] rounded-xl text-center text-sm font-semibold transition-all duration-300 mb-6 block ${
                     highlighted
                       ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]'
                       : 'border border-slate-700 text-slate-300 hover:bg-white/[0.04] hover:border-slate-600'
-                  }`}>{cta}</Link>
+                  }`} />
                   <ul className="space-y-3 flex-1">
                     {features.map(f => (
                       <li key={f} className="flex items-center gap-2.5 text-sm text-slate-400">
@@ -559,7 +471,7 @@ export function Landing() {
               An <span className="text-slate-400 font-medium">AI run</span> is one execution of an AI worker — writing a blog post, auditing your SEO, crafting outreach emails, or analyzing competitors.
             </p>
           </Reveal>
-          <InlineCta text="Start Free — Upgrade Anytime" trust="No credit card required. Cancel in one click." />
+          <InlineCta text="Start Free — Upgrade Anytime" trust="No credit card required." />
         </section>
 
         {/* ── FAQ — Single card with dashed dividers ── */}
@@ -579,7 +491,10 @@ export function Landing() {
                   <ChevronDown size={16} aria-hidden="true" className={`text-slate-500 shrink-0 ml-3 transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 <div className={`grid transition-all duration-200 ${openFaq === i ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-                  <div className="overflow-hidden">
+                  {/* `invisible` when closed: the 0fr grid row clips the answer but the
+                      clipped node still has a box — screen readers and visibility checks
+                      would treat it as shown without an explicit visibility:hidden. */}
+                  <div className={`overflow-hidden ${openFaq === i ? '' : 'invisible'}`}>
                     <div className="px-6 pb-5 text-sm text-slate-400 leading-relaxed">{a}</div>
                   </div>
                 </div>
