@@ -46,7 +46,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: app
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Lint + unit tests
         working-directory: app
@@ -141,7 +141,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: app
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Cache Playwright browsers
         id: playwright-cache
