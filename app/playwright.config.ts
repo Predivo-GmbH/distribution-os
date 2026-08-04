@@ -7,6 +7,10 @@ const stagingUrl = process.env.E2E_STAGING_URL
 
 export default defineConfig({
   testDir: './e2e',
+  // The heavy v11 hardened gates live in e2e/staging/ and run ONLY via
+  // playwright.v11-gates.config.ts (needs DIST_MGMT_TOKEN + a real staging login).
+  // Keep them out of the deploy gauntlet / any bare `npx playwright test`.
+  testIgnore: ['**/staging/**'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

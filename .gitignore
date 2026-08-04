@@ -1,4 +1,5 @@
 app/node_modules/
+app/playwright/.auth/
 supabase/.temp/
 docs/references/*.zip
 docs/references/stripe-reference/
