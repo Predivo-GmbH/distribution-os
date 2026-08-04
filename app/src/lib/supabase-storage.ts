@@ -5,6 +5,7 @@
    ============================================================ */
 
 import { supabase } from '@/lib/supabase'
+import { fetchAllRows } from '@/lib/fetchAllRows'
 import type {
   Product, Task,
   UserPreferences, InboxArtifact, ArtifactStatus,
@@ -46,14 +47,18 @@ supabase.auth.onAuthStateChange((_event, session) => {
 
 export async function loadProducts(): Promise<Product[]> {
   const uid = await getUserId()
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .eq('user_id', uid)
-    .order('created_at', { ascending: true })
-  if (error) throw error
   type ProductRow = Database['public']['Tables']['products']['Row']
-  return ((data ?? []) as ProductRow[]).map(r => ({
+  // Page past the PostgREST 1000-row cap so a user with >1000 products sees them ALL
+  // (silent-truncation bug — v11 Gate I).
+  const data = await fetchAllRows((from, to) =>
+    supabase
+      .from('products')
+      .select('*')
+      .eq('user_id', uid)
+      .order('created_at', { ascending: true })
+      .range(from, to)
+  ) as ProductRow[]
+  return data.map(r => ({
     id: r.id,
     name: r.name,
     description: r.description,
@@ -130,14 +135,17 @@ export async function removeProduct(id: string): Promise<void> {
 
 export async function loadTasks(weekId: string): Promise<Task[]> {
   const uid = await getUserId()
-  const { data, error } = await supabase
-    .from('tasks')
-    .select('*')
-    .eq('user_id', uid)
-    .eq('week_id', weekId)
-  if (error) throw error
   type TaskRow = Database['public']['Tables']['tasks']['Row']
-  return ((data ?? []) as TaskRow[]).map(r => ({
+  // Page past the PostgREST 1000-row cap (v11 Gate I).
+  const data = await fetchAllRows((from, to) =>
+    supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', uid)
+      .eq('week_id', weekId)
+      .range(from, to)
+  ) as TaskRow[]
+  return data.map(r => ({
     id: r.id,
     productId: r.product_id,
     engine: r.engine as Engine,
@@ -218,14 +226,18 @@ export async function saveUserPreferences(prefs: UserPreferences): Promise<void>
 
 export async function loadInboxArtifacts(): Promise<InboxArtifact[]> {
   const uid = await getUserId()
-  const { data, error } = await supabase
-    .from('inbox_artifacts')
-    .select('*')
-    .eq('user_id', uid)
-    .order('generated_at', { ascending: false })
-  if (error) throw error
   type ArtifactRow = Database['public']['Tables']['inbox_artifacts']['Row']
-  return ((data ?? []) as ArtifactRow[]).map(r => ({
+  // Page past the PostgREST 1000-row cap so long-running accounts see ALL artifacts
+  // (silent-truncation bug — v11 Gate I).
+  const data = await fetchAllRows((from, to) =>
+    supabase
+      .from('inbox_artifacts')
+      .select('*')
+      .eq('user_id', uid)
+      .order('generated_at', { ascending: false })
+      .range(from, to)
+  ) as ArtifactRow[]
+  return data.map(r => ({
     id: r.id,
     productId: r.product_id,
     engine: r.engine as Engine,
