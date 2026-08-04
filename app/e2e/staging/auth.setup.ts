@@ -17,9 +17,10 @@ import { test as setup, expect } from '@playwright/test'
 const AUTH_FILE = 'playwright/.auth/staging-user.json'
 
 const SUPABASE_URL = process.env.E2E_SUPABASE_URL || 'https://jckctrtkstejolddqzlk.supabase.co'
-// anon key is client-safe (embedded in every browser bundle); env-overridable for rotation.
-const ANON_KEY = process.env.STAGING_SUPABASE_ANON_KEY
-  || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impja2N0cnRrc3Rlam9sZGRxemxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MTk2MjIsImV4cCI6MjEwMDk5NTYyMn0.p5CkT07WpbEk01Tcm15fICJws-UsbyEkaReXHzVMWok'
+// anon key is client-safe (embedded in every browser bundle) but still not hardcoded here
+// — gitleaks' generic jwt rule flags any inline JWT. Supplied via env (STAGING_SUPABASE_ANON_KEY
+// from the STAGING_VITE_SUPABASE_ANON_KEY secret in CI; export it for local runs).
+const ANON_KEY = process.env.STAGING_SUPABASE_ANON_KEY || ''
 
 const REF = (SUPABASE_URL.match(/https?:\/\/([a-z0-9]+)\.supabase\.co/i)?.[1]) || 'jckctrtkstejolddqzlk'
 const EMAIL = process.env.STAGING_TEST_EMAIL || 'e2e-test@distributionos-test.local'
@@ -27,6 +28,7 @@ const PASSWORD = process.env.STAGING_TEST_PASSWORD || ''
 
 setup('authenticate on staging', async ({ page }) => {
   expect(PASSWORD, 'STAGING_TEST_PASSWORD must be set').not.toBe('')
+  expect(ANON_KEY, 'STAGING_SUPABASE_ANON_KEY must be set').not.toBe('')
 
   const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
     method: 'POST',
