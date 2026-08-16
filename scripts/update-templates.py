@@ -1,8 +1,10 @@
 """Update Distribution-OS email templates: correct subject format, deep links, OTP copyability."""
-import urllib.request, json
+import urllib.request, json, os
 
 ref = 'jxjpbmkgmuunpayqgbsx'
-token = 'sbp_a41ca66c2e931965a241edb2e5ea19e5b249d283'
+# Supabase Management PAT — provide via env, never hardcode. The previously
+# hardcoded token was revoked (dead) and removed 2026-08-16 (gate-security).
+token = os.environ['SUPABASE_ACCESS_TOKEN']
 
 BRAND = '#6C5CE7'
 FONT = "Segoe UI,-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,Arial,sans-serif"
