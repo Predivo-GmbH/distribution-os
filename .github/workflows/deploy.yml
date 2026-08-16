@@ -1,13 +1,16 @@
 name: Deploy to Production
 
+# PRODUCTION is a MANUAL promotion (fleet standard, 2026-08-16). A push to
+# `master` no longer auto-deploys prod — promote with:
+#   gh workflow run deploy.yml -f confirm=deploy
+# Staging stays branch-based (push `staging` -> deploy-staging.yml). Prod is
+# gated behind gate-security (secret scan + dependency audit).
 on:
-  push:
-    branches: [master]
-    paths-ignore:
-      - '*.md'
-      - 'docs/**'
-      - 'LICENSE'
-      - '.gitignore'
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "deploy" to confirm PRODUCTION deploy'
+        required: true
 
 concurrency:
   group: deploy-production
@@ -16,7 +19,39 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # SECURITY GATE — secret scan + dependency audit; the prod `deploy` job needs
+  # it, so prod cannot ship with a committed secret or a critical-severity
+  # advisory. Rolled out 2026-08-16 (fleet hardening); mirrors ReplyFlow/CM.
+  # Audit floors at `critical` (0 today); tighten to `high` after the fleet
+  # high-severity sweep (9 pre-existing highs).
+  gate-security:
+    if: github.event.inputs.confirm == 'deploy'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Install gitleaks
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz | tar -xz -C /tmp gitleaks
+          chmod +x /tmp/gitleaks
+      - name: 'Secret scan: working tree (BLOCKING - new committed-file leaks)'
+        run: /tmp/gitleaks dir . --no-banner --redact --exit-code 1
+      - name: 'Secret scan: full history (AUDIT only, non-blocking)'
+        run: /tmp/gitleaks git . --no-banner --redact --log-opts=--all --exit-code 0 || true
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Dependency audit (blocking at critical; tighten to high after the fleet high-severity sweep)
+        run: npm audit --audit-level=critical
+        working-directory: app
+
   deploy:
+    if: github.event.inputs.confirm == 'deploy'
+    needs: [gate-security]
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -55,7 +90,6 @@ jobs:
       - name: Feature Coverage Check
         run: node scripts/check-feature-coverage.mjs
         working-directory: app
-        continue-on-error: true
 
       - name: Build
         run: npm run build
