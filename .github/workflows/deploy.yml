@@ -22,8 +22,7 @@ jobs:
   # SECURITY GATE — secret scan + dependency audit; the prod `deploy` job needs
   # it, so prod cannot ship with a committed secret or a critical-severity
   # advisory. Rolled out 2026-08-16 (fleet hardening); mirrors ReplyFlow/CM.
-  # Audit floors at `critical` (0 today); tighten to `high` after the fleet
-  # high-severity sweep (9 pre-existing highs).
+  # Audit floor now at `high` (fleet-hardening Wave 3).
   gate-security:
     if: github.event.inputs.confirm == 'deploy'
     runs-on: ubuntu-latest
@@ -45,8 +44,8 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: app/package-lock.json
-      - name: Dependency audit (blocking at critical; tighten to high after the fleet high-severity sweep)
-        run: npm audit --audit-level=critical
+      - name: Dependency audit (blocking at high)
+        run: npm audit --audit-level=high
         working-directory: app
       # SAST — code-level security (fleet-hardening Wave 2, proven route from project-starter).
       # A different layer than npm audit (deps) + gitleaks (secrets in git): semgrep reads OUR
