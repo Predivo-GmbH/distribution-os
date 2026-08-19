@@ -1,0 +1,35 @@
+name: Keep Supabase Alive (staging)
+
+# Rule 26: free-tier Supabase projects pause after ~1 week of inactivity — the
+# weekly v11 Staging Gates cadence is not enough (staging ref jckctrtkstejolddqzlk
+# auto-paused 2026-08-10 → 2026-08-17, turning the gates red with ENOTFOUND).
+# This runs a REAL DB query daily (select 1 via the Management API, same pattern
+# as e2e/staging/v11-gates.spec.ts) — an auth-only ping does NOT prevent pausing.
+
+on:
+  schedule:
+    - cron: '45 8 * * *' # Daily at 08:45 UTC (offset from the fleet's other keep-alives)
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping staging Supabase (real DB query via Management API)
+        env:
+          STAGING_REF: jckctrtkstejolddqzlk
+          DIST_MGMT_TOKEN: ${{ secrets.DIST_MGMT_TOKEN }}
+        run: |
+          response=$(curl -s -o /tmp/ping.json -w "%{http_code}" \
+            -X POST "https://api.supabase.com/v1/projects/${STAGING_REF}/database/query" \
+            -H "Authorization: Bearer ${DIST_MGMT_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{"query":"select 1"}')
+          echo "Management API query response: $response"
+          cat /tmp/ping.json
+          if [ "$response" != "200" ] && [ "$response" != "201" ]; then
+            echo "::error::Staging Supabase ping returned $response — project may be paused (restore: POST /v1/projects/${STAGING_REF}/restore)"
+            exit 1
+          fi
+          echo "Staging Supabase project pinged successfully — real DB activity registered"
