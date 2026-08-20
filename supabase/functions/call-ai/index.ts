@@ -4,6 +4,7 @@ import { TIER_LIMITS, type SubscriptionTier } from '../_shared/tier-map.ts'
 import { logAnthropicUsage } from '../_shared/log-usage.ts'
 import { callByo, BYO_PROVIDERS, type ByoProvider } from '../_shared/byo-provider.ts'
 import { decryptSecret } from '../_shared/crypto.ts'
+import { logError } from '../_shared/error-log.ts'
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') || ''
 
@@ -145,6 +146,7 @@ Deno.serve(async (req: Request) => {
       usage: result.usage,
     })
   } catch (err) {
+    await logError('call-ai', 'call', err)
     return new Response(JSON.stringify({ error: `Internal error: ${err instanceof Error ? err.message : String(err)}` }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },

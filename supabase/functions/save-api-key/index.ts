@@ -2,6 +2,7 @@ import { handleCors, createJsonResponse } from '../_shared/cors.ts'
 import { getSupabaseAdmin } from '../_shared/supabaseAdmin.ts'
 import { BYO_PROVIDERS, providerConflict, type ByoProvider } from '../_shared/byo-provider.ts'
 import { encryptSecret } from '../_shared/crypto.ts'
+import { logError } from '../_shared/error-log.ts'
 
 /**
  * Stores a user's BYO API key + provider, ENCRYPTED at rest (AES-256-GCM via _shared/crypto).
@@ -50,6 +51,7 @@ Deno.serve(async (req: Request) => {
 
     return createJsonResponse(req, { ok: true, provider })
   } catch (err) {
+    await logError('save-api-key', 'save-key', err)
     return new Response(JSON.stringify({ error: `Internal error: ${err instanceof Error ? err.message : String(err)}` }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },

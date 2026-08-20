@@ -7,6 +7,7 @@
  */
 
 import { sendEmail } from '../_shared/emailClient.ts'
+import { logError } from '../_shared/error-log.ts'
 
 const HOOK_SECRET = Deno.env.get('SEND_EMAIL_HOOK_SECRET')
 if (!HOOK_SECRET) console.warn('SEND_EMAIL_HOOK_SECRET is not set — all webhook requests will be rejected')
@@ -256,6 +257,7 @@ Deno.serve(async (req) => {
       headers: { 'Content-Type': 'application/json' },
     })
   } catch (err) {
+    await logError('send-auth-email', 'send', err)
     console.error('Failed to send auth email to ' + email + ':', (err as Error).message)
     return new Response(
       JSON.stringify({ error: (err as Error).message }),
