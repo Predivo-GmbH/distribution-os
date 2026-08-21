@@ -72,6 +72,14 @@ jobs:
           cache: npm
           cache-dependency-path: app/package-lock.json
 
+      # Migrations ship BEFORE any code (ReplyFlow drift fix 2026-08-21, proven
+      # BackOffice route): the database is migrated first, so a migration failure
+      # fails the deploy loudly instead of shipping code against a stale schema.
+      - name: Apply database migrations to production
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: node scripts/apply-migrations.mjs --project-ref jxjpbmkgmuunpayqgbsx
+
       - name: Cache node_modules
         id: node-cache
         uses: actions/cache@v5
