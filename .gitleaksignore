@@ -1,0 +1,14 @@
+# gitleaks allowlist — verified false-positives / public-by-design values.
+# Format: <file>:<rule>:<line>  (gitleaks `dir`-mode fingerprints)
+# Added 2026-08-16 during the fleet-hardening gate-security rollout. Each entry
+# was individually classified; a real secret is NEVER added here.
+
+# app/.env.test — E2E test env holding PUBLIC-by-design keys (safe in client bundles):
+#   line 8 = Supabase anon/publishable key (sb_publishable_..., RLS-protected)
+#   line 9 = Stripe PUBLISHABLE key (pk_live_..., meant for the browser; the SECRET is sk_live_ and stays caught)
+app/.env.test:generic-api-key:8
+app/.env.test:generic-api-key:9
+
+# PasswordGate.tsx line 7 = a SHA-256 HASH of the client-side early-access code
+# (in-file comment: "never store plaintext"). Not a secret; the gate is disabled in prod.
+app/src/components/shared/PasswordGate.tsx:generic-api-key:7

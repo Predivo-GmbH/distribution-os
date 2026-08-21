@@ -1,6 +1,7 @@
 import { handleCors, createJsonResponse } from '../_shared/cors.ts'
 import { getSupabaseAdmin } from '../_shared/supabaseAdmin.ts'
 import Stripe from 'https://esm.sh/stripe@17?target=deno'
+import { logError } from '../_shared/error-log.ts'
 
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
 if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY env var')
@@ -59,6 +60,7 @@ Deno.serve(async (req: Request) => {
 
     return createJsonResponse(req, { url: session.url })
   } catch (err) {
+    await logError('stripe-portal', 'portal-session', err)
     return createJsonResponse(req, { error: 'Portal session creation failed' }, 500)
   }
 })

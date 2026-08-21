@@ -1,0 +1,46 @@
+# Edge function config.
+#
+# ADDED 2026-08-20, and it is a latent-production-break fix, not boilerplate.
+#
+# This repo had NO config.toml at all, while production had two functions running with
+# verify_jwt = false. `supabase functions deploy` applies config.toml and defaults anything
+# undeclared to verify_jwt = true, so the next bulk deploy by anyone would silently have
+# flipped both to true:
+#
+#   stripe-webhook   Stripe sends no user JWT. Flipping this to true makes every webhook
+#                    401, so subscription/payment events stop being applied. Silent revenue
+#                    loss: Stripe retries for a while, then gives up.
+#   send-auth-email  Supabase's Send Email Hook calls this without a user JWT. Flipping it
+#                    to true breaks confirmation, recovery and OTP emails, i.e. nobody can
+#                    log in or sign up.
+#
+# Live state read from the Management API on 2026-08-20 and written down here verbatim, so
+# the repo now matches production instead of quietly disagreeing with it:
+#
+#   stripe-checkout  verify_jwt=true    (declared below for the same reason: explicit beats default)
+#   stripe-webhook   verify_jwt=false
+#   stripe-portal    verify_jwt=true
+#   send-auth-email  verify_jwt=false
+#   call-ai          verify_jwt=true
+#   save-api-key     verify_jwt=true
+#
+# If you change any of these, change production too, and vice versa. A config.toml that
+# disagrees with live is worse than none, because it looks authoritative.
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.send-auth-email]
+verify_jwt = false
+
+[functions.stripe-checkout]
+verify_jwt = true
+
+[functions.stripe-portal]
+verify_jwt = true
+
+[functions.call-ai]
+verify_jwt = true
+
+[functions.save-api-key]
+verify_jwt = true

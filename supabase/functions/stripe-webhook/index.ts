@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from '../_shared/supabaseAdmin.ts'
 import { PRICE_TO_TIER, type SubscriptionTier } from '../_shared/tier-map.ts'
 import Stripe from 'https://esm.sh/stripe@17?target=deno'
+import { logError } from '../_shared/error-log.ts'
 
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
 if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY env var')
@@ -36,6 +37,7 @@ Deno.serve(async (req: Request) => {
   try {
     event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret)
   } catch (err) {
+    await logError('stripe-webhook', 'signature-verify', err)
     return new Response('Webhook verification failed', { status: 400 })
   }
 
