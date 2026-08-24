@@ -160,7 +160,7 @@ jobs:
             OUT=$(timeout 420 lftp -e "
               $FTP_CONN
               put /tmp/.htpasswd -o /${STAGING_DOCROOT}/.htpasswd;
-              mirror --reverse --delete --no-perms --verbose --exclude .htpasswd --exclude cgi-bin/ ./app/dist/ /${STAGING_DOCROOT}/;
+              mirror --reverse --no-perms --verbose ./app/dist/assets/ /${STAGING_DOCROOT}/assets/; mirror --reverse --delete --no-perms --verbose --exclude .htpasswd --exclude cgi-bin/ ./app/dist/ /${STAGING_DOCROOT}/;
               bye" 2>&1)
             CODE=$?
             echo "$OUT" | tail -5
