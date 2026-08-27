@@ -13,7 +13,7 @@ on:
 
 jobs:
   ping:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 5
     steps:
       - name: Ping staging Supabase (real DB query via Management API)

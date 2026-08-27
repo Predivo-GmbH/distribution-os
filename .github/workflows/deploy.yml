@@ -25,7 +25,7 @@ jobs:
   # Audit floor now at `high` (fleet-hardening Wave 3).
   gate-security:
     if: github.event.inputs.confirm == 'deploy'
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
@@ -36,7 +36,7 @@ jobs:
           curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz | tar -xz -C /tmp gitleaks
           chmod +x /tmp/gitleaks
       - name: 'Secret scan: working tree (BLOCKING - new committed-file leaks)'
-        run: /tmp/gitleaks dir . --no-banner --redact --exit-code 1
+        run: /tmp/gitleaks dir . --no-banner --redact -v --exit-code 1
       - name: 'Secret scan: full history (AUDIT only, non-blocking)'
         run: /tmp/gitleaks git . --no-banner --redact --log-opts=--all --exit-code 0 || true
       - uses: actions/setup-node@v5
@@ -54,13 +54,14 @@ jobs:
       # --error fails the gate on a real finding.
       - name: SAST scan (semgrep)
         run: |
-          python3 -m pip install --quiet semgrep
+          python3 -m pip install --quiet --user --break-system-packages semgrep
+          export PATH="$HOME/.local/bin:$PATH"
           semgrep scan --config=p/security-audit --config=p/secrets --severity=ERROR --error --metrics=off .
 
   deploy:
     if: github.event.inputs.confirm == 'deploy'
     needs: [gate-security]
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 20
 
     steps:
