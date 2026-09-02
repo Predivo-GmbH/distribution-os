@@ -75,6 +75,14 @@ jobs:
       - name: Run critical path tests
         run: npx playwright test e2e/critical-path.spec.ts
         env:
+          # SAY WHAT WE BUILT. This spec used to default to https://distributionos.predivo.ch. The
+          # one BASE_URL line in this repository is in deploy-staging.yml, on the step that runs
+          # the staging smoke specs - a different step, so it never reached this one and the
+          # fallback won here on every run. "Is it set somewhere" is the wrong question; "is it set
+          # on the step that runs THIS file" is the right one. e2e/base-url.ts now REFUSES to start
+          # in CI when this is missing. Port 5183 is what playwright.config.ts starts its webServer
+          # on.
+          BASE_URL: http://localhost:5183
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
