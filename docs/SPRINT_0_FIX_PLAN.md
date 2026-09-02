@@ -39,7 +39,7 @@
 | 17 | Tier Gating | Pricing page shows $0/$19, not $29/$99/$199 | `app/src/pages/Pricing.tsx:92-93` | Rewrite for 3-tier model |
 | 18 | API Keys | `anthropic-dangerous-direct-browser-access` header | `app/src/lib/ai/worker-base.ts:106` | Delete after edge proxy deployed |
 | 19 | Scheduler | Browser-only — dies when tab closes | `app/src/hooks/useScheduler.ts` | Migrate to pg_cron + Edge Functions |
-| 20 | Hardcoded | PasswordGate with hardcoded `predivo2026` | `app/src/components/shared/PasswordGate.tsx:7` | Add env-var toggle, remove for prod |
+| 20 | Hardcoded | PasswordGate with hardcoded `(value retired 2026-09-02 - each app now has its own, see that app's docs/Credentials.txt)` | `app/src/components/shared/PasswordGate.tsx:7` | Add env-var toggle, remove for prod |
 | 21 | Hardcoded | `.env` with live credentials committed | `app/.env` | Add to .gitignore, use CI secrets |
 | 22 | Storage | No conflict resolution (last-write-wins) | `app/src/lib/supabase-storage.ts` | Add `updated_at` timestamp comparison |
 
