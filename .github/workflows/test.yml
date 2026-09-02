@@ -83,8 +83,14 @@ jobs:
           echo "E2E_PORT=$PORT" >> "$GITHUB_ENV"
           echo "dev server port: $PORT"
 
-      - name: Run critical path tests
-        run: npx playwright test e2e/critical-path.spec.ts
+      # password-gate.spec.ts is run here as well as critical-path. It is the only
+      # spec that types the live access code, and until 2026-09-02 nothing ran it,
+      # so the DISTOS_GATE_PASSWORD secret existed but was consumed by no job — the
+      # gate could break, or the secret could go stale, with nothing to say so.
+      # The spec throws a named error when DISTOS_GATE_PASSWORD is unset, so a
+      # missing or deleted secret fails this step loudly instead of passing empty.
+      - name: Run critical path and password-gate tests
+        run: npx playwright test e2e/critical-path.spec.ts e2e/password-gate.spec.ts
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
@@ -93,6 +99,7 @@ jobs:
           E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          DISTOS_GATE_PASSWORD: ${{ secrets.DISTOS_GATE_PASSWORD }}
 
       - name: Upload test results
         if: failure()
