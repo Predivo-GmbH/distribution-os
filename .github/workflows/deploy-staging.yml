@@ -329,9 +329,12 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('app/package-lock.json') }}
 
+      # No cache-hit guard. On GitHub's throwaway machines, skipping the install on a cache
+      # hit is a safe optimisation. On a persistent self-hosted runner it is a correctness
+      # bug: the cache reports a hit while ~/.cache/ms-playwright holds a DIFFERENT browser
+      # build, the install is skipped, and every test dies with "Executable doesn't exist".
       - name: Install Playwright
         working-directory: app
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: |
           # --with-deps shells out to `sudo apt-get`. On our self-hosted runner the runner
           # user's sudo is deliberately narrow, because these jobs execute repository code
