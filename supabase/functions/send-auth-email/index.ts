@@ -192,12 +192,18 @@ function getEmailContent(payload: AuthEmailPayload): { subject: string; html: st
 }
 
 // Decode Standard Webhooks secret: "whsec_<base64>" or "v1,whsec_<base64>" → raw bytes
-function decodeHookSecret(secret: string): Uint8Array {
+function decodeHookSecret(secret: string): Uint8Array<ArrayBuffer> {
   let b64 = secret
   if (b64.startsWith('v1,')) b64 = b64.slice(3)
   if (b64.startsWith('whsec_')) b64 = b64.slice(6)
   const raw = atob(b64)
-  const bytes = new Uint8Array(raw.length)
+  // Backed by an explicit ArrayBuffer, not `new Uint8Array(length)`. Under the TypeScript 6 lib
+  // that Deno 2.9.5 ships, `Uint8Array` is generic over ArrayBufferLike and `BufferSource` wants
+  // `ArrayBufferView<ArrayBuffer>`, so the length form no longer satisfies crypto.subtle.importKey.
+  // Measured 2026-09-03 against the exact Deno the deploy workflow pins: this ONE pre-existing
+  // error failed `deno check`, and that step gates the deploy — so the repo's only route to
+  // production for this function was blocked before anyone tried to use it.
+  const bytes = new Uint8Array(new ArrayBuffer(raw.length))
   for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i)
   return bytes
 }
