@@ -1,0 +1,210 @@
+name: Deploy edge functions
+
+# WHY THIS EXISTS (2026-09-03). Distribution-OS was the last product in the fleet whose server
+# functions reached users ONLY when a person remembered to type
+# `supabase functions deploy --project-ref <ref>` by hand. CI applies migrations on both paths
+# (deploy.yml, deploy-staging.yml) and has never deployed a function. A hand step gets skipped:
+# the identical gap stranded a real BackOffice fix for NINE DAYS, and a client-data leak stayed
+# live six days behind a merged fix for the same reason.
+#
+# Roger settled the ownership question on 2026-09-03: Distribution-OS is OURS to release, the
+# same arrangement as BackOffice. This workflow is the mechanical consequence of that decision.
+#
+# THIS IS A COPY OF BackOffice/.github/workflows/deploy-edge-functions.yml, on purpose, with only
+# the project refs and the secrets step changed. Every comment below it inherits was paid for by
+# a real outage in this fleet; do not "clean them up". Diff the two files before changing either.
+#
+# DELIBERATELY NOT AUTOMATIC, AND DELIBERATELY NOT BULK. A repo whose functions have always been
+# deployed by hand accumulates config.toml drift: the committed verify_jwt can disagree with what
+# is live. A bulk `supabase functions deploy` would silently push that drift over the live
+# settings and could open or close auth on functions nobody was touching — and this repo has
+# `send-auth-email` in it, where getting that wrong means an open mail relay. So:
+#   - workflow_dispatch only, never on push
+#   - `functions` is REQUIRED with no default: you must name what you are deploying
+# Deploy the function you changed. Nothing else.
+
+on:
+  workflow_dispatch:
+    inputs:
+      functions:
+        description: 'Space-separated function names to deploy (e.g. "stripe-webhook"). No default on purpose.'
+        required: true
+      target:
+        description: 'staging or production'
+        required: true
+        default: 'staging'
+        type: choice
+        options: [staging, production]
+      confirm:
+        description: 'For production only: type "deploy" to confirm'
+        required: false
+        default: ''
+
+jobs:
+  deploy:
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - name: Resolve target project and guard production
+        id: target
+        run: |
+          set -e
+          if [ "${{ inputs.target }}" = "production" ]; then
+            if [ "${{ inputs.confirm }}" != "deploy" ]; then
+              echo "::error::Production deploy requires confirm=\"deploy\". Nothing was deployed."
+              exit 1
+            fi
+            # Production project ref, read from deploy.yml:124 (apply-migrations) 2026-09-03.
+            echo "ref=jxjpbmkgmuunpayqgbsx" >> "$GITHUB_OUTPUT"
+          else
+            # Staging project ref, read from deploy-staging.yml:101 the same way.
+            echo "ref=jckctrtkstejolddqzlk" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Reject an empty or wildcard function list
+        run: |
+          set -e
+          FNS="${{ inputs.functions }}"
+          case "$FNS" in
+            ''|'*'|'all'|'--all')
+              echo "::error::Name the functions explicitly. A bulk deploy would push committed config.toml verify_jwt values over whatever is live."
+              exit 1 ;;
+          esac
+          echo "Will deploy: $FNS"
+
+      - uses: actions/checkout@v5
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Verify every named function exists in this repo
+        run: |
+          set -e
+          for fn in ${{ inputs.functions }}; do
+            if [ ! -f "supabase/functions/$fn/index.ts" ]; then
+              echo "::error::supabase/functions/$fn/index.ts does not exist. Nothing was deployed."
+              exit 1
+            fi
+          done
+
+      # `supabase functions deploy` bundles with esbuild and does NOT type-check, so a scope error
+      # type-checks fine to it and crashes only at runtime — in BackOffice a const-in-try read from
+      # a sibling catch (2026-08-24) aborted a whole batch and suppressed its own alarm.
+      # `deno check` catches exactly that at compile time.
+      # PINNED, NOT FLOATING. A floating `v2.x` makes the gate whatever Deno shipped that morning,
+      # and a Deno bump is a TypeScript bump: the same commit passes on Tuesday and blocks on
+      # Thursday with nothing in the repo having changed. Bump this deliberately, in a commit,
+      # having watched it go green.
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: 2.9.5
+
+      # FETCH THE TYPES BEFORE CHECKING THEM. A dependency whose bundled declarations carry
+      # `/// <reference types="node" />` resolves that reference through NODE resolution, not
+      # through the URL the module came from, so `deno check` needs a node_modules to exist.
+      # `deno install --entrypoint` does what the error asks for. In BackOffice this cost a real
+      # money-bug fix four days: a gate that blocks on its own plumbing is not a gate, it is an
+      # outage with a green rationale.
+      #
+      # AND IT RUNS AWAY FROM THE FRONTEND'S LOCKFILE. Run in the repo root, Deno finds the React
+      # app's package-lock.json, seeds a deno.lock from it and then refuses its own seed. The edge
+      # functions are a separate Deno program that happens to live inside a Node repo; the browser
+      # bundle's dependency tree has no business deciding whether they type-check. So the check
+      # runs on a COPY in a scratch directory, with `_shared` copied alongside so relative imports
+      # resolve exactly as they do in the real tree.
+      #
+      # `|| true`, deliberately: this step exists to type-check, not to install. A dependency that
+      # cannot be fetched must fail on `deno check` with the real reason, never on a setup line.
+      - name: Type-check the functions being deployed
+        run: |
+          set -e
+          WORK="$(mktemp -d)"
+          cp -r supabase/functions "$WORK/functions"
+          for fn in ${{ inputs.functions }}; do
+            echo "::group::deno check $fn"
+            ( cd "$WORK" && deno install --entrypoint "functions/$fn/index.ts" || true )
+            ( cd "$WORK" && deno check "functions/$fn/index.ts" )
+            echo "::endgroup::"
+          done
+          rm -rf "$WORK"
+
+      # EVERY function guard runs before ANYTHING deploys, and the list is DISCOVERED, not typed.
+      # In BackOffice exactly one test file was named here for weeks, so a guard written to stop
+      # the deploy page telling Roger things that are not true was run by nothing at all for as
+      # long as it existed. A guard nobody executes only looks like coverage. Globbing means a new
+      # *.test.mjs is picked up the moment it is added, with nobody having to remember this file.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Run every edge-function guard
+        run: |
+          set -e
+          shopt -s globstar nullglob
+          found=0
+          for f in supabase/functions/**/*.test.mjs; do
+            echo "--- $f"
+            node --experimental-strip-types "$f"
+            found=$((found+1))
+          done
+          # ABSENCE IS NOT SUCCESS. If the glob matches nothing, something moved or broke and this
+          # step would otherwise pass silently while proving nothing.
+          if [ "$found" -eq 0 ]; then
+            echo "::error::no *.test.mjs found under supabase/functions - the guards are not running"
+            exit 1
+          fi
+          echo "ran $found guard suite(s)"
+
+      # NO STEP HERE WRITES FUNCTION ENVIRONMENT VARIABLES, and that is a decision, not an
+      # omission. BackOffice's copy of this workflow
+      # pushes one intake secret at that point; this repo has no secret of that kind, and a step that
+      # writes function env from repo secrets is exactly how a rotation goes half-done. The
+      # function env for this project is managed directly and read back with
+      # `GET /v1/projects/{ref}/secrets`, which returns SHA-256 digests — a value can be CONFIRMED
+      # by comparing digests without ever being rendered.
+
+      - name: Deploy
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -e
+          for fn in ${{ inputs.functions }}; do
+            echo "::group::deploy $fn"
+            # --use-api bundles server-side instead of pulling ghcr.io/supabase/edge-runtime and
+            # bundling in a local container. On a self-hosted WSL runner the Docker credential
+            # helper is a Windows binary with no logon session behind it, so every pull died with
+            # "error getting credentials ... A specified logon session does not exist" and no
+            # function could ship from CI (2026-08-25). Deploying through the API keeps a Docker
+            # daemon from being a hard CI dependency.
+            supabase functions deploy "$fn" --use-api --project-ref ${{ steps.target.outputs.ref }}
+            echo "::endgroup::"
+          done
+
+      - name: Prove the function answers
+        run: |
+          set -e
+          # A deploy that reports success but leaves a function that cannot be reached is the
+          # exact failure this fleet keeps hitting. Ask each one for a health ping.
+          FAILED=""
+          for fn in ${{ inputs.functions }}; do
+            URL="https://${{ steps.target.outputs.ref }}.supabase.co/functions/v1/$fn"
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$URL" \
+              -H "Content-Type: application/json" -d '{"_health":true}')
+            echo "$fn -> HTTP $CODE"
+            # The probe deliberately sends a body no function accepts, so the question is only
+            # "did something answer". 2xx = healthy; 4xx = reached the function and it rejected the
+            # payload, which is a LIVE function doing its job — 401 for auth, 400 for validation.
+            # 404 is the exception: that is the function not being there. 5xx and 000 (no answer at
+            # all) are dead. The accepted list is wide on purpose: a gate that goes red on a
+            # healthy deploy is a gate people learn to scroll past, which is worse than none.
+            case "$CODE" in
+              2??|400|401|403|405|409|422|429) ;;
+              *) echo "::error::$fn did not answer after deploy (HTTP $CODE)."; FAILED="$FAILED $fn" ;;
+            esac
+          done
+          # Every function is probed before the step fails, so one bad name cannot hide the state
+          # of the ones after it — the trap where a batch half-shipped and nobody re-ran the rest.
+          if [ -n "$FAILED" ]; then
+            echo "::error::Not answering after deploy:$FAILED"
+            exit 1
+          fi
