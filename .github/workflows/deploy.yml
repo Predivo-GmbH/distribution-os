@@ -42,8 +42,6 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: app/package-lock.json
       - name: Dependency audit (blocking at high)
         run: npm audit --audit-level=high
         working-directory: app
