@@ -131,7 +131,7 @@ jobs:
           # on the step that runs THIS file" is the right one. e2e/base-url.ts now REFUSES to start
           # in CI when this is missing. Port 5183 is what playwright.config.ts starts its webServer
           # on.
-          BASE_URL: http://localhost:5183
+          BASE_URL: http://localhost:${{ env.E2E_PORT }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
