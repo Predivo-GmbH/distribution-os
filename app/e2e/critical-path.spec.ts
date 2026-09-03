@@ -22,7 +22,7 @@ const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
 const E2E_EMAIL = process.env.E2E_TEST_EMAIL || 'e2e-test@distributionos.predivo.ch'
 const E2E_PASSWORD = process.env.E2E_TEST_PASSWORD ?? ''
 const E2E_USER_ID = '6ffcc8aa-7518-44d0-ac1c-db4a1651ad90'
-const BASE_URL = process.env.BASE_URL || 'https://distributionos.predivo.ch'
+import { BASE_URL } from './base-url'
 
 const EDGE_FUNCTIONS = [
   // 'ai-proxy' deleted 2026-07-21: orphaned duplicate of call-ai with no quota
