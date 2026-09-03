@@ -3,7 +3,7 @@
 **Purpose:** Step-by-step guide for Roger to test the entire system as a real user would experience it. Each test case has a concrete action, expected result, and a pass/fail checkbox.
 
 **URL:** https://distributionos.predivo.ch
-**Password Gate:** `predivo2026`
+**Password Gate:** `(value retired 2026-09-02 - each app now has its own, see that app's docs/Credentials.txt)`
 
 ---
 
@@ -24,7 +24,7 @@
 |---|--------|----------------|-----------|
 | 1 | Open https://distributionos.predivo.ch | "Early Access" gate appears, password input field focused | |
 | 2 | Type `wrong` and press Enter | Error message "Incorrect code. Try again." Input clears. | |
-| 3 | Type `predivo2026` and press Enter | Gate disappears, landing page loads | |
+| 3 | Type `(value retired 2026-09-02 - each app now has its own, see that app's docs/Credentials.txt)` and press Enter | Gate disappears, landing page loads | |
 | 4 | Refresh the page | Landing page loads directly (no gate — session remembered) | |
 
 ### 1.2 Landing Page

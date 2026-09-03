@@ -5,7 +5,7 @@ import { APP_NAME } from '@/lib/app-config'
 
 // SHA-256 hex hash of the access code (never store plaintext)
 const PASSWORD_HASH =
-  '3bd8037a8ed38a35825983767f94e6cf3b18c3deee1601daee71faec0d83565f'
+  'bf194a2edae59994d210a808e2637f98f82c3d77188d31993ad8acf2c4fe983a'
 const SESSION_KEY = 'distribution-os-dev-access'
 
 async function sha256(message: string): Promise<string> {

@@ -22,7 +22,7 @@
 |----|---------|----------|--------|
 | AUTH-001 | Password Gate — blocks unauthenticated visitors | `password-gate.spec.ts:"shows gate when not authenticated"` | COVERED |
 | AUTH-002 | Password Gate — rejects incorrect code with error message | `password-gate.spec.ts:"rejects incorrect password"` | COVERED |
-| AUTH-003 | Password Gate — accepts correct code ("predivo2026") and shows app | `password-gate.spec.ts:"accepts correct password and shows app"` | COVERED |
+| AUTH-003 | Password Gate — accepts correct code ("(value retired 2026-09-02 - each app now has its own, see that app's docs/Credentials.txt)") and shows app | `password-gate.spec.ts:"accepts correct password and shows app"` | COVERED |
 | AUTH-004 | Password Gate — bypasses when sessionStorage key is already set | `password-gate.spec.ts:"bypasses gate when session key is set"` | COVERED |
 | AUTH-005 | Login — password tab: email + password form, submit | `auth-flows.spec.ts:"AUTH-005: login password tab — fill email + password and submit"` | COVERED |
 | AUTH-006 | Login — email-code tab: email input → send OTP → 6-box OTP entry → verify | `auth-flows.spec.ts:"AUTH-006: login email-code tab — send OTP then enter 6-digit code"` | COVERED |
