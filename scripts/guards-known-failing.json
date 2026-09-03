@@ -1,0 +1,6 @@
+{
+  "_why": "Suites that were already failing when discovery was switched on, so that switching it on could not redden every deploy at once. It is NOT a skip list: run-guards.mjs still EXECUTES every entry, still prints its output, and FAILS if a listed suite starts passing without its entry being deleted. The list can only shrink.",
+  "_rule": "Adding an entry here is a deliberate, reviewed act and needs a reason and a date. An entry may carry \"env\": \"ci\" when the suite passes on a developer machine and fails only on the runner. A suite that has been listed for a long time is debt.",
+  "_state": "EMPTY on 2026-09-03, the day discovery was switched on in this repo. The one discovered suite - supabase/functions/_shared/smtp-retry.test.mjs, which CI had never executed - passed on its first run. Nothing needed baselining, which is the outcome to aim for.",
+  "entries": []
+}

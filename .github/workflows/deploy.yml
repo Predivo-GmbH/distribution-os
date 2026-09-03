@@ -146,6 +146,16 @@ jobs:
         run: npm run test:coverage
         working-directory: app
 
+      # NOT `working-directory: app`, and that is the entire point. The coverage run above uses
+      # app/vitest.config.ts, whose include is 'src/**' relative to app/, so it cannot see a
+      # *.test.mjs under supabase/ - two directory levels outside it. Measured 2026-09-03:
+      # supabase/functions/_shared/smtp-retry.test.mjs (13 checks, all passing) had never been
+      # executed by CI once. Nobody skipped it; it was unreachable, and unreachable looked exactly
+      # like green. This step DISCOVERS every *.test.mjs from the repo root instead of naming any,
+      # and fails if discovery matches nothing, because absence is not success.
+      - name: Guard suites (discovered, not listed)
+        run: node scripts/run-guards.mjs
+
       - name: Feature Coverage Check
         run: node scripts/check-feature-coverage.mjs
         working-directory: app

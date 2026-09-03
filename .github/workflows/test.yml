@@ -18,6 +18,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # GUARD SUITES - the *.test.mjs files, DISCOVERED rather than named.
+  #
+  # This job exists because master had no path that ran them. deploy-staging.yml fires on the
+  # `staging` branch and deploy.yml is manual-only, so on the DEFAULT branch the only workflows
+  # were this one and gitleaks. Measured 2026-09-03:
+  # supabase/functions/_shared/smtp-retry.test.mjs - 13 checks, all passing, the guard against the
+  # "Connection timeout" mail failure that hit SignalScore in production - had never been executed
+  # by CI once. Nobody skipped it: app/vitest.config.ts includes 'src/**' relative to app/, so a
+  # file under supabase/ is invisible to the only test runner this repo has. Unreachable looked
+  # exactly like green.
+  #
+  # Its OWN job, not a step inside critical-path, for two reasons: that job is a heavy Playwright
+  # run and a browser flake must not be confusable with a guard regression, and these suites need
+  # no npm ci, no browsers and no secrets - so this answers in seconds and fails fast.
+  guards:
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      # No `npm ci`: every discovered suite is dependency-free by design (they import the .ts
+      # module under test directly, via --experimental-strip-types). If that ever stops being
+      # true the suite fails loudly here rather than being quietly dropped.
+      - name: Guard suites (discovered, not listed)
+        run: node scripts/run-guards.mjs
+
   critical-path:
     runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 10

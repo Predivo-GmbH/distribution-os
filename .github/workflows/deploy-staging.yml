@@ -110,6 +110,18 @@ jobs:
           npm run lint
           npx vitest run
 
+      # NOT `working-directory: app`, and that is the entire point. The vitest run above uses
+      # app/vitest.config.ts, whose include is 'src/**' relative to app/ - so it cannot see a
+      # *.test.mjs under supabase/, two directory levels outside it. Measured 2026-09-03:
+      # supabase/functions/_shared/smtp-retry.test.mjs (13 checks, all passing - the guard against
+      # the "Connection timeout" mail failure that hit SignalScore in production) had never been
+      # executed by CI once. Not skipped: unreachable, which looked identical to green.
+      # This step DISCOVERS every *.test.mjs from the repo root rather than naming any, so a guard
+      # added tomorrow runs tomorrow with nobody editing this file. It fails if discovery matches
+      # nothing, because absence is not success. Needs no node_modules.
+      - name: Guard suites (discovered, not listed)
+        run: node scripts/run-guards.mjs
+
       - name: Build for staging
         working-directory: app
         env:
