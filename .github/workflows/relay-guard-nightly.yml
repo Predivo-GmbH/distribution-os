@@ -1,0 +1,70 @@
+# =============================================================================
+# NIGHTLY LIVE-PROBE GUARDS — the half of the coverage a promotion cannot give you.
+#
+# WHY THIS FILE EXISTS (2026-09-04).
+#
+# scripts/run-guards.mjs --live is wired into deploy.yml, so the open-relay guard for
+# send-auth-email (signal-fleet:send-auth-email:unauthenticated-relay) runs on every
+# production promotion. That is the correct place for it — it MUST be able to block a
+# promotion — but a promotion is the only thing that runs it, and this repo can go
+# weeks without one.
+#
+# THE FAILURE THIS GUARD EXISTS TO CATCH DOES NOT ARRIVE WITH A COMMIT. Enforcement is
+# gated on the internal shared secret, and that secret is Vault DATA, not schema: a
+# `supabase db reset`, a restore, or a re-provision drops it and the function silently
+# reverts to accepting unsigned callers. No push happens, no deploy happens, nothing
+# goes red — the product just becomes an open auth-email relay again, and stays one
+# until somebody happens to promote. A guard that can only speak on the promotion path
+# is, for this particular fault, a guard that says nothing.
+#
+# WHY A SEPARATE WORKFLOW RATHER THAN A `schedule:` ON deploy.yml, which is the obvious
+# one-line change: deploy.yml's `on:` block is shared by every job in it. Adding a cron
+# there would put the ENTIRE gate suite — coverage, semgrep, gitleaks, the integration
+# and E2E gauntlets — onto our own runners every single night. That is a scheduling and
+# cost decision about a dozen jobs, taken as a side effect of wanting one 20-second
+# network probe, and it is the reason the previous session deliberately stopped here
+# rather than doing it quietly. This file buys the nightly coverage and nothing else:
+# one runner, one checkout, no `npm ci` (the guard suites are dependency-free), the
+# live probes and then done.
+#
+# It invokes run-guards rather than naming the guard file, for the same reason
+# deploy.yml does: a hand-typed filename is how the sibling repos ended up with suites
+# nothing executed. A live probe added tomorrow is picked up here tomorrow.
+#
+# THIS RUN GOING RED IS THE ALARM. It means production or staging accepted an
+# unauthenticated relay attempt. Re-seed both halves, Vault first:
+#     bash scripts/seed-email-relay-vault.sh <project-ref>
+# =============================================================================
+name: Relay guard (nightly live probes)
+
+on:
+  schedule:
+    # 04:55 UTC daily. Deliberately off the hour and offset from the fleet's other
+    # nightly work (ChannelMover 04:40, Valrano 04:45, BackOffice's relay guard 04:50)
+    # so the fleet's live probes report inside one window without arriving together —
+    # simultaneous fleet-wide jobs are what got our own address refused by the shared
+    # host on 2026-09-03.
+    - cron: '55 4 * * *'
+  workflow_dispatch:
+
+# Never run two of these at once; a second one proves nothing the first did not.
+concurrency:
+  group: relay-guard-nightly
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  live-probes:
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      # No `npm ci`. Every *.test.mjs guard in this repo is dependency-free by design —
+      # that is what lets this job be a ~30-second probe instead of a full install.
+      - name: Live-probe guard suites (real deployed projects)
+        run: node scripts/run-guards.mjs --live
