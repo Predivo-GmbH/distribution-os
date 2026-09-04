@@ -84,6 +84,35 @@ jobs:
       - name: Dependency audit (blocking at high)
         run: npm audit --audit-level=high
         working-directory: app
+      # ─────────────────────────────────────────────────────────────────────────────────────
+      # LIVE-PROBE GUARDS — the suites that talk to real deployed Supabase projects.
+      #
+      # scripts/run-guards.mjs already runs in `deploy` and in deploy-staging.yml, but only in
+      # its OFFLINE mode: it carves *.prod.test.mjs / *.live.test.mjs out of the everyday run
+      # deliberately, so a Supabase blip cannot redden a content push. That carve-out is only
+      # legitimate while something still executes them — and until now NO workflow in this repo
+      # passed --live, so the carve-out was a skip list. run-guards enforces this itself: adding
+      # a *.prod.test.mjs without wiring this step makes the offline run go RED naming the file.
+      #
+      # Today this is the open-relay regression guard for send-auth-email
+      # (signal-fleet:send-auth-email:unauthenticated-relay). The function verified a
+      # Standard-Webhooks signature ONLY when one was present, and this project's Send-Email
+      # hook is an UNSIGNED pg_net call — so "no signature" meant "no check" and any holder of
+      # the public website key could make Distribution-OS mail a login or password-reset code
+      # to an address of their choosing.
+      #
+      # WHY A NETWORK PROBE AND NOT A UNIT TEST. Enforcement is inert until a secret exists in
+      # two places that appear in NO file in this repo — a Vault row and an edge-function env
+      # var. On Valrano the code half was committed 2026-09-02 and production was STILL an open
+      # relay on 2026-09-04, with every source-reading test green throughout. Only asking the
+      # live endpoint can tell "the fix shipped" apart from "the fix is in effect".
+      #
+      # This job is what `deploy` needs:, so the probe is BLOCKING — a promotion cannot ship
+      # while the relay is open. It needs no credentials: being refused without one is the
+      # whole assertion. A 400 would be a FAILING answer, it means the caller got past auth.
+      # ─────────────────────────────────────────────────────────────────────────────────────
+      - name: Live-probe guard suites (real deployed projects)
+        run: node scripts/run-guards.mjs --live
       # SAST — code-level security (fleet-hardening Wave 2, proven route from project-starter).
       # A different layer than npm audit (deps) + gitleaks (secrets in git): semgrep reads OUR
       # code for injection / XSS / hardcoded secrets. `.semgrepignore` excludes test/dev files
