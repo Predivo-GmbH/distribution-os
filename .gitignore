@@ -7,6 +7,10 @@ docs/references/fey-reference/
 docs/references/kraken-reference/
 docs/cred.txt
 docs/Credentials.txt
+# backups/refresh copies of the credentials file (e.g. Credentials.txt.bak-YYYY-MM-DD-...)
+docs/cred.txt.*
+docs/Credentials.txt.*
+docs/*.bak-*
 
 # provider head-to-head eval (2026-07-22) - holds live API keys
 distributionos-eval/.env.eval
