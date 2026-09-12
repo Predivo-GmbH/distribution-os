@@ -129,8 +129,65 @@ jobs:
     needs: [gate-security]
     runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 20
+    permissions:
+      actions: read
+      contents: read
 
     steps:
+      # ─────────────────────────────────────────────────────────────────────────────────────
+      # STAGING GATE (deploy-standard §4a, added 2026-09-12). Staging here is branch-based
+      # (push `staging` -> deploy-staging.yml), so the fleet's "a green staging run for THIS
+      # commit" never matches: the promoted master commit and the staged commit are different
+      # commits even when they carry the same files. Nothing checked at all, and it showed:
+      # on 2026-09-02 f45cf25c went to production while staging held f4608322, 9 code files
+      # apart — code that never ran on staging.
+      #
+      # So compare FILES, not commit ids: production may ship only a tree that a green
+      # deploy-staging.yml run already carried (deploy + E2E), or one that differs from it
+      # only in docs. Runs FIRST, before the database is migrated. Fail-closed: an unreadable
+      # answer is a refusal, never a pass. curl + grep only — `gh`/`jq` are not on this
+      # runner's PATH (see ReplyFlow's gate).
+      #
+      # Refused? Bring staging up to the commit first: `git push origin master:staging`
+      # (or merge master into staging), wait for "Deploy to Staging" to go green, promote again.
+      # ─────────────────────────────────────────────────────────────────────────────────────
+      - name: Verify staging gate (these exact files already passed staging + E2E)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          SHA="${{ github.sha }}"
+          API="https://api.github.com/repos/$GH_REPO"
+          # -f: any non-2xx is empty output, so an error body can never be parsed as content.
+          api() { curl -fsS -m 30 -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$1" | tr -d '\n' || true; }
+          tree_of() { api "$API/git/commits/$1" | grep -o '"tree": *{[^}]*}' | head -1 | grep -o '[0-9a-f]\{40\}' | head -1 || true; }
+          SAFE='^(docs/|.*\.md$|README|LICENSE|\.gitignore$|\.gitleaks\.toml$|\.gitleaksignore$)'
+
+          WANT=$(tree_of "$SHA")
+          [ -n "$WANT" ] || { echo "::error::Could not read the tree of $SHA. Nothing was deployed."; exit 1; }
+          BASES=$(api "$API/actions/workflows/deploy-staging.yml/runs?status=success&per_page=30" \
+                    | grep -o '"head_sha": *"[0-9a-f]\{40\}"' | grep -o '[0-9a-f]\{40\}' | awk '!seen[$0]++' | head -10 || true)
+          [ -n "$BASES" ] || { echo "::error::Could not read a single green staging run. Nothing was deployed."; exit 1; }
+
+          for BASE in $BASES; do
+            if [ "$(tree_of "$BASE")" = "$WANT" ]; then
+              echo "Staging gate passed: $SHA carries exactly the files of staged commit $BASE."; exit 0
+            fi
+            # Docs-only on top of a staged commit. Only "ahead" is trusted: there the compare
+            # base IS the staged commit, so its file list is the full difference. "behind"
+            # always lists no files and "diverged" lists them from a merge base, not from staging.
+            CMP=$(api "$API/compare/$BASE...$SHA")
+            printf '%s' "$CMP" | grep -q '"status": *"ahead"' || continue
+            FILES=$(printf '%s' "$CMP" | grep -o '"\(previous_\)\{0,1\}filename": *"[^"]*"' | sed 's/.*: *"//; s/"$//' || true)
+            COUNT=$(printf '%s\n' "$FILES" | grep -c . || true)
+            [ "$COUNT" -gt 0 ] && [ "$COUNT" -lt 300 ] || continue
+            if ! printf '%s\n' "$FILES" | grep -vqE "$SAFE"; then
+              echo "Staging gate passed: $SHA differs from staged commit $BASE only in docs ($COUNT file(s))."; exit 0
+            fi
+          done
+          echo "::error::$SHA carries files that no green staging run has carried. Push it to staging first (git push origin master:staging), wait for 'Deploy to Staging' to go green, then promote. Nothing was deployed."
+          exit 1
+
       - name: Verify FTP credentials (fail fast on a stale secret)
         # A stale FTP secret used to surface late and confusingly. The site-id guard
         # tests `[ -n "$REMOTE_ID" ]`, and a 530 leaves REMOTE_ID empty - so the guard
