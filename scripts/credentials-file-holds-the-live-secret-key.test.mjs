@@ -29,10 +29,24 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import crypto from 'node:crypto'
+import { fileURLToPath } from 'node:url'
 
-const FILE = 'C:/Business/Internal Projects/Distribution-OS/docs/Credentials.txt'
+// Resolved from THIS file (the repo is scripts/..), never a machine-specific absolute path, so the
+// guard finds the file from whatever disk the repo is checked out on - this work PC or the laptop
+// runner - instead of only the one hard-coded home it was born on.
+const FILE = fileURLToPath(new URL('../docs/Credentials.txt', import.meta.url))
 const PROD = 'jxjpbmkgmuunpayqgbsx'
 const STAGING = 'jckctrtkstejolddqzlk'
+
+// This suite reads docs/Credentials.txt - a gitignored, never-committed LOCAL artifact - and probes
+// the live Supabase management API with a PAT that exists only inside that file. Neither is present
+// in CI: the file is gitignored so it is never in a checkout, and the discovered-guards job wires no
+// secrets by design. So on a runner this suite can only ever fail on "file not on disk", which is
+// how it reddened Critical Path Tests on every push. It is a LOCAL-WORKSTATION guard: skip it in CI,
+// and keep it fully strict locally, where the file lives and a key rotation that forgets it MUST go
+// red. The skip is deliberately CI-only - local absence is still a real failure, as intended.
+const IN_CI = Boolean(process.env.CI || process.env.GITHUB_ACTIONS)
+const ciSkip = IN_CI && 'local-only credentials guard: docs/Credentials.txt is gitignored and absent in CI'
 
 const sha = (v) => crypto.createHash('sha256').update(String(v)).digest('hex').slice(0, 12)
 
@@ -71,7 +85,7 @@ async function workingPat(text) {
   return null
 }
 
-test('a management token that the API accepts is present on this machine', async () => {
+test('a management token that the API accepts is present on this machine', { skip: ciSkip }, async () => {
   const pat = await workingPat(readFile())
   assert.ok(
     pat,
@@ -81,7 +95,7 @@ test('a management token that the API accepts is present on this machine', async
   )
 })
 
-test('the credentials file holds the LIVE production secret key', async () => {
+test('the credentials file holds the LIVE production secret key', { skip: ciSkip }, async () => {
   const text = readFile()
   const pat = await workingPat(text)
   assert.ok(pat, 'no working management token — cannot answer this without one')
@@ -104,7 +118,7 @@ test('the credentials file holds the LIVE production secret key', async () => {
   )
 })
 
-test('a secret key value never appears more than it has to, and never as a stale duplicate', () => {
+test('a secret key value never appears more than it has to, and never as a stale duplicate', { skip: ciSkip }, () => {
   const onDisk = secretsOnDisk(readFile())
   const distinct = new Set(onDisk.map((o) => o.sha))
   assert.ok(
@@ -121,7 +135,7 @@ test('a secret key value never appears more than it has to, and never as a stale
 // finding nothing. The staging section has since been written blind (value read into a variable
 // inside a script and written straight out, never displayed), so this is now an assertion. The
 // next rotation that forgets the file turns this red instead of printing a line nobody reads.
-test('the credentials file holds the LIVE staging secret key', async () => {
+test('the credentials file holds the LIVE staging secret key', { skip: ciSkip }, async () => {
   const text = readFile()
   const pat = await workingPat(text)
   assert.ok(pat, 'no working management token - cannot answer this without one')
@@ -144,7 +158,7 @@ test('the credentials file holds the LIVE staging secret key', async () => {
   )
 })
 
-test('production and staging are not the SAME value on disk', async () => {
+test('production and staging are not the SAME value on disk', { skip: ciSkip }, async () => {
   const text = readFile()
   const pat = await workingPat(text)
   assert.ok(pat, 'no working management token')
