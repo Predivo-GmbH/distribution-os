@@ -29,28 +29,45 @@ export function useAuth() {
     return () => subscription.unsubscribe()
   }, [])
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
-  }, [])
-
-  const signUp = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password })
-    if (error) throw error
-  }, [])
-
-  const sendOtp = useCallback(async (email: string) => {
-    const { error } = await supabase.auth.signInWithOtp({
+  // captchaToken is a Cloudflare Turnstile token, threaded through to GoTrue's captcha-protected
+  // endpoints (/token, /signup, /otp, /recover) as options.captchaToken. GoTrue IGNORES it until
+  // CAPTCHA is enabled in this project's Auth settings (a separate, production-only switch), so
+  // passing it — or not — is a no-op today. That is what makes shipping this wiring safe on its
+  // own: it only starts mattering once the server half lands.
+  const signIn = useCallback(async (email: string, password: string, captchaToken?: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
       email,
-      options: { shouldCreateUser: true },
+      password,
+      options: captchaToken ? { captchaToken } : undefined,
     })
     if (error) throw error
   }, [])
 
-  const sendLoginOtp = useCallback(async (email: string) => {
+  const signUp = useCallback(async (email: string, password: string, captchaToken?: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: captchaToken ? { captchaToken } : undefined,
+    })
+    if (error) throw error
+  }, [])
+
+  const sendOtp = useCallback(async (email: string, captchaToken?: string) => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: false },
+      options: { shouldCreateUser: true, ...(captchaToken ? { captchaToken } : {}) },
+    })
+    if (error) throw error
+  }, [])
+
+  const sendLoginOtp = useCallback(async (email: string, captchaToken?: string) => {
+    // shouldCreateUser: false — only sends OTP if account exists. Supabase returns 200 regardless
+    // (prevents email enumeration), so this is exactly the endpoint an unauthenticated caller can
+    // abuse to make Distribution-OS email a login code to any address, unlimited, until CAPTCHA is
+    // enforced server-side. captchaToken is the fix's client half for it.
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false, ...(captchaToken ? { captchaToken } : {}) },
     })
     if (error) throw error
   }, [])
@@ -65,9 +82,12 @@ export function useAuth() {
     return { isNewUser: !data.user?.user_metadata?.full_name }
   }, [])
 
-  const resetPassword = useCallback(async (email: string) => {
+  const resetPassword = useCallback(async (email: string, captchaToken?: string) => {
     const redirectTo = `${window.location.origin}/reset-password`
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+      ...(captchaToken ? { captchaToken } : {}),
+    })
     if (error) throw error
   }, [])
 

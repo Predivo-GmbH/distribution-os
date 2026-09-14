@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { PageMeta } from '@/components/shared/PageMeta'
 import { Logo } from '@/components/shared/Logo'
 import { APP_NAME } from '@/lib/app-config'
 import { Mail, Lock, CheckCircle, ArrowLeft } from 'lucide-react'
+import TurnstileWidget, { type TurnstileHandle } from '@/components/auth/TurnstileWidget'
 
 export function ResetPassword() {
   const { resetPassword, updatePassword } = useAuth()
@@ -13,6 +14,10 @@ export function ResetPassword() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
+  // Cloudflare Turnstile token for the /recover request. Ignored by Supabase until CAPTCHA is
+  // enabled in Auth settings — a no-op today, outage-safe to ship.
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const turnstileRef = useRef<TurnstileHandle>(null)
 
   const isUpdateMode = window.location.hash.includes('type=recovery')
 
@@ -21,11 +26,12 @@ export function ResetPassword() {
     setError('')
     setLoading(true)
     try {
-      await resetPassword(email)
+      await resetPassword(email, captchaToken ?? undefined)
       setSent(true)
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {
+      turnstileRef.current?.reset()
       setLoading(false)
     }
   }
@@ -138,6 +144,7 @@ export function ResetPassword() {
                     />
                   </div>
                 </div>
+                <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />
                 <button
                   type="submit"
                   disabled={loading}

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { PageMeta } from '@/components/shared/PageMeta'
@@ -7,6 +7,7 @@ import { APP_NAME } from '@/lib/app-config'
 import { Mail, Lock, ArrowLeft } from 'lucide-react'
 import OtpInput from '@/components/auth/OtpInput'
 import ResendTimer from '@/components/auth/ResendTimer'
+import TurnstileWidget, { type TurnstileHandle } from '@/components/auth/TurnstileWidget'
 
 type Step = 'email' | 'otp' | 'password'
 
@@ -18,20 +19,25 @@ export function SignUp() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  // Cloudflare Turnstile token for the signup email step (/otp signup). Ignored by Supabase until
+  // CAPTCHA is enabled in Auth settings — a no-op today, outage-safe to ship.
+  const [otpToken, setOtpToken] = useState<string | null>(null)
+  const turnstileRef = useRef<TurnstileHandle>(null)
 
   const handleSendOtp = useCallback(async (e?: React.FormEvent) => {
     e?.preventDefault()
     setError('')
     setLoading(true)
     try {
-      await sendOtp(email)
+      await sendOtp(email, otpToken ?? undefined)
       setStep('otp')
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {
+      turnstileRef.current?.reset()
       setLoading(false)
     }
-  }, [email, sendOtp])
+  }, [email, otpToken, sendOtp])
 
   const handleVerifyOtp = useCallback(async (code: string) => {
     setError('')
@@ -65,9 +71,11 @@ export function SignUp() {
   async function handleResend() {
     setError('')
     try {
-      await sendOtp(email)
+      await sendOtp(email, otpToken ?? undefined)
     } catch {
       setError('Failed to resend code. Please try again.')
+    } finally {
+      turnstileRef.current?.reset()
     }
   }
 
@@ -134,6 +142,7 @@ export function SignUp() {
                   />
                 </div>
               </div>
+              <TurnstileWidget ref={turnstileRef} onToken={setOtpToken} />
               <button
                 type="submit"
                 disabled={loading}
