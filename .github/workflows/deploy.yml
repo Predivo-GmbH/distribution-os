@@ -124,9 +124,115 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           semgrep scan --config=p/security-audit --config=p/secrets --severity=ERROR --error --metrics=off .
 
+  # ===========================================================================
+  # STAGING GATE - production cannot ship a build tree staging never ran.
+  #
+  # THE DEFECT THIS CLOSES (board row
+  # `distribution-os-can-release-code-to-production-that-neve`, measured
+  # 2026-09-12): `deploy` needed only [gate-security]. Staging lives in a
+  # SEPARATE workflow (deploy-staging.yml, on a push to the `staging` branch),
+  # so NOTHING tied a production promotion to a staging run having happened,
+  # let alone having passed. `gh workflow run deploy.yml -f confirm=deploy` on
+  # a master commit that had never been near `staging` shipped it straight to
+  # production. Cockpit gates prod behind its staging jobs; this repo did not.
+  #
+  # WHY TREE HASHES AND NOT A FILE-LIST COMPARE. `staging` and `master` are
+  # different branches, so the promoted SHA usually is not the staged SHA and a
+  # SHA-equality test would refuse every honest release. The GitHub compare API
+  # is the other obvious route and it is a trap: its `files[]` array is CAPPED
+  # AT 300 ENTRIES, returns HTTP 200 with no truncation flag, and cuts off in
+  # PATH ORDER - so a bulk docs change pushes every `app/` path off the end and
+  # the gate reads "docs only" over changed application code (Cockpit hit
+  # exactly this; cockpit#76). `git rev-parse <sha>:<dir>` returns the tree
+  # object id, which is an exact content fingerprint of that directory with no
+  # cap, no pagination and no API call. Equal tree ids mean byte-identical
+  # trees; nothing else does.
+  #
+  # WHAT IS COMPARED: app/ (what is built and uploaded), scripts/ (the guard
+  # suites both workflows run) and supabase/ (migrations applied to prod and
+  # the edge functions). Docs, .claude/ and design-screens/ are deliberately
+  # NOT compared - they are not build inputs, and demanding they match would
+  # make a docs commit on master unreleasable.
+  #
+  # FAIL-CLOSED, EVERY BRANCH. Unreadable API, zero green staging runs, a
+  # head_sha this checkout cannot resolve, an unresolvable tree - all refuse.
+  # A gate that cannot look has not passed: an unknown is never an all-clear.
+  # ===========================================================================
+  gate-staging:
+    if: github.event.inputs.confirm == 'deploy'
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # Full history AND the staging branch: rev-parse must be able to
+          # resolve a head_sha that lives only on `staging`.
+          fetch-depth: 0
+      - name: Fetch every ref (the staged commits are not on master)
+        run: git fetch --no-tags --prune origin "+refs/heads/*:refs/remotes/origin/*"
+      - name: Refuse to promote a build tree staging never ran
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROMOTING_SHA: ${{ github.sha }}
+        run: |
+          set -uo pipefail
+
+          # The directories that decide what production actually serves.
+          BUILD_INPUTS="app scripts supabase"
+
+          fingerprint() {
+            # Tree object id per build-input dir, or empty on ANY failure.
+            local sha="$1" out="" t=""
+            for d in $BUILD_INPUTS; do
+              t=$(git rev-parse "$sha:$d" 2>/dev/null) || return 1
+              [ -n "$t" ] || return 1
+              out="$out $d=$t"
+            done
+            printf '%s' "$out"
+          }
+
+          WANT=$(fingerprint "$PROMOTING_SHA") || {
+            echo "REFUSING: cannot read the build-input trees of the commit being promoted ($PROMOTING_SHA). A gate that cannot look has not passed."
+            exit 1
+          }
+          echo "Promoting $PROMOTING_SHA"
+          echo "  build-input trees:$WANT"
+
+          # Successful deploy-staging.yml runs, newest first. --jq keeps the
+          # payload small; a failed call leaves RUNS empty and we refuse below.
+          RUNS=$(gh run list --workflow=deploy-staging.yml --status=success                    --limit 60 --json headSha,databaseId,createdAt                    --jq '.[] | [.headSha, .databaseId, .createdAt] | @tsv' 2>/dev/null) || RUNS=""
+
+          if [ -z "$RUNS" ]; then
+            echo "REFUSING: could not read a single SUCCESSFUL deploy-staging.yml run. Either the API call failed or staging has never gone green - both are unknowns, and an unknown is not an all-clear."
+            exit 1
+          fi
+
+          UNRESOLVED=0
+          CHECKED=0
+          while IFS="$(printf '	')" read -r SHA RUN_ID WHEN; do
+            [ -n "${SHA:-}" ] || continue
+            CHECKED=$((CHECKED + 1))
+            if ! git cat-file -e "${SHA}^{commit}" 2>/dev/null; then
+              UNRESOLVED=$((UNRESOLVED + 1))
+              continue
+            fi
+            GOT=$(fingerprint "$SHA") || { UNRESOLVED=$((UNRESOLVED + 1)); continue; }
+            if [ "$GOT" = "$WANT" ]; then
+              echo "STAGING GATE PASSED: run $RUN_ID ($WHEN) built staging from $SHA, whose build-input trees are byte-identical to the commit being promoted."
+              echo "  matched trees:$GOT"
+              exit 0
+            fi
+          done <<EOF
+          $RUNS
+          EOF
+
+          echo "REFUSING TO PROMOTE. Read $CHECKED successful deploy-staging.yml run(s) ($UNRESOLVED of them had a head_sha this checkout could not resolve) and NOT ONE of them built the app/, scripts/ and supabase/ trees that $PROMOTING_SHA carries."
+          echo "This commit's application code has never run on staging. Push it to the \`staging\` branch, let deploy-staging.yml and e2e-staging go green, then promote."
+          exit 1
+
   deploy:
     if: github.event.inputs.confirm == 'deploy'
-    needs: [gate-security]
+    needs: [gate-security, gate-staging]
     runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 20
     permissions:
