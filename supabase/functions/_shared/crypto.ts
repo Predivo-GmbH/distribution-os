@@ -22,7 +22,7 @@ function b64(bytes: Uint8Array): string {
   for (const byte of bytes) s += String.fromCharCode(byte)
   return btoa(s)
 }
-function unb64(s: string): Uint8Array {
+function unb64(s: string): Uint8Array<ArrayBuffer> {
   return Uint8Array.from(atob(s), (c) => c.charCodeAt(0))
 }
 
