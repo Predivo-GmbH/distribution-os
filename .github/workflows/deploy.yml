@@ -157,11 +157,36 @@ jobs:
   # FAIL-CLOSED, EVERY BRANCH. Unreadable API, zero green staging runs, a
   # head_sha this checkout cannot resolve, an unresolvable tree - all refuse.
   # A gate that cannot look has not passed: an unknown is never an all-clear.
+  #
+  # NO `gh`, NO `jq` - curl and grep only (2026-09-14). The first version of this
+  # gate read the staging runs with `gh run list ... 2>/dev/null || RUNS=""`. On
+  # our own runners `gh` is NOT on the runner service's PATH: it was installed
+  # after the service was configured, the service's cached PATH predates it, and
+  # passwordless sudo is deliberately absent so the service cannot be restarted
+  # to pick it up. So the command died with exit 127, the `2>/dev/null` swallowed
+  # "gh: command not found", `RUNS` came back empty and the gate REFUSED EVERY
+  # PROMOTION - the whole product unreleasable, with a message blaming staging.
+  # Measured: run 34850548147, gate-staging failed at the runs read, before any
+  # tree was compared. This is the identical fault BackOffice, Cockpit and
+  # ChannelMover each hit on 2026-08-25; see the same note in ChannelMover's
+  # deploy.yml. A DEPLOY GATE MUST NOT DEPEND ON A TOOL THAT HAPPENS TO BE ON THE
+  # HOST, and a gate that can halt the fleet must be able to un-halt it.
+  #
+  # The two unknowns are now told apart and both still refuse: "the API would not
+  # answer" prints the HTTP code, "the API answered and staging has never gone
+  # green" says so. A refusal you cannot act on is how a halt becomes permanent.
   # ===========================================================================
   gate-staging:
     if: github.event.inputs.confirm == 'deploy'
     runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 10
+    permissions:
+      # Listing another workflow's runs needs actions:read. Stated rather than
+      # inherited: a repository-level default of "contents: read" would make this
+      # gate refuse every promotion again, and the refusal would read as staging's
+      # fault rather than the token's.
+      actions: read
+      contents: read
     steps:
       - uses: actions/checkout@v5
         with:
@@ -173,6 +198,7 @@ jobs:
       - name: Refuse to promote a build tree staging never ran
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
           PROMOTING_SHA: ${{ github.sha }}
         run: |
           set -uo pipefail
@@ -198,19 +224,46 @@ jobs:
           echo "Promoting $PROMOTING_SHA"
           echo "  build-input trees:$WANT"
 
-          # Successful deploy-staging.yml runs, newest first. --jq keeps the
-          # payload small; a failed call leaves RUNS empty and we refuse below.
-          RUNS=$(gh run list --workflow=deploy-staging.yml --status=success                    --limit 60 --json headSha,databaseId,createdAt                    --jq '.[] | [.headSha, .databaseId, .createdAt] | @tsv' 2>/dev/null) || RUNS=""
+          # Successful deploy-staging.yml runs, newest first, read over the REST API
+          # with curl. `status=success` filters SERVER-SIDE, so every head_sha in
+          # the payload belongs to a run that actually went green - which is what
+          # makes reading it without jq safe: nothing has to be paired up by
+          # position. -f makes curl fail (empty output, non-zero) on any non-2xx,
+          # so a 403/404/429 error BODY can never reach grep as if it were content.
+          API="https://api.github.com/repos/$GH_REPO"
+          RUNS_URL="$API/actions/workflows/deploy-staging.yml/runs?status=success&per_page=100"
 
-          if [ -z "$RUNS" ]; then
-            echo "REFUSING: could not read a single SUCCESSFUL deploy-staging.yml run. Either the API call failed or staging has never gone green - both are unknowns, and an unknown is not an all-clear."
+          # The body and the status code come back together in one variable, with no
+          # temp file: a fixed path like /tmp/x.json is one more thing that can be
+          # unwritable on a host nobody checked, and this gate has already been
+          # brought down once by assuming something about the machine.
+          RESP=$(curl -sS -m 30 -w $'\n%{http_code}' \
+                   -H "Authorization: Bearer $GH_TOKEN" \
+                   -H "Accept: application/vnd.github+json" \
+                   -H "X-GitHub-Api-Version: 2022-11-28" \
+                   "$RUNS_URL") || RESP=$'\n000'
+          HTTP=$(printf '%s' "$RESP" | tail -n 1)
+          BODY=$(printf '%s' "$RESP" | sed '$d')
+
+          if [ "$HTTP" != "200" ]; then
+            echo "REFUSING: THE GATE COULD NOT LOOK. GET /actions/workflows/deploy-staging.yml/runs answered HTTP $HTTP ('000' means the request never completed). This is NOT a statement about staging - it is this gate being unable to read, and an unknown is never an all-clear."
+            echo "Check that the job's GITHUB_TOKEN still has 'actions: read' (declared on this job) and that the runner can reach api.github.com. Until it can, NO promotion can pass, so fix this before anything else."
+            exit 1
+          fi
+
+          # Real JSON keys are "head_sha": with clean quotes; the same string inside
+          # any nested body would be backslash-escaped and does not match.
+          SHAS=$(printf '%s' "$BODY" | grep -o '"head_sha": *"[0-9a-f]\{40\}"' | awk -F'"' '{print $4}')
+
+          if [ -z "$SHAS" ]; then
+            echo "REFUSING: the API answered 200 but reports ZERO successful deploy-staging.yml runs. Staging has never gone green (or every green run has aged out of the API's window), so there is nothing this promotion could have been proven against."
+            echo "Push to the \`staging\` branch, let deploy-staging.yml go green, then promote."
             exit 1
           fi
 
           UNRESOLVED=0
           CHECKED=0
-          while IFS="$(printf '	')" read -r SHA RUN_ID WHEN; do
-            [ -n "${SHA:-}" ] || continue
+          for SHA in $SHAS; do
             CHECKED=$((CHECKED + 1))
             if ! git cat-file -e "${SHA}^{commit}" 2>/dev/null; then
               UNRESOLVED=$((UNRESOLVED + 1))
@@ -218,13 +271,19 @@ jobs:
             fi
             GOT=$(fingerprint "$SHA") || { UNRESOLVED=$((UNRESOLVED + 1)); continue; }
             if [ "$GOT" = "$WANT" ]; then
-              echo "STAGING GATE PASSED: run $RUN_ID ($WHEN) built staging from $SHA, whose build-input trees are byte-identical to the commit being promoted."
+              # The matching run's id is fetched back by head_sha - a second
+              # server-side filter, so the id named here provably belongs to THIS
+              # commit's staging run and was not paired up by position.
+              RUN_ID=$(curl -fsS -m 30 \
+                         -H "Authorization: Bearer $GH_TOKEN" \
+                         -H "Accept: application/vnd.github+json" \
+                         "$API/actions/workflows/deploy-staging.yml/runs?status=success&head_sha=$SHA&per_page=1" \
+                         | grep -o '"id": *[0-9]*' | head -1 | awk '{print $2}') || RUN_ID=""
+              echo "STAGING GATE PASSED: staging was built from $SHA (deploy-staging run ${RUN_ID:-unknown}), whose build-input trees are byte-identical to the commit being promoted."
               echo "  matched trees:$GOT"
               exit 0
             fi
-          done <<EOF
-          $RUNS
-          EOF
+          done
 
           echo "REFUSING TO PROMOTE. Read $CHECKED successful deploy-staging.yml run(s) ($UNRESOLVED of them had a head_sha this checkout could not resolve) and NOT ONE of them built the app/, scripts/ and supabase/ trees that $PROMOTING_SHA carries."
           echo "This commit's application code has never run on staging. Push it to the \`staging\` branch, let deploy-staging.yml and e2e-staging go green, then promote."
