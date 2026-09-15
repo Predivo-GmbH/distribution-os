@@ -1,12 +1,16 @@
 import { useEffect, useImperativeHandle, useRef, forwardRef } from 'react'
 
-// Cloudflare Turnstile site keys are meant to be public (safe to ship in the client bundle) — but
-// this product does not have one minted yet: the fleet holds no Cloudflare API token, so no key
-// can be created for Distribution-OS right now. Read it from the environment rather than
-// hardcoding one. When it is absent, this widget renders NOTHING and the token stays undefined,
-// which keeps every auth call that would carry it an outage-safe no-op — exactly the state today,
-// before a site key exists AND before CAPTCHA is enabled server-side (a separate, Roger-only
-// production switch; see the PR this file shipped in).
+// Cloudflare Turnstile site keys are meant to be public (they ship in every visitor's bundle).
+// Distribution-OS's is 0x4AAAAAAEz4thUGbxYbUP3e, minted 2026-09-14 — the earlier claim that none
+// could exist "because the fleet holds no Cloudflare API token" was a statement about curl, not
+// about the task: the dashboard was reachable in a browser the whole time.
+//
+// It is still read from the environment rather than hardcoded, so local dev and the test run stay
+// widget-free. When it is absent this widget renders NOTHING and the token stays undefined, which
+// makes every auth call that would carry it an outage-safe no-op. That same property is the
+// hazard: a build that forgets to pass VITE_TURNSTILE_SITE_KEY ships a widget-less bundle no
+// runtime monitor can see, and becomes a total lockout the moment CAPTCHA is enabled server-side.
+// Both deploy workflows therefore grep the built bundle for the key and FAIL if it is missing.
 const SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined
 const SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js'
 
@@ -95,7 +99,7 @@ const TurnstileWidget = forwardRef<TurnstileHandle, TurnstileWidgetProps>(({ onT
     }
   }, [onToken])
 
-  // No site key minted for this product yet — render nothing (see module comment above).
+  // No site key in this build (local dev, unit tests) — render nothing (see module comment above).
   if (!SITE_KEY) return null
 
   // overflow-x-auto: the Turnstile iframe is a fixed 300px; on narrow phones it would otherwise

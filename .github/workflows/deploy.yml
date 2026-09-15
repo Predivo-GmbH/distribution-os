@@ -402,9 +402,36 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
+          # PUBLIC Cloudflare Turnstile site key for the "Distribution-OS sign-in" widget. It ships
+          # in every visitor's bundle by design. Without this line the widget in
+          # app/src/components/auth/TurnstileWidget.tsx renders NOTHING (it is deliberately a no-op
+          # when the key is unset) and every auth call goes out with no captcha token — which
+          # becomes a TOTAL customer lockout the moment security_captcha_enabled is switched on for
+          # jxjpbmkgmuunpayqgbsx. The step below refuses to let that ship.
+          VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
           # Launched 2026-08-02: disable the pre-launch Early-Access gate in production.
           # The gate component/tests remain; flip to remove this line to re-enable.
           VITE_PASSWORD_GATE_DISABLED: 'true'
+
+      - name: Assert the Turnstile site key actually landed in the bundle (blocking)
+        # A captcha the client cannot answer is a worse outage than the hole it closes.
+        # `vite build` inlines VITE_* at BUILD time, so an empty, missing or misnamed secret
+        # produces a bundle with no widget at all — invisible to every runtime monitor, and a
+        # total lockout the instant half 2 (security_captcha_enabled) is flipped. ReplyFlow hit
+        # exactly this shape: a dead sitekey behind green monitors. The site key is PUBLIC, so the
+        # expected value can be pinned here and compared literally.
+        run: |
+          set -euo pipefail
+          expected='0x4AAAAAAEz4thUGbxYbUP3e'
+          if ! grep -rq "$expected" ./app/dist/; then
+            echo "FAIL - the Turnstile site key ($expected) is NOT in the production bundle."
+            echo "       vite build inlines VITE_* at build time; the repository secret"
+            echo "       VITE_TURNSTILE_SITE_KEY is empty, wrong, or was not passed to the build"
+            echo "       step above. Shipping this would render no captcha widget at all, and"
+            echo "       every sign-in would break the moment CAPTCHA is enabled on the project."
+            exit 1
+          fi
+          echo "ok - Turnstile site key is present in the production bundle ($(grep -rl "$expected" ./app/dist/ | wc -l) file(s))."
 
       - name: Deploy via FTP (zero-downtime)
         run: |

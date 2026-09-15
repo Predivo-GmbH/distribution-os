@@ -204,6 +204,12 @@ export function Login() {
               {loading && (
                 <p className="text-center text-sm text-slate-400">Verifying...</p>
               )}
+              {/* THE RESEND NEEDS ITS OWN CHALLENGE. Turnstile tokens are single-use, and the
+                  widget on the email step above was both consumed and unmounted when we moved to
+                  this step — so without a widget here "Resend code" would go out with no token and
+                  be refused the moment CAPTCHA is enabled on the project. Only one of the two
+                  steps is ever mounted, so sharing codeTurnstileRef/setCodeToken is safe. */}
+              <TurnstileWidget ref={codeTurnstileRef} onToken={setCodeToken} />
               <ResendTimer onResend={async () => {
                 try {
                   await sendLoginOtp(email, codeToken ?? undefined)
