@@ -75,10 +75,42 @@ jobs:
 
       # A FLIP THAT IS NOT PROBED IS A CLAIM. This is the same guard run-guards.mjs discovers: it
       # POSTs a tokenless /otp at the live project and asserts it is refused FOR CAPTCHA REASONS.
-      - name: Prove it against the live project
-        # Also on the schedule: a daily read that never probes would report the SETTING and not the
-        # BEHAVIOUR, and it is the behaviour that went stale for twelve hours on ReplyFlow.
-        if: inputs.mode == 'enable' || github.event_name == 'schedule'
+      #
+      # THE RETRY IS ON THE ENABLE PATH ONLY, AND IT IS NOT COSMETIC. GoTrue does not apply the new
+      # auth config the instant the Management API PATCH returns. Measured on Beize Jass Tour
+      # 2026-09-15: the flip fully succeeded and the probe, run ~0.6s later, still got
+      # `422 otp_disabled` — so the run concluded FAILURE for a switch that was working. LaunchReady
+      # hit the same thing on 2026-09-14 and it was re-run rather than fixed, which is how it
+      # reached this template. A red run meaning "flipped fine, checked too early" is
+      # indistinguishable from "the flip failed", and the next person either rolls back a healthy
+      # switch or learns to ignore a red enable run. Both are worse than waiting a minute.
+      #
+      # The bound is short and the final failure is KEPT: a project that is genuinely still open is
+      # still open 60 seconds later, so this cannot paper over a real failure. And the loop lives
+      # HERE, never inside signin-captcha.prod.test.mjs — that file is also the daily standing
+      # guard, and a retry inside it would start hiding genuine regressions.
+      - name: Prove the switch actually took (GoTrue needs a moment to propagate)
+        if: inputs.mode == 'enable'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          STAGING_VITE_SUPABASE_ANON_KEY: ${{ secrets.STAGING_VITE_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5 6; do
+            if node supabase/functions/_shared/signin-captcha.prod.test.mjs; then exit 0; fi
+            echo "not propagated yet (attempt $i of 6); waiting 10s"
+            sleep 10
+          done
+          echo "FAIL - 60s after the PATCH the project still does not refuse a tokenless request."
+          exit 1
+
+      # THE DAILY STANDING READ — no retry, deliberately. Nothing has just been changed here, so a
+      # refusal that does not come back is a real regression and must be reported as one. A daily
+      # read that never probed would report the SETTING and not the BEHAVIOUR, and it is the
+      # behaviour that went stale for twelve hours on ReplyFlow.
+      - name: Prove it against the live project (daily read)
+        if: github.event_name == 'schedule'
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
