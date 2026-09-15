@@ -492,6 +492,33 @@ jobs:
           fi
           echo "ok - Turnstile site key is present in the production bundle ($(grep -rl "$expected" ./app/dist/ | wc -l) file(s))."
 
+          # AND THE BROWSER MUST BE ALLOWED TO USE IT. A correct site key in the bundle is
+          # necessary and NOT sufficient: app/public/.htaccess ships a Content-Security-Policy
+          # beside it, and on 2026-09-15 that policy refused
+          # https://challenges.cloudflare.com/turnstile/v0/api.js with a script-src-elem violation,
+          # measured in a real browser on the live site. The widget renders nothing when its script
+          # cannot load, which is the same total lockout as a missing key — with every monitor
+          # green. Assert the shipped policy, not the repo's copy of it.
+          policy='./app/dist/.htaccess'
+          if [ ! -f "$policy" ]; then
+            echo "FAIL - $policy is not in the build output, so no Content-Security-Policy ships."
+            echo "       That is not 'no policy to check' — it means this deploy would replace the"
+            echo "       live .htaccess story with nothing. Refusing to ship blind."
+            exit 1
+          fi
+          for directive in script-src frame-src connect-src; do
+            if ! grep -o "$directive[^;\"]*" "$policy" | grep -q 'challenges\.cloudflare\.com'; then
+              echo "FAIL - the shipped Content-Security-Policy does not allow"
+              echo "       https://challenges.cloudflare.com on $directive."
+              echo "       Turnstile needs all three: it loads api.js (script-src), renders its"
+              echo "       challenge in an iframe (frame-src) and posts the solve back (connect-src)."
+              echo "       Without them the widget never renders, no captcha token is ever produced,"
+              echo "       and every customer is locked out the moment CAPTCHA is enabled."
+              exit 1
+            fi
+          done
+          echo "ok - the shipped CSP allows challenges.cloudflare.com on script-src, frame-src and connect-src."
+
       - name: Deploy via FTP (zero-downtime)
         run: |
           # set +e: GitHub runs steps with bash -e, which aborts OUT=$(lftp…) on the
