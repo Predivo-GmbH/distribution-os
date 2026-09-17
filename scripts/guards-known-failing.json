@@ -2,11 +2,5 @@
   "_why": "Suites that were already failing when discovery was switched on, so that switching it on could not redden every deploy at once. It is NOT a skip list: run-guards.mjs still EXECUTES every entry, still prints its output, and FAILS if a listed suite starts passing without its entry being deleted. The list can only shrink.",
   "_rule": "Adding an entry here is a deliberate, reviewed act and needs a reason and a date. An entry may carry \"env\": \"ci\" when the suite passes on a developer machine and fails only on the runner. A suite that has been listed for a long time is debt.",
   "_state": "One entry since 2026-09-14. EMPTY from 2026-09-03, the day discovery was switched on in this repo, until then - the one discovered suite at that time, supabase/functions/_shared/smtp-retry.test.mjs, which CI had never executed, passed on its first run. Nothing needed baselining then, which is still the outcome to aim for.",
-  "entries": [
-    {
-      "file": "supabase/functions/_shared/signin-captcha.prod.test.mjs",
-      "since": "2026-09-14",
-      "reason": "RED ON PURPOSE, AND IT SAYS SO IN ITS OWN HEADER: 'It is RED until half 2 is flipped, and that is correct.' It probes live GoTrue and asserts a tokenless /otp request against production (jxjpbmkgmuunpayqgbsx) is refused FOR CAPTCHA REASONS, which cannot be true until CAPTCHA (security_captcha_enabled) is enabled in that project's Auth settings - and that switch must be flipped AFTER the client half (PR #4) is live in production, never before, or every real sign-in, signup and password-reset breaks, because enabling it is project-wide. Arriving unbaselined would do more than report: gate-security in deploy.yml blocks on run-guards.mjs --live, so an unbaselined red entry here makes impossible the very production deploy that the captcha switch depends on - the exact deadlock ReplyFlow hit when its own copy of this guard arrived unbaselined with PR #19 (see replyflow/scripts/guards-known-failing.json). Today it fails as 'production: tokenless /otp must be refused for captcha (400/captcha); got 422: {\"code\":422,\"error_code\":\"otp_disabled\",\"msg\":\"Signups not allowed for otp\"}' - a refusal, but not the one being asserted. WHAT REMOVES THIS ENTRY: enable Turnstile (provider + secret) in Distribution-OS's Supabase Auth settings for jxjpbmkgmuunpayqgbsx once the client half (PR #4) is live in production; the suite then passes and run-guards FAILS until this entry is deleted, so the list clears itself. See PR #4."
-    }
-  ]
+  "entries": []
 }
