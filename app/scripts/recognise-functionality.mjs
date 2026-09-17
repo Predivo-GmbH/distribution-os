@@ -325,7 +325,12 @@ const found = new Map()
 if (!IS_CLI) {
   // imported: expose the rules, run nothing
 } else if (MODE_DIFF) {
-  const diff = execFileSync('git', ['diff', '--unified=0', MODE_DIFF], {
+  // --relative: git prints diff paths relative to the REPO ROOT by default, but this gate runs
+  // from app/ (working-directory: app) with ROOT = that app/ dir. Without --relative a changed
+  // `app/src/Foo.tsx` arrives as `app/src/Foo.tsx` and join(ROOT, …) makes `app/app/src/Foo.tsx`,
+  // which never exists — so every changed file was silently skipped and the gate saw nothing.
+  // --relative both strips the app/ prefix AND scopes the diff to this product's subtree.
+  const diff = execFileSync('git', ['diff', '--relative', '--unified=0', MODE_DIFF], {
     cwd: ROOT, encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024,
   })
   const addedLines = new Map() // file -> Set(lineNo)
