@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { PageMeta } from '@/components/shared/PageMeta'
@@ -7,6 +7,7 @@ import { APP_NAME } from '@/lib/app-config'
 import { Mail, Lock, ArrowLeft } from 'lucide-react'
 import OtpInput from '@/components/auth/OtpInput'
 import ResendTimer from '@/components/auth/ResendTimer'
+import TurnstileWidget, { type TurnstileHandle } from '@/components/auth/TurnstileWidget'
 
 type Tab = 'password' | 'email-code'
 type OtpStep = 'email' | 'verify'
@@ -20,17 +21,26 @@ export function Login() {
   const [otpStep, setOtpStep] = useState<OtpStep>('email')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  // Cloudflare Turnstile tokens for the two sign-in forms. Managed mode solves invisibly for real
+  // users; each token is single-use, so reset() after every submit to fetch a fresh one. The
+  // token is forwarded to Supabase but ignored until CAPTCHA is enabled in Auth settings, so this
+  // is a no-op today (outage-safe).
+  const [passwordToken, setPasswordToken] = useState<string | null>(null)
+  const [codeToken, setCodeToken] = useState<string | null>(null)
+  const passwordTurnstileRef = useRef<TurnstileHandle>(null)
+  const codeTurnstileRef = useRef<TurnstileHandle>(null)
 
   async function handlePasswordLogin(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      await signIn(email, password)
+      await signIn(email, password, passwordToken ?? undefined)
       navigate('/dashboard')
     } catch {
       setError('Invalid email or password.')
     } finally {
+      passwordTurnstileRef.current?.reset()
       setLoading(false)
     }
   }
@@ -40,11 +50,12 @@ export function Login() {
     setError('')
     setLoading(true)
     try {
-      await sendLoginOtp(email)
+      await sendLoginOtp(email, codeToken ?? undefined)
       setOtpStep('verify')
     } catch {
       setError('No account found with this email.')
     } finally {
+      codeTurnstileRef.current?.reset()
       setLoading(false)
     }
   }
@@ -145,6 +156,7 @@ export function Login() {
                   />
                 </div>
               </div>
+              <TurnstileWidget ref={passwordTurnstileRef} onToken={setPasswordToken} />
               <button
                 type="submit"
                 disabled={loading}
@@ -172,6 +184,7 @@ export function Login() {
                   />
                 </div>
               </div>
+              <TurnstileWidget ref={codeTurnstileRef} onToken={setCodeToken} />
               <button
                 type="submit"
                 disabled={loading}
@@ -191,7 +204,19 @@ export function Login() {
               {loading && (
                 <p className="text-center text-sm text-slate-400">Verifying...</p>
               )}
-              <ResendTimer onResend={async () => { await sendLoginOtp(email) }} />
+              {/* THE RESEND NEEDS ITS OWN CHALLENGE. Turnstile tokens are single-use, and the
+                  widget on the email step above was both consumed and unmounted when we moved to
+                  this step — so without a widget here "Resend code" would go out with no token and
+                  be refused the moment CAPTCHA is enabled on the project. Only one of the two
+                  steps is ever mounted, so sharing codeTurnstileRef/setCodeToken is safe. */}
+              <TurnstileWidget ref={codeTurnstileRef} onToken={setCodeToken} />
+              <ResendTimer onResend={async () => {
+                try {
+                  await sendLoginOtp(email, codeToken ?? undefined)
+                } finally {
+                  codeTurnstileRef.current?.reset()
+                }
+              }} />
               <button
                 type="button"
                 onClick={() => { setOtpStep('email'); setError('') }}

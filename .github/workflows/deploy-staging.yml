@@ -133,8 +133,47 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.STAGING_VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.STAGING_VITE_SUPABASE_ANON_KEY }}
           VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
+          # PUBLIC Cloudflare Turnstile site key — same widget and same key as production (one
+          # Turnstile widget covers both hostnames). Staging builds it too so that a bundle that
+          # would ship without the widget is caught HERE, on the staging path, rather than on the
+          # production path where the same omission is a customer lockout.
+          VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
           VITE_PASSWORD_GATE_DISABLED: 'true'
         run: npm run build
+
+      - name: Assert the Turnstile site key actually landed in the bundle (blocking)
+        # See the identical step in deploy.yml. `vite build` inlines VITE_* at BUILD time, so an
+        # unset secret ships a widget-less bundle that no runtime monitor can see. The site key is
+        # PUBLIC, so the expected value is pinned and compared literally.
+        run: |
+          set -euo pipefail
+          expected='0x4AAAAAAEz4thUGbxYbUP3e'
+          if ! grep -rq "$expected" ./app/dist/; then
+            echo "FAIL - the Turnstile site key ($expected) is NOT in the staging bundle."
+            echo "       vite build inlines VITE_* at build time; the repository secret"
+            echo "       VITE_TURNSTILE_SITE_KEY is empty, wrong, or was not passed to the build"
+            echo "       step above. Shipping this would render no captcha widget at all."
+            exit 1
+          fi
+          echo "ok - Turnstile site key is present in the staging bundle ($(grep -rl "$expected" ./app/dist/ | wc -l) file(s))."
+
+          # AND THE BROWSER MUST BE ALLOWED TO USE IT — see the identical block in deploy.yml.
+          # Checked here BEFORE the staging .htaccess is rewritten below, so this asserts the real
+          # production policy the build emitted, not the basic-auth variant staging serves.
+          policy='./app/dist/.htaccess'
+          if [ ! -f "$policy" ]; then
+            echo "FAIL - $policy is not in the build output, so no Content-Security-Policy ships."
+            exit 1
+          fi
+          for directive in script-src frame-src connect-src; do
+            if ! grep -o "$directive[^;\"]*" "$policy" | grep -q 'challenges\.cloudflare\.com'; then
+              echo "FAIL - the shipped Content-Security-Policy does not allow"
+              echo "       https://challenges.cloudflare.com on $directive. The widget would never"
+              echo "       render, so no captcha token could ever be produced."
+              exit 1
+            fi
+          done
+          echo "ok - the shipped CSP allows challenges.cloudflare.com on script-src, frame-src and connect-src."
 
       - name: Prepare staging .htaccess + robots (basic auth, noindex)
         run: |

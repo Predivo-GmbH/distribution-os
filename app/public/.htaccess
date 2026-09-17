@@ -4,7 +4,20 @@ Header set X-Content-Type-Options "nosniff"
 Header set Referrer-Policy "strict-origin-when-cross-origin"
 Header set Permissions-Policy "camera=(), microphone=(), geolocation=()"
 Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://js.stripe.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://api.linkedin.com https://api.stripe.com"
+# challenges.cloudflare.com IS LOAD-BEARING, NOT A NICE-TO-HAVE. It is on script-src, frame-src
+# and connect-src because the Turnstile widget needs all three: it loads api.js (script-src),
+# renders its challenge in an iframe (frame-src) and posts the solve back to Cloudflare
+# (connect-src). MEASURED IN A REAL BROWSER ON THE LIVE SITE, 2026-09-15: without it Chrome
+# refused the script with a `script-src-elem` violation on https://distributionos.predivo.ch/login.
+# That is worse than it sounds. The widget renders NOTHING when it cannot load, so the site key
+# being correctly inlined in the bundle — which the deploy workflows now assert — is necessary and
+# NOT sufficient. Every sign-in would go out with no captcha token, and the moment
+# security_captcha_enabled is switched on for jxjpbmkgmuunpayqgbsx every customer is locked out of
+# login, signup and password reset, with every monitor still green. This is the ReplyFlow
+# dead-sitekey shape one layer further out: a bundle that is provably correct and a browser that is
+# not allowed to use it. Do not remove this host without first proving, in a browser, that a
+# Turnstile challenge on the live origin still returns a token.
+Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://js.stripe.com https://challenges.cloudflare.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://api.linkedin.com https://api.stripe.com https://challenges.cloudflare.com"
 </IfModule>
 
 # Cache hashed static assets (JS, CSS) for 1 year — filenames change on rebuild
