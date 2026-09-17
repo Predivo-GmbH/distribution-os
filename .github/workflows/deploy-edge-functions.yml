@@ -185,23 +185,59 @@ jobs:
           set -e
           # A deploy that reports success but leaves a function that cannot be reached is the
           # exact failure this fleet keeps hitting. Ask each one for a health ping.
+          #
+          # STAGING CANNOT HOLD EVERY SECRET PRODUCTION HOLDS, AND THAT IS NOT ALWAYS A BUG
+          # (2026-09-15). A function that reads a required secret at MODULE level throws on cold
+          # start and 500s on EVERY request, this health-ping included — on staging that is an
+          # ENVIRONMENT GAP, not a code defect, and the same deploy answers fine on production,
+          # which holds the secret. Before this, the probe could not tell the two apart, so a
+          # healthy deploy went red (stripe-webhook, run 34905661399) — exactly the class of gate
+          # the comment below warns against. .github/staging-cannot-prove.json is the DECLARED,
+          # reviewed, dated list of which function+secret combination that is true for today, and
+          # .github/scripts/prove-function-answers.mjs is the ONLY code that reads it. It enforces
+          # what no entry in that file can override: production is never exempt, a 404 fails
+          # everywhere (that means "not deployed", not "no secret"), and a declared function's 5xx
+          # is REPORTED, not swallowed — see that script's own header for the full rule set and
+          # prove-function-answers.test.mjs for the tests that pin it down.
           FAILED=""
+          NOT_PROVEN=""
           for fn in ${{ inputs.functions }}; do
             URL="https://${{ steps.target.outputs.ref }}.supabase.co/functions/v1/$fn"
             CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$URL" \
               -H "Content-Type: application/json" -d '{"_health":true}')
-            echo "$fn -> HTTP $CODE"
             # The probe deliberately sends a body no function accepts, so the question is only
             # "did something answer". 2xx = healthy; 4xx = reached the function and it rejected the
             # payload, which is a LIVE function doing its job — 401 for auth, 400 for validation.
             # 404 is the exception: that is the function not being there. 5xx and 000 (no answer at
             # all) are dead. The accepted list is wide on purpose: a gate that goes red on a
             # healthy deploy is a gate people learn to scroll past, which is worse than none.
-            case "$CODE" in
-              2??|400|401|403|405|409|422|429) ;;
-              *) echo "::error::$fn did not answer after deploy (HTTP $CODE)."; FAILED="$FAILED $fn" ;;
+            #
+            # Classification (alive / not-proven / fail) is delegated to the node script above,
+            # not re-implemented here in bash, so the exact same logic that is unit-tested in
+            # prove-function-answers.test.mjs is what actually gates the deploy. `set +e` around
+            # the call only: its exit code IS the verdict (0 alive, 1 fail, 2 not-proven, see the
+            # script's EXIT_CODE map), so `set -e` killing the step on a deliberate non-zero would
+            # destroy the one piece of information this loop needs.
+            set +e
+            VERDICT_OUT=$(node .github/scripts/prove-function-answers.mjs \
+              --target "${{ inputs.target }}" --function "$fn" --code "$CODE")
+            VERDICT_RC=$?
+            set -e
+            echo "$VERDICT_OUT"
+            case "$VERDICT_RC" in
+              0) ;;
+              2) NOT_PROVEN="$NOT_PROVEN $fn" ;;
+              *) echo "::error::$VERDICT_OUT"; FAILED="$FAILED $fn" ;;
             esac
           done
+          # NOT PROVEN IS LOUD ON PURPOSE. Green must never quietly mean "never tested" — so every
+          # not-proven function is named here even though none of them fail the step. See
+          # .github/staging-cannot-prove.json for the standing decisions this can never clear (the
+          # AI keys — settled, staging will not hold one) and the one still open (Stripe
+          # test-mode keys for staging).
+          if [ -n "$NOT_PROVEN" ]; then
+            echo "::warning::NOT PROVEN on this environment (declared exemption, not a failure — see .github/staging-cannot-prove.json):$NOT_PROVEN"
+          fi
           # Every function is probed before the step fails, so one bad name cannot hide the state
           # of the ones after it — the trap where a batch half-shipped and nobody re-ran the rest.
           if [ -n "$FAILED" ]; then

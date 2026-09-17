@@ -1,0 +1,41 @@
+{
+  "_why": "The 'Prove the function answers' step in .github/workflows/deploy-edge-functions.yml probes each just-deployed function with an unauthenticated POST and accepts a wide range of codes as alive (see that step's own comment). A function that reads a required secret at MODULE level throws on cold start and 500s on EVERY request, this health-ping included, on any environment that does not hold the secret. Production holds 32 Distribution-OS edge-function secrets; staging holds 14 (measured 2026-09-14 via `gh api /v1/projects/<ref>/secrets` on both project refs, names only — no value was read or printed). stripe-webhook was measured 500ing on staging for exactly this reason in run 34905661399, while production — which holds the secret — answered fine. Before this file, the gate could not tell 'the code is broken' apart from 'this environment was never given the secret', so a healthy deploy went red.",
+  "_rule": "An entry under \"entries\" is a deliberate, reviewed, dated act, same convention as scripts/guards-known-failing.json. Read .github/scripts/prove-function-answers.mjs before editing this file — it is the ONLY code that reads this list, and it enforces three things no entry here can override: production is never exempt; a 404 (function not deployed) fails everywhere; and a declared function that starts answering normally is called out in the step summary as an exemption that may no longer be needed, specifically so this list is reviewed rather than carried forever.",
+  "_verified": "2026-09-15 — by reading every supabase/functions/**/*.ts file for a module-level `if (!x) throw` guarding one of the 18 secret names missing from staging. Only the three Stripe functions below throw at module scope (stripe-webhook/index.ts:6-10, stripe-checkout/index.ts:7-8, stripe-portal/index.ts:6-7). Every AI-key and BYOK-related read (call-ai, save-api-key, _shared/crypto.ts, _shared/byo-provider.ts, _shared/anthropic-model.ts) happens lazily, inside a request handler, behind an Authorization-header check the unauthenticated health-ping never passes — those functions already answer 401 on staging today regardless of whether those secrets exist, so they are not \"entries\" here (an entry that can never actually go NOT_PROVEN would be dead weight, and would make the \"no longer needed\" signal fire on every single run — noise that would drown out the real signal). The policy question behind them is still recorded, under \"standing_decisions\" below, because it is settled and worth writing down even though nothing here mechanically gates on it.",
+  "entries": [
+    {
+      "function": "stripe-webhook",
+      "secrets": ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"],
+      "reason": "supabase/functions/stripe-webhook/index.ts:6-10 reads both at module scope and throws if either is absent ('Missing STRIPE_SECRET_KEY env var' / 'Missing STRIPE_WEBHOOK_SECRET env var'), so the function 500s on cold start for every request. Staging holds neither (measured 2026-09-14).",
+      "since": "2026-09-15"
+    },
+    {
+      "function": "stripe-checkout",
+      "secrets": ["STRIPE_SECRET_KEY"],
+      "reason": "supabase/functions/stripe-checkout/index.ts:7-8 reads it at module scope and throws 'Missing STRIPE_SECRET_KEY env var' if absent — same failure mode as stripe-webhook. Staging holds no STRIPE_SECRET_KEY (measured 2026-09-14).",
+      "since": "2026-09-15"
+    },
+    {
+      "function": "stripe-portal",
+      "secrets": ["STRIPE_SECRET_KEY"],
+      "reason": "supabase/functions/stripe-portal/index.ts:6-7 reads it at module scope and throws 'Missing STRIPE_SECRET_KEY env var' if absent — same failure mode as stripe-webhook. Staging holds no STRIPE_SECRET_KEY (measured 2026-09-14).",
+      "since": "2026-09-15"
+    }
+  ],
+  "standing_decisions": [
+    {
+      "topic": "AI provider keys — the Anthropic API key (see supabase/functions/call-ai/index.ts:9 for its exact env-var name), MOONSHOT_API_KEY, AI_PROVIDER, AI_FALLBACK_PROVIDER, AI_MODEL_SMART, KIMI_MODEL_FAST, KIMI_MODEL_SMART, OPENAI_MODEL_FAST, OPENAI_MODEL_SMART",
+      "decision": "SETTLED — NO. Staging does not get a paid AI key. This is not an open question and should not be re-litigated by a future session trying to turn this probe fully green.",
+      "reason": "Roger's standing rule, 2026-08-29: the Anthropic API key is only for what a CUSTOMER triggers inside a product; everything else uses the subscription and costs nothing per token. Staging serves no customers by definition. A staging Anthropic key was separately measured with non-zero daily cost against a ceiling of zero before this exact case was put to him. The AI call path in call-ai (and any future fleet AI path) is therefore permanently un-provable end-to-end on staging — by policy, not by bug.",
+      "why_this_is_not_an_entry_above": "call-ai requires a bearer Authorization header before it ever reads an AI-provider secret (supabase/functions/call-ai/index.ts:23-26 — the check runs before the fleet key is read further down). The health-ping probe sends no Authorization header, so call-ai already answers 401 on staging today, independent of whether these secrets exist. A 401 proves the function is deployed and reachable. It proves nothing about the AI call path, and — by the decision above — never will on staging. Do not read a green call-ai probe as more than that.",
+      "since": "2026-08-29"
+    },
+    {
+      "topic": "Stripe TEST-MODE keys for staging",
+      "decision": "OPEN — recommended, not actioned. No key was created, copied, or written anywhere by the change that added this file.",
+      "reason": "Unlike the AI key, a Stripe test-mode key costs nothing per use and would let staging actually exercise stripe-checkout / stripe-portal / stripe-webhook end to end, which today it structurally cannot (see \"entries\" above). But minting keys and writing them into a project's function environment is a deliberate act on a payment integration, and this workflow deliberately writes no function environment at all — see the 'NO STEP HERE WRITES FUNCTION ENVIRONMENT VARIABLES' comment in deploy-edge-functions.yml: a step that pushes env from repo secrets is exactly how a rotation goes half-done.",
+      "recommendation": "Provision TEST-MODE STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_STARTER_PRICE_ID, STRIPE_GROWTH_PRICE_ID and STRIPE_SCALE_PRICE_ID directly on the staging Supabase project (jckctrtkstejolddqzlk), the same deliberate, hand-reviewed way the live keys are managed — then delete the three \"entries\" above one at a time as each stops throwing.",
+      "since": "2026-09-15"
+    }
+  ]
+}
