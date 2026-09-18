@@ -20,7 +20,7 @@
  */
 
 import { execFileSync } from 'child_process'
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'fs'
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import assert from 'node:assert/strict'
@@ -67,13 +67,52 @@ function makeRepo({ registered }) {
   return { root, app }
 }
 
-function runCheck(app) {
+function runCheck(app, extraEnv = {}) {
   try {
-    const stdout = execFileSync(process.execPath, [CHECK], { cwd: app, encoding: 'utf-8' })
+    const stdout = execFileSync(process.execPath, [CHECK], {
+      cwd: app, encoding: 'utf-8', env: { ...process.env, ...extraEnv },
+    })
     return { code: 0, out: stdout }
   } catch (e) {
     return { code: e.status ?? 1, out: (e.stdout || '') + (e.stderr || '') }
   }
+}
+
+/**
+ * A repo whose master carries THREE commits since the last deploy:
+ *   A (baseline, registered)  ->  B (adds an UNTESTED new route)  ->  C (docs only)
+ * master == HEAD == C, exactly a production deploy of several commits at once. Returns the
+ * baseline sha A, which a real deploy would resolve as FUNCTIONALITY_GATE_BASE.
+ */
+function makeMultiCommitRepo() {
+  const root = mkdtempSync(join(tmpdir(), 'dosgate-multi-'))
+  const app = join(root, 'app')
+  mkdirSync(join(app, 'src'), { recursive: true })
+  mkdirSync(join(app, 'docs'), { recursive: true })
+  mkdirSync(join(app, 'e2e'), { recursive: true })
+  git(root, 'init', '-q', '-b', 'master')
+  git(root, 'config', 'user.email', 't@t')
+  git(root, 'config', 'user.name', 't')
+  git(root, 'config', 'core.autocrlf', 'false')
+  // A — baseline: one registered+tested route
+  writeFileSync(join(app, 'src', 'App.tsx'), 'export default function App(){return null}\n')
+  writeFileSync(join(app, 'docs', 'FEATURES.md'),
+    '# Features\n\n### F-001: See the home screen\n- **Test Files:** E2E: `e2e/home.spec.ts`\n')
+  writeFileSync(join(app, 'e2e', 'home.spec.ts'), 'test\n')
+  git(root, 'add', '-A'); git(root, 'commit', '-qm', 'A baseline')
+  const base = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf-8' }).trim()
+  // B — a brand-new route with NO row and NO test (the thing the gate must catch)
+  writeFileSync(join(app, 'src', 'App.tsx'),
+    'export default function App(){return <Route path="/reports" element={<R/>}/> }\n')
+  git(root, 'add', '-A'); git(root, 'commit', '-qm', 'B add reports route (untested)')
+  // C — docs only, on top: nothing new for the gate to see in THIS commit
+  writeFileSync(join(app, 'docs', 'FEATURES.md'),
+    '# Features\n\n### F-001: See the home screen\n- **Test Files:** E2E: `e2e/home.spec.ts`\n\n<!-- changelog note -->\n')
+  git(root, 'add', '-A'); git(root, 'commit', '-qm', 'C docs note')
+  const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf-8' }).trim()
+  const master = execFileSync('git', ['rev-parse', 'master'], { cwd: root, encoding: 'utf-8' }).trim()
+  assert.equal(head, master, 'fixture precondition: master must equal HEAD')
+  return { root, app, base }
 }
 
 console.log('functionality-gate-diffs.test.mjs')
@@ -138,5 +177,41 @@ console.log('functionality-gate-diffs.test.mjs')
   ok('E2E — gate passes when the new functionality has a row and a real test file')
 }
 
-console.log(`\n${passed}/5 checks passed`)
-assert.equal(passed, 5)
+// ── ROW signal-Distribution-OS:c62755a — the gate must span ALL commits since the last deploy ─
+// The tip-only fallback (HEAD~1...HEAD) misses any untested functionality that arrived in an
+// earlier commit of a multi-commit promotion. Prove the gap AND prove the baseline closes it.
+{
+  const { root, app, base } = makeMultiCommitRepo()
+  // The bug, made visible: with NO baseline the gate diffs HEAD~1...HEAD = the docs-only commit C,
+  // sees nothing, and PASSES an untested route that shipped one commit earlier.
+  const blind = runCheck(app, { FUNCTIONALITY_GATE_BASE: '' })
+  assert.equal(blind.code, 0,
+    `precondition: tip-only (HEAD~1...HEAD) must MISS the earlier untested route, exit ${blind.code}\n${blind.out}`)
+  // The fix: FUNCTIONALITY_GATE_BASE = the last-deployed sha -> `base...HEAD` spans B and C.
+  const seen = runCheck(app, { FUNCTIONALITY_GATE_BASE: base })
+  assert.equal(seen.code, 1,
+    `gate with the production baseline must CATCH the untested route from an earlier commit, exit ${seen.code}\n${seen.out}`)
+  assert.match(seen.out, /Open the page at \/reports/, 'refusal must name the route that shipped unchecked')
+  rmSync(root, { recursive: true, force: true })
+  ok('ROW c62755a — FUNCTIONALITY_GATE_BASE makes the gate span every commit since the last deploy, not just the tip')
+}
+
+// ── ROW signal-Distribution-OS:c62755a — deploy.yml actually WIRES the baseline (the whole gap) ─
+// defaultRange already honours FUNCTIONALITY_GATE_BASE; the defect was that the production deploy
+// workflow never set it and checked out shallow. Assert the workflow now does both, in order.
+{
+  const deployYml = join(HERE, '..', '..', '.github', 'workflows', 'deploy.yml')
+  const yml = readFileSync(deployYml, 'utf-8')
+  // The deploy job runs the gate; find that step and require full history + a baseline write BEFORE it.
+  const gateAt = yml.indexOf('check-new-functionality-registered.mjs')
+  assert.ok(gateAt > 0, 'deploy.yml must run the functionality gate')
+  const before = yml.slice(0, gateAt)
+  assert.match(before, /fetch-depth:\s*0/,
+    'the deploy checkout must fetch full history (fetch-depth: 0) so ancestor resolution works')
+  assert.match(before, /FUNCTIONALITY_GATE_BASE=.*>>\s*"?\$GITHUB_ENV"?/,
+    'deploy.yml must write FUNCTIONALITY_GATE_BASE to $GITHUB_ENV before the gate runs')
+  ok('ROW c62755a — deploy.yml checks out full history and sets FUNCTIONALITY_GATE_BASE before the gate')
+}
+
+console.log(`\n${passed}/7 checks passed`)
+assert.equal(passed, 7)
