@@ -401,7 +401,13 @@ jobs:
           fi
           echo "FTP auth OK - $(printf '%s\n' "$OUT" | grep -c '') entries at the account root."
 
+      # fetch-depth: 0 (full history), NOT the default depth-1 shallow clone. The functionality
+      # gate below resolves a baseline commit (the last deployed production sha) and asks git
+      # whether it is an ancestor of HEAD - both impossible on a one-commit checkout, where even
+      # HEAD~1 does not resolve. Without this the gate silently degrades to checking nothing.
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v5
         with:
@@ -453,6 +459,46 @@ jobs:
       # and fails if discovery matches nothing, because absence is not success.
       - name: Guard suites (discovered, not listed)
         run: node scripts/run-guards.mjs
+
+      # Resolve the baseline the functionality gate diffs against, so it checks EVERY commit
+      # since the last successful production deploy - not just the tip.
+      #
+      # WHY (row signal-Distribution-OS:c62755a:functionality-gate-checks). The gate below calls
+      # defaultRange(): with no baseline it skips origin/master (which IS HEAD on a master deploy -
+      # an empty range) and falls back to HEAD~1...HEAD, the single last commit. A deploy that
+      # promotes five commits at once then checked one and shipped the other four unchecked.
+      # defaultRange honours FUNCTIONALITY_GATE_BASE when set, so set it to the sha the last green
+      # production deploy shipped: `<that-sha>...HEAD` spans the whole promotion.
+      #
+      # curl + grep only (gh/jq are not on this runner's PATH - same as the staging gate above).
+      # Fail-OPEN by design: an unreadable API, or the first-ever deploy, leaves the var unset and
+      # the gate falls back to HEAD~1...HEAD. This step must never block a deploy on a metadata
+      # read; the gate itself is the block, this only widens what the block can see.
+      - name: Resolve the functionality-gate baseline (last deployed production sha)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          SHA="${{ github.sha }}"
+          API="https://api.github.com/repos/$GH_REPO"
+          api() { curl -fsS -m 30 -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$1" | tr -d '\n' || true; }
+          # Successful production-deploy runs, newest first: each head_sha is a commit this
+          # workflow has shipped to production.
+          CANDS=$(api "$API/actions/workflows/deploy.yml/runs?status=success&per_page=30" \
+                    | grep -o '"head_sha": *"[0-9a-f]\{40\}"' | grep -o '[0-9a-f]\{40\}' | awk '!seen[$0]++' | head -20 || true)
+          BASE=""
+          for C in $CANDS; do
+            [ "$C" = "$SHA" ] && continue                                    # not HEAD itself (empty range)
+            git cat-file -e "$C^{commit}" 2>/dev/null || continue            # must exist in this checkout
+            git merge-base --is-ancestor "$C" HEAD 2>/dev/null || continue   # must be strictly behind HEAD
+            BASE="$C"; break                                                 # newest such sha = the last deploy
+          done
+          if [ -n "$BASE" ]; then
+            echo "FUNCTIONALITY_GATE_BASE=$BASE" >> "$GITHUB_ENV"
+            echo "Functionality-gate baseline: $BASE...HEAD (every commit since the last production deploy)."
+          else
+            echo "No prior successful production deploy resolved here - gate falls back to HEAD~1...HEAD (first deploy, or unreadable history)."
+          fi
 
       # Nothing new ships untested (installed 2026-09-17). BLOCKING - never continue-on-error.
       # What counts as a functionality: docs/WHAT-COUNTS-AS-A-FUNCTIONALITY.md
