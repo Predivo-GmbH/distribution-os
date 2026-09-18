@@ -31,13 +31,45 @@ const EDGE_FUNCTIONS = [
   'stripe-checkout', 'stripe-portal', 'stripe-webhook',
 ]
 
+// The sign-in captcha went live on the production project on 2026-09-17 between the 10:07Z
+// green run and the 11:49Z red one (the "Auth CAPTCHA switch" workflow promoted it), and from
+// then on GoTrue refuses a password grant that carries no captcha token:
+//   400 captcha_failed "captcha protection: request disallowed (no captcha_token found)"
+// Every push to master was red on 42 of these until 2026-09-18. That is the product working
+// as built, not the test user breaking: a headless test can never solve a Turnstile box.
+// So the session is minted the way an admin can. The service role asks GoTrue for a
+// magic-link token hash (admin routes carry no captcha), and the anon key exchanges that
+// hash on /verify, which is outside the captcha gate too. The production monitor's own
+// probes have signed in this way since the rollout. Without the service-role key (a local
+// run) it falls back to the password grant, which only works where the captcha is off.
 async function getAuthToken(): Promise<string> {
+  if (SERVICE_ROLE_KEY) {
+    const link = await fetch(`${SUPABASE_URL}/auth/v1/admin/generate_link`, {
+      method: 'POST',
+      headers: {
+        apikey: SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ type: 'magiclink', email: E2E_EMAIL }),
+    })
+    if (!link.ok) throw new Error(`Auth failed (admin generate_link): ${link.status} ${await link.text()}`)
+    const { hashed_token } = await link.json()
+    if (!hashed_token) throw new Error('Auth failed (admin generate_link): no hashed_token in the answer')
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/verify`, {
+      method: 'POST',
+      headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'magiclink', token_hash: hashed_token }),
+    })
+    if (!res.ok) throw new Error(`Auth failed (verify token_hash): ${res.status} ${await res.text()}`)
+    return (await res.json()).access_token
+  }
   const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
     method: 'POST',
     headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: E2E_EMAIL, password: E2E_PASSWORD }),
   })
-  if (!res.ok) throw new Error(`Auth failed: ${res.status} ${await res.text()}`)
+  if (!res.ok) throw new Error(`Auth failed (password grant, no service-role key set): ${res.status} ${await res.text()}`)
   return (await res.json()).access_token
 }
 
