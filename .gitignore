@@ -7,6 +7,12 @@ docs/references/fey-reference/
 docs/references/kraken-reference/
 docs/cred.txt
 docs/Credentials.txt
+# ...and every BACKUP of it. `docs/Credentials.txt` alone ignores exactly one name, so a copy made
+# before editing - docs/Credentials.txt.bak-2026-09-05-before-refresh sat untracked here for 14 days,
+# holding 55 credential findings including a live Stripe secret key - is a normal untracked file that
+# `git add -A` would stage. The file being secret is the point; the exact suffix somebody picks is not.
+docs/Credentials.txt.*
+docs/cred.txt.*
 
 # provider head-to-head eval (2026-07-22) - holds live API keys
 distributionos-eval/.env.eval
