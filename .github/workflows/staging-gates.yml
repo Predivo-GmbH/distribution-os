@@ -114,5 +114,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: v11-gates-report
-          path: app/playwright-report/
+          path: |
+            app/playwright-report/
+            !app/playwright-report/data/**
           retention-days: 7

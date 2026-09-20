@@ -146,4 +146,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: critical-path-results
-          path: app/playwright-report/
+          path: |
+            app/playwright-report/
+            !app/playwright-report/data/**
