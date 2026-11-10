@@ -33,7 +33,7 @@ jobs:
   # run and a browser flake must not be confusable with a guard regression, and these suites need
   # no npm ci, no browsers and no secrets - so this answers in seconds and fails fast.
   guards:
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-24.04' }}
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5
@@ -47,7 +47,7 @@ jobs:
         run: node scripts/run-guards.mjs
 
   critical-path:
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-24.04' }}
     timeout-minutes: 10
     defaults:
       run:

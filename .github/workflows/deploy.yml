@@ -64,7 +64,7 @@ jobs:
   # Audit floor now at `high` (fleet-hardening Wave 3).
   gate-security:
     if: github.event.inputs.confirm == 'deploy'
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-24.04' }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
@@ -182,7 +182,7 @@ jobs:
   # ===========================================================================
   gate-staging:
     if: github.event.inputs.confirm == 'deploy'
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-24.04' }}
     timeout-minutes: 10
     permissions:
       # Listing another workflow's runs needs actions:read. Stated rather than
@@ -296,7 +296,7 @@ jobs:
   deploy:
     if: github.event.inputs.confirm == 'deploy'
     needs: [gate-security, gate-staging]
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-24.04' }}
     timeout-minutes: 20
     permissions:
       actions: read

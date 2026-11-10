@@ -38,7 +38,7 @@ env:
 
 jobs:
   deploy-staging:
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-24.04' }}
     timeout-minutes: 20
     steps:
       - name: Verify FTP credentials (fail fast on a stale secret)
@@ -353,7 +353,7 @@ jobs:
 
   e2e-staging:
     needs: deploy-staging
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-24.04' }}
     timeout-minutes: 25
     env:
       # Ubuntu 26.04 (what our self-hosted runners came up on, 2026-08-25) has no Playwright

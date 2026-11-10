@@ -32,7 +32,7 @@ concurrency:
 
 jobs:
   gates:
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-24.04' }}
     timeout-minutes: 25
     defaults:
       run:
