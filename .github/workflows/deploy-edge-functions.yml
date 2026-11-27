@@ -176,7 +176,10 @@ jobs:
             # "error getting credentials ... A specified logon session does not exist" and no
             # function could ship from CI (2026-08-25). Deploying through the API keeps a Docker
             # daemon from being a hard CI dependency.
-            supabase functions deploy "$fn" --use-api --project-ref ${{ steps.target.outputs.ref }}
+            # --yes: setup-cli installs `latest`, and the CLI now asks before it deploys. With no terminal to answer it
+            # stops with "Confirmation required ... Re-run with --yes" and changes nothing (run 46057382528, 27.11.2026:
+            # the stripe-webhook fix could not reach staging). The function list above is already named and checked.
+            supabase functions deploy "$fn" --use-api --yes --project-ref ${{ steps.target.outputs.ref }}
             echo "::endgroup::"
           done
 
